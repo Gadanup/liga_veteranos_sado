@@ -4,7 +4,7 @@ import Link from 'next/link'
 const Nav = () => {
   return (
     <div>
-      <nav className="bg-nav p-4">
+      <nav className="bg-nav p-4 mb-">
         <ul className="flex justify-center space-x-4 text-secondary">
           <li>
             <Link className="font-bold hover:text-accent transition duration-300" href="/">CLASSIFICAÇÃO</Link>
