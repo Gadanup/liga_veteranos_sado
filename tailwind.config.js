@@ -8,8 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        nav: "#4C3780",
+        navhover: "#08ecdc",
+        background: "#F3F2F5",
+        primary: "#6B4BA1",
+        secondary: "#FFFFFF",
+        accent: "#54A3D5",
+        btn: "#865DC1",
+        btn_hover: "#A584E0",
+        text: "#333333",
       },
     },
   },
