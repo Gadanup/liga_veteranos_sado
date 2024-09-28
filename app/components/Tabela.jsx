@@ -19,8 +19,8 @@ const Tabela = () => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="mt-16">
+    <div className=" max-w-6xl">
+      <div className="">
         <div className="flex justify-between items-center">
           <h2 className="text-primary">TABELA</h2>
           <div className="text-right">
