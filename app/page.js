@@ -1,6 +1,6 @@
-import Tabela from "./components/Tabela";
+import Classification from "./components/Classification";
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
-  return <Tabela />;
+  return <Classification />;
 }

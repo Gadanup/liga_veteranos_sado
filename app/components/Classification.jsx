@@ -2,20 +2,35 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 
-const Tabela = () => {
-  const [teams, setTeams] = useState([]);
+const Classification = () => {
+  const [classification, setClassification] = useState([]);
 
-  const readTeams = async () => {
-    const { data: teamsData, error } = await supabase.from("Equipas").select("*");
+  const readClassification = async () => {
+    const { data: classificationData, error } = await supabase
+      .from("league_standings")
+      .select(`
+        team_id, 
+        teams!league_standings_team_id_fkey (name), 
+        matches_played,
+        wins,
+        draws,
+        losses,
+        goals_for,
+        goals_against,
+        goal_difference,
+        points
+      `);
+  
     if (error) {
       console.error("Error fetching teams:", error);
     } else {
-      setTeams(teamsData);
+      setClassification(classificationData);
     }
   };
+  
 
   useEffect(() => {
-    readTeams();
+    readClassification();
   }, []);
 
   return (
@@ -53,26 +68,28 @@ const Tabela = () => {
             </tr>
           </thead>
           <tbody>
-            {teams.map((team, index) => (
-              <tr key={team.id}>
-                <td className="border-b py-4 pl-4 text-left">{index+1}</td>
-                <td className="border-b py-4 text-left">{team.nome_equipa}</td>
-                <td className="border-b p-4 text-center">4</td>
-                <td className="border-b p-4 text-center">4</td>
-                <td className="border-b p-4 text-center">0</td>
-                <td className="border-b p-4 text-center">0</td>
-                <td className="border-b p-4 text-center">16:2</td>
-                <td className="border-b p-4 text-center">14</td>
+            {classification.map((team, index) => (
+              <tr key={team.team_id}>
+                <td className="border-b py-4 pl-4 text-left">{index + 1}</td>
+                <td className="border-b py-4 text-left">{team.teams.name}</td>  {/* Display team name */}
+                <td className="border-b p-4 text-center">{team.matches_played}</td>
+                <td className="border-b p-4 text-center">{team.wins}</td>
+                <td className="border-b p-4 text-center">{team.draws}</td>
+                <td className="border-b p-4 text-center">{team.losses}</td>
+                <td className="border-b p-4 text-center">
+                  {team.goals_for}:{team.goals_against}
+                </td>
+                <td className="border-b p-4 text-center">{team.goal_difference}</td>
                 <td className="border-b p-4 text-center text-primary font-bold">
-                  12
+                  {team.points}
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody>  
         </table>
       </div>
     </div>
   );
 };
 
-export default Tabela;
+export default Classification;
