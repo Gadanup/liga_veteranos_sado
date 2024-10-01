@@ -10,24 +10,23 @@ const Classification = () => {
       .from("league_standings")
       .select(`
         team_id, 
-        teams!league_standings_team_id_fkey (short_name),
+        teams!league_standings_team_id_fkey (short_name, logo_url),
         matches_played,
         wins,
         draws,
         losses,
         goals_for,
         goals_against,
-        goal_difference,
         points
       `);
-  
+
     if (error) {
       console.error("Error fetching teams:", error);
     } else {
       setClassification(classificationData);
     }
   };
-  
+
 
   useEffect(() => {
     readClassification();
@@ -37,16 +36,16 @@ const Classification = () => {
     <div className=" max-w-6xl">
       <div className="">
         <div className="flex justify-between items-center">
-          <h2 className="text-primary">TABELA</h2>
+          <h2 className="text-primary">Classificação</h2>
           <div className="text-right">
-            <label className="font-bold mr-2 text-primary">TEMPORADA: </label>{" "}
+            <label className="font-bold mr-2 text-primary">Temporada: </label>{" "}
             <select
               name="season"
               id="season"
               className="border rounded px-2 py-1"
             >
-              <option>23/24</option>
-              <option>22/23</option>
+              <option>2023/2024</option>
+              <option>2022/2023</option>
             </select>
           </div>
         </div>
@@ -58,7 +57,7 @@ const Classification = () => {
             <tr>
               <th className="border-b py-4 pl-4 text-left">POS</th>
               <th className="border-b py-4 cursor-pointer text-left">EQUIPA</th>
-              <th className="border-b p-4 cursor-pointer text-center">PJ</th>
+              <th className="border-b p-4 cursor-pointer text-center">J</th>
               <th className="border-b p-4 cursor-pointer">V</th>
               <th className="border-b p-4 cursor-pointer">E</th>
               <th className="border-b p-4 cursor-pointer">D</th>
@@ -71,7 +70,9 @@ const Classification = () => {
             {classification.map((team, index) => (
               <tr className="odd:bg-transparent even:bg-gray-200" key={team.team_id}>
                 <td className="border-b py-4 pl-4 text-left">{index + 1}</td>
-                <td className="border-b py-4 text-left">{team.teams.short_name}</td>  {/* Display team name */}
+                <td className="border-b py-4 text-left">
+                  <img src={team.teams.logo_url} alt={`${team.teams.short_name} logo`} className="w-10 h-10 inline-block mr-2" />
+                  {team.teams.short_name}</td>
                 <td className="border-b p-4 text-center">{team.matches_played}</td>
                 <td className="border-b p-4 text-center">{team.wins}</td>
                 <td className="border-b p-4 text-center">{team.draws}</td>
@@ -79,13 +80,16 @@ const Classification = () => {
                 <td className="border-b p-4 text-center">
                   {team.goals_for}:{team.goals_against}
                 </td>
-                <td className="border-b p-4 text-center">{team.goal_difference}</td>
+                <td className={`border-b p-4 text-center font-bold ${team.goals_for - team.goals_against > 0 ? "text-green-500" :
+                  team.goals_for - team.goals_against < 0 ? "text-red-500" :
+                    "text-gray-500"
+                  }`}>{team.goals_for - team.goals_against}</td>
                 <td className="border-b p-4 text-center text-primary font-bold">
                   {team.points}
                 </td>
               </tr>
             ))}
-          </tbody>  
+          </tbody>
         </table>
       </div>
     </div>
