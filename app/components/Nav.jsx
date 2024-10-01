@@ -12,9 +12,9 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
-import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
-import LeaderboardRoundedIcon from '@mui/icons-material/LeaderboardRounded';
-import CollectionsRoundedIcon from '@mui/icons-material/CollectionsRounded';
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
+import CollectionsRoundedIcon from "@mui/icons-material/CollectionsRounded";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
@@ -23,11 +23,11 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import SportsSoccerRoundedIcon from "@mui/icons-material/SportsSoccerRounded";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
-import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
+import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import Button from "@mui/material/Button";
-import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
-import ScoreboardRoundedIcon from '@mui/icons-material/ScoreboardRounded';
-import SportsRoundedIcon from '@mui/icons-material/SportsRounded';
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import ScoreboardRoundedIcon from "@mui/icons-material/ScoreboardRounded";
+import SportsRoundedIcon from "@mui/icons-material/SportsRounded";
 
 const drawerWidth = 240;
 
@@ -115,14 +115,28 @@ export default function Nav() {
           >
             {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            className="flex-grow text-center text-secondary"
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexGrow: 1,
+              justifyContent: "center",
+            }}
           >
-            Liga Veteranos do Sado
-          </Typography>
+            <img
+              src="/logo/logo.png"
+              alt="Logo"
+              style={{ marginRight: "10px", height: "40px" }}
+            />
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              className="text-secondary"
+            >
+              Liga Veteranos do Sado
+            </Typography>
+          </div>
           <Button
             color="inherit"
             component={Link}
@@ -145,7 +159,10 @@ export default function Nav() {
         </DrawerHeader>
         <Divider />
         {open && (
-          <Typography variant="h6" sx={{ padding: theme.spacing(1), color: "white" }}>
+          <Typography
+            variant="h6"
+            sx={{ padding: theme.spacing(1), color: "white" }}
+          >
             Liga
           </Typography>
         )}
@@ -173,7 +190,16 @@ export default function Nav() {
                   <SportsSoccerRoundedIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Liga</Typography>}
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: open ? "inherit" : "0.75rem",
+                        textAlign: open ? "left" : "center",
+                      }}
+                    >
+                      Liga
+                    </Typography>
+                  }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
@@ -203,7 +229,16 @@ export default function Nav() {
                     <CalendarMonthRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Calendário</Typography>}
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: open ? "inherit" : "0.75rem",
+                          textAlign: open ? "left" : "center",
+                        }}
+                      >
+                        Calendário
+                      </Typography>
+                    }
                     sx={{ opacity: open ? 1 : 1, color: "white" }}
                   />
                 </ListItemButton>
@@ -230,7 +265,16 @@ export default function Nav() {
                     <LeaderboardRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Melhores marcadores</Typography>}
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: open ? "inherit" : "0.75rem",
+                          textAlign: open ? "left" : "center",
+                        }}
+                      >
+                        Melhores marcadores
+                      </Typography>
+                    }
                     sx={{ opacity: open ? 1 : 1, color: "white" }}
                   />
                 </ListItemButton>
@@ -257,7 +301,16 @@ export default function Nav() {
                     <SportsRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Disciplina</Typography>}
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: open ? "inherit" : "0.75rem",
+                          textAlign: open ? "left" : "center",
+                        }}
+                      >
+                        Disciplina
+                      </Typography>
+                    }
                     sx={{ opacity: open ? 1 : 1, color: "white" }}
                   />
                 </ListItemButton>
@@ -267,7 +320,10 @@ export default function Nav() {
         </List>
         <Divider />
         {open && (
-          <Typography variant="h6" sx={{ padding: theme.spacing(1), color: "white" }}>
+          <Typography
+            variant="h6"
+            sx={{ padding: theme.spacing(1), color: "white" }}
+          >
             Taça
           </Typography>
         )}
@@ -295,7 +351,16 @@ export default function Nav() {
                   <EmojiEventsRoundedIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Taça</Typography>}
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: open ? "inherit" : "0.75rem",
+                        textAlign: open ? "left" : "center",
+                      }}
+                    >
+                      Taça
+                    </Typography>
+                  }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
@@ -322,10 +387,19 @@ export default function Nav() {
                       color: "white",
                     }}
                   >
-                    <CalendarMonthRoundedIcon/>
+                    <CalendarMonthRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Calendário</Typography>}
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: open ? "inherit" : "0.75rem",
+                          textAlign: open ? "left" : "center",
+                        }}
+                      >
+                        Calendário
+                      </Typography>
+                    }
                     sx={{ opacity: open ? 1 : 1, color: "white" }}
                   />
                 </ListItemButton>
@@ -352,7 +426,16 @@ export default function Nav() {
                     <LeaderboardRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Melhores marcadores</Typography>}
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: open ? "inherit" : "0.75rem",
+                          textAlign: open ? "left" : "center",
+                        }}
+                      >
+                        Melhores marcadores
+                      </Typography>
+                    }
                     sx={{ opacity: open ? 1 : 1, color: "white" }}
                   />
                 </ListItemButton>
@@ -362,7 +445,10 @@ export default function Nav() {
         </List>
         <Divider />
         {open && (
-          <Typography variant="h6" sx={{ padding: theme.spacing(1), color: "white" }}>
+          <Typography
+            variant="h6"
+            sx={{ padding: theme.spacing(1), color: "white" }}
+          >
             Informações
           </Typography>
         )}
@@ -387,10 +473,19 @@ export default function Nav() {
                     color: "white",
                   }}
                 >
-                  <InfoRoundedIcon/>
+                  <InfoRoundedIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Info</Typography>}
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: open ? "inherit" : "0.75rem",
+                        textAlign: open ? "left" : "center",
+                      }}
+                    >
+                      Info
+                    </Typography>
+                  }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
@@ -399,7 +494,10 @@ export default function Nav() {
         </List>
         <Divider />
         {open && (
-          <Typography variant="h6" sx={{ padding: theme.spacing(1), color: "white" }}>
+          <Typography
+            variant="h6"
+            sx={{ padding: theme.spacing(1), color: "white" }}
+          >
             Galeria
           </Typography>
         )}
@@ -424,10 +522,19 @@ export default function Nav() {
                     color: "white",
                   }}
                 >
-                  <CollectionsRoundedIcon/>
+                  <CollectionsRoundedIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Galeria</Typography>}
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: open ? "inherit" : "0.75rem",
+                        textAlign: open ? "left" : "center",
+                      }}
+                    >
+                      Galeria
+                    </Typography>
+                  }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
