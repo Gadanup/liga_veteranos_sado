@@ -23,8 +23,11 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import SportsSoccerRoundedIcon from "@mui/icons-material/SportsSoccerRounded";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import Button from "@mui/material/Button";
+import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
+import ScoreboardRoundedIcon from '@mui/icons-material/ScoreboardRounded';
+import SportsRoundedIcon from '@mui/icons-material/SportsRounded';
 
 const drawerWidth = 240;
 
@@ -93,6 +96,11 @@ export default function Nav() {
     setOpen(!open);
   };
 
+  const shouldDisplayItem = (label) => {
+    if (open) return true;
+    return ["Classificação", "Taça", "Galeria", "Sobre"].includes(label);
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -142,114 +150,120 @@ export default function Nav() {
           </Typography>
         )}
         <List>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
+          {shouldDisplayItem("Classificação") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/"
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
                 }}
               >
-                <SportsSoccerRoundedIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Liga</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Calendario"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
-                }}
-              >
-                <CalendarMonthRoundedIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Calendário</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Estatisticas"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
-                }}
-              >
-                <LeaderboardRoundedIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Estatísticas</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Disciplina"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
-                }}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Disciplina</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: "white",
+                  }}
+                >
+                  <SportsSoccerRoundedIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Classificação</Typography>}
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {open && (
+            <>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  component={Link}
+                  href="/Calendario"
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    flexDirection: open ? "row" : "column",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <CalendarMonthRoundedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Calendário</Typography>}
+                    sx={{ opacity: open ? 1 : 1, color: "white" }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  component={Link}
+                  href="/marcadores"
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    flexDirection: open ? "row" : "column",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <LeaderboardRoundedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Melhores marcadores</Typography>}
+                    sx={{ opacity: open ? 1 : 1, color: "white" }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  component={Link}
+                  href="/Disciplina"
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    flexDirection: open ? "row" : "column",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <SportsRoundedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Disciplina</Typography>}
+                    sx={{ opacity: open ? 1 : 1, color: "white" }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            </>
+          )}
         </List>
         <Divider />
         {open && (
@@ -258,122 +272,159 @@ export default function Nav() {
           </Typography>
         )}
         <List>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Taca"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
+          {shouldDisplayItem("Taça") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/Taca"
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
                 }}
               >
-                <SportsSoccerRoundedIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Taça</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Calendario_Taca"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
-                }}
-              >
-                <CalendarMonthRoundedIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Calendário</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Estatisticas_Taca"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
-                }}
-              >
-                <LeaderboardRoundedIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Estatísticas</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: "white",
+                  }}
+                >
+                  <EmojiEventsRoundedIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Sorteio</Typography>}
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {open && (
+            <>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  component={Link}
+                  href="/Calendario_Taca"
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    flexDirection: open ? "row" : "column",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <CalendarMonthRoundedIcon/>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Calendário</Typography>}
+                    sx={{ opacity: open ? 1 : 1, color: "white" }}
+                  />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  component={Link}
+                  href="/marcadores_Taca"
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    flexDirection: open ? "row" : "column",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                      color: "white",
+                    }}
+                  >
+                    <LeaderboardRoundedIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Melhores marcadores</Typography>}
+                    sx={{ opacity: open ? 1 : 1, color: "white" }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            </>
+          )}
         </List>
         <Divider />
         {open && (
           <Typography variant="h6" sx={{ padding: theme.spacing(1), color: "white" }}>
-            Galeria
+            Informações
           </Typography>
         )}
         <List>
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              component={Link}
-              href="/Galeria"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                flexDirection: open ? "row" : "column",
-              }}
-            >
-              <ListItemIcon
+          {shouldDisplayItem("Galeria") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/Galeria"
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: "white",
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
                 }}
               >
-                <CollectionsRoundedIcon/>
-              </ListItemIcon>
-              <ListItemText
-                primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Galeria</Typography>}
-                sx={{ opacity: open ? 1 : 1, color: "white" }}
-              />
-            </ListItemButton>
-          </ListItem>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: "white",
+                  }}
+                >
+                  <CollectionsRoundedIcon/>
+                </ListItemIcon>
+                <ListItemText
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Galeria</Typography>}
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
+          {shouldDisplayItem("Sobre") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/Sobre"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: "white",
+                  }}
+                >
+                  <InfoRoundedIcon/>
+                </ListItemIcon>
+                <ListItemText
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Sobre</Typography>}
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
       </Drawer>
     </Box>
