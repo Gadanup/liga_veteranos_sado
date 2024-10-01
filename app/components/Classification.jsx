@@ -10,7 +10,7 @@ const Classification = () => {
       .from("league_standings")
       .select(`
         team_id, 
-        teams!league_standings_team_id_fkey (name), 
+        teams!league_standings_team_id_fkey (short_name),
         matches_played,
         wins,
         draws,
@@ -69,9 +69,9 @@ const Classification = () => {
           </thead>
           <tbody>
             {classification.map((team, index) => (
-              <tr key={team.team_id}>
+              <tr className="odd:bg-transparent even:bg-gray-200" key={team.team_id}>
                 <td className="border-b py-4 pl-4 text-left">{index + 1}</td>
-                <td className="border-b py-4 text-left">{team.teams.name}</td>  {/* Display team name */}
+                <td className="border-b py-4 text-left">{team.teams.short_name}</td>  {/* Display team name */}
                 <td className="border-b p-4 text-center">{team.matches_played}</td>
                 <td className="border-b p-4 text-center">{team.wins}</td>
                 <td className="border-b p-4 text-center">{team.draws}</td>

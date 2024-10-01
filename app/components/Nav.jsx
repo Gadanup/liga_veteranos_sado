@@ -173,7 +173,7 @@ export default function Nav() {
                   <SportsSoccerRoundedIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Classificação</Typography>}
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Liga</Typography>}
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
@@ -295,7 +295,7 @@ export default function Nav() {
                   <EmojiEventsRoundedIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Sorteio</Typography>}
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Taça</Typography>}
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
@@ -367,6 +367,43 @@ export default function Nav() {
           </Typography>
         )}
         <List>
+          {shouldDisplayItem("Sobre") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/Sobre"
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: "white",
+                  }}
+                >
+                  <InfoRoundedIcon/>
+                </ListItemIcon>
+                <ListItemText
+                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Info</Typography>}
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
+        </List>
+        <Divider />
+        {open && (
+          <Typography variant="h6" sx={{ padding: theme.spacing(1), color: "white" }}>
+            Galeria
+          </Typography>
+        )}
+        <List>
           {shouldDisplayItem("Galeria") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -391,35 +428,6 @@ export default function Nav() {
                 </ListItemIcon>
                 <ListItemText
                   primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Galeria</Typography>}
-                  sx={{ opacity: open ? 1 : 1, color: "white" }}
-                />
-              </ListItemButton>
-            </ListItem>
-          )}
-          {shouldDisplayItem("Sobre") && (
-            <ListItem disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                component={Link}
-                href="/Sobre"
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  flexDirection: open ? "row" : "column",
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                    color: "white",
-                  }}
-                >
-                  <InfoRoundedIcon/>
-                </ListItemIcon>
-                <ListItemText
-                  primary={<Typography sx={{fontSize: open ? 'inherit' : '0.75rem', textAlign: open ? 'left' : 'center' }}>Sobre</Typography>}
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
                 />
               </ListItemButton>
