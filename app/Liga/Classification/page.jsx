@@ -39,7 +39,7 @@ const Classification = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" component="h2" color="primary">Classificação</Typography>
         <Box>
-          <Typography variant="body1" component="label" fontWeight="bold" color="primary" mr={2}>Temporada:</Typography>
+          <Typography  variant="body1" component="label" fontWeight="bold" color="primary" mr={2}>Temporada:</Typography>
           <Select
             id="season"
             defaultValue="2023/2024"
@@ -56,21 +56,21 @@ const Classification = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>POS</TableCell>
-              <TableCell>EQUIPA</TableCell>
-              <TableCell align="center">J</TableCell>
-              <TableCell align="center">V</TableCell>
-              <TableCell align="center">E</TableCell>
-              <TableCell align="center">D</TableCell>
-              <TableCell align="center">G</TableCell>
-              <TableCell align="center">DG</TableCell>
-              <TableCell align="center">P</TableCell>
+            <TableRow sx={{backgroundColor: '#54A3D5'}}>
+              <TableCell sx={{ fontWeight: 'bold' }}>POS</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>EQUIPA</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">J</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">V</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">E</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">D</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">G</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">DG</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">P</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {classification.map((team, index) => (
-              <TableRow key={team.team_id} className={index % 2 === 0 ? "even:bg-gray-200" : ""}>
+              <TableRow key={team.team_id} sx={{ backgroundColor: index % 2 != 0 ? 'rgba(165, 132, 224, 0.2)' : 'inherit' }}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>
                   <img src={team.teams.logo_url} alt={`${team.teams.short_name} logo`} className="w-10 h-10 inline-block mr-2" />
