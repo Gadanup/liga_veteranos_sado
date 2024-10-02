@@ -171,7 +171,7 @@ export default function Nav() {
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/"
+                href="/Liga/Classification"
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -210,7 +210,7 @@ export default function Nav() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
-                  href="/Calendario"
+                  href="/Liga/Calendar"
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
@@ -246,7 +246,7 @@ export default function Nav() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
-                  href="/marcadores"
+                  href="/Liga/TopScorers"
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
@@ -282,7 +282,7 @@ export default function Nav() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
-                  href="/Disciplina"
+                  href="/Liga/Discipline"
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
@@ -332,7 +332,7 @@ export default function Nav() {
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Taca"
+                href="/Taca/Draw"
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -371,7 +371,7 @@ export default function Nav() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
-                  href="/Calendario_Taca"
+                  href="/Taca/Calendar"
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
@@ -407,7 +407,7 @@ export default function Nav() {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
-                  href="/marcadores_Taca"
+                  href="/Taca/TopScorers"
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
