@@ -56,7 +56,7 @@ const Classification = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow sx={{backgroundColor: '#54A3D5'}}>
+            <TableRow sx={{backgroundColor: 'rgba(165, 132, 224, 0.4)'}}>
               <TableCell sx={{ fontWeight: 'bold' }}>POS</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>EQUIPA</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }} align="center">J</TableCell>
@@ -70,7 +70,7 @@ const Classification = () => {
           </TableHead>
           <TableBody>
             {classification.map((team, index) => (
-              <TableRow key={team.team_id} sx={{ backgroundColor: index % 2 != 0 ? 'rgba(165, 132, 224, 0.2)' : 'inherit' }}>
+              <TableRow key={team.team_id} sx={{ backgroundColor: index % 2 != 0 ? 'rgba(165, 132, 224, 0.1)' : 'inherit' }}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>
                   <img src={team.teams.logo_url} alt={`${team.teams.short_name} logo`} className="w-10 h-10 inline-block mr-2" />
