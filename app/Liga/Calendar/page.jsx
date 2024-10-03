@@ -14,12 +14,11 @@ const LeagueFixtures = () => {
       .select(`
         id,
         match_date,
-        venue,
         round,
         week,
         home_goals,
         away_goals,
-        home_team:teams!matches_home_team_id_fkey (short_name, logo_url), 
+        home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name), 
         away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
       `)
       .order("week", { ascending: true })
@@ -122,7 +121,7 @@ const LeagueFixtures = () => {
                       <TableCell>Home Team</TableCell>
                       <TableCell>Away Team</TableCell>
                       <TableCell>Venue</TableCell>
-                      <TableCell>Round</TableCell>
+                      {/* <TableCell>Round</TableCell> */}
                       <TableCell>Result</TableCell>
                     </TableRow>
                   </TableHead>
@@ -171,8 +170,8 @@ const LeagueFixtures = () => {
                               </span>
                             </Box>
                           </TableCell>
-                          <TableCell>{match.venue}</TableCell>
-                          <TableCell>{match.round}</TableCell>
+                          <TableCell>{match.home_team.stadium_name}</TableCell>
+                          {/* <TableCell>{match.round}</TableCell> */}
                           <TableCell>
                             {match.home_goals !== null && match.away_goals !== null ? (
                               <Typography
