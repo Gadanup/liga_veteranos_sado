@@ -83,7 +83,7 @@ const LeagueFixtures = () => {
   };
 
   return (
-    <div className="max-w-6xl">
+    <div>
       <Typography variant="h4" align="center" gutterBottom>
         Match Fixtures
       </Typography>
