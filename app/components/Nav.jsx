@@ -22,11 +22,9 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import SportsSoccerRoundedIcon from "@mui/icons-material/SportsSoccerRounded";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import Button from "@mui/material/Button";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import ScoreboardRoundedIcon from "@mui/icons-material/ScoreboardRounded";
 import SportsRoundedIcon from "@mui/icons-material/SportsRounded";
 
 const drawerWidth = 240;
@@ -88,12 +86,13 @@ const Drawer = styled(MuiDrawer, {
   }),
 }));
 
-export default function Nav() {
+export default function Nav({ onDrawerToggle }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
     setOpen(!open);
+    onDrawerToggle(!open);
   };
 
   const shouldDisplayItem = (label) => {
@@ -457,7 +456,7 @@ export default function Nav() {
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Sobre"
+                href="/Info"
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",

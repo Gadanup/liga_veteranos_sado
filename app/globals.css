@@ -28,8 +28,6 @@
 
   /* Add these styles */
   .main-content {
-    margin-top: 128px; /* Adjust based on the height of your AppBar */
-    margin-left: 340px; /* Adjust based on the width of your drawer */
-    padding: 16px;
+    transition: margin-left 0.3s ease;
   }
 }

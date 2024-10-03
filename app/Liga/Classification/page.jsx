@@ -35,7 +35,7 @@ const Classification = () => {
   }, []);
 
   return (
-    <Box className="max-w-6xl" sx={{ padding: 2 }}>
+    <Box  sx={{ padding: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" component="h2" color="primary">Classificação</Typography>
         <Box>
