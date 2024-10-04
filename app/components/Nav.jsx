@@ -110,7 +110,7 @@ export default function Nav({ onDrawerToggle }) {
 
   const shouldDisplayItem = (label) => {
     if (open) return true;
-    return ["Classificação", "Taça", "Supertaça", "Equipas", "Regras"].includes(
+    return ["Classificação", "Taça", "Supertaça", "Equipas", "Sorteio"].includes(
       label
     );
   };
@@ -574,18 +574,18 @@ export default function Nav({ onDrawerToggle }) {
           </Typography>
         )}
         <List>
-          {shouldDisplayItem("Regras") && (
+          {shouldDisplayItem("Sorteio") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Regras"
-                onClick={() => handleListItemClick("Regras")}
+                href="/Informacao/Sorteio"
+                onClick={() => handleListItemClick("Sorteio")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
-                  ...getListItemStyles("Regras"),
+                  ...getListItemStyles("Sorteio"),
                 }}
               >
                 <ListItemIcon
@@ -593,7 +593,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: selectedItem === "Regras" ? "#FFD700" : "white",
+                    color: selectedItem === "Sorteio" ? "#FFD700" : "white",
                   }}
                 >
                   <GavelIcon />
@@ -604,10 +604,10 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Regras" ? "#FFD700" : "white",
+                        color: selectedItem === "Sorteio" ? "#FFD700" : "white",
                       }}
                     >
-                      Regras
+                      Sorteio
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -619,7 +619,7 @@ export default function Nav({ onDrawerToggle }) {
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Documentacao"
+                href="/Informacao/Documentacao"
                 onClick={() => handleListItemClick("Documentação")}
                 sx={{
                   minHeight: 48,
