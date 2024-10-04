@@ -63,7 +63,7 @@ const Supercup = () => {
   return (
     <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}> {/* Added more top and bottom padding */}
       <Typography variant="h4" gutterBottom>
-        Supercup
+        Supertaça
       </Typography>
 
       {matchDetails ? (
@@ -136,11 +136,11 @@ const Supercup = () => {
 
           {/* Hardcoded Stadium Name */}
           <Typography variant="h5" sx={{ marginTop: "3rem" }}>
-            Stadium: {`Your Stadium Name Here`} {/* Hardcoded stadium name */}
+            Estadio:  Campo António Henrique de Matos
           </Typography>
         </Box>
       ) : (
-        <Typography variant="body1">Loading match details...</Typography> // Loading state
+        <Typography variant="body1">Carregar dados da Supertaça...</Typography> // Loading state
       )}
     </Box>
   );
