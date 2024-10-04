@@ -26,6 +26,7 @@ import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import Button from "@mui/material/Button";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import SportsRoundedIcon from "@mui/icons-material/SportsRounded";
+import StadiumIcon from '@mui/icons-material/Stadium';
 
 const drawerWidth = 240;
 
@@ -89,16 +90,30 @@ const Drawer = styled(MuiDrawer, {
 export default function Nav({ onDrawerToggle }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState(null);
 
   const handleDrawerToggle = () => {
     setOpen(!open);
     onDrawerToggle(!open);
   };
 
+  const handleListItemClick = (item) => {
+    if (!open) {
+      setOpen(true);
+      onDrawerToggle(true);
+    }
+    setSelectedItem(item);
+  };
+
   const shouldDisplayItem = (label) => {
     if (open) return true;
-    return ["Classificação", "Taça", "Galeria", "Sobre"].includes(label);
+    return ["Classificação", "Taça","Supertaça", "Galeria", "Sobre"].includes(label);
   };
+
+  const getListItemStyles = (item) => ({
+    backgroundColor: selectedItem === item ? "#5A3E8C" : "inherit",
+    color: selectedItem === item ? "#FFD700" : "white",
+  });
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -171,11 +186,13 @@ export default function Nav({ onDrawerToggle }) {
               <ListItemButton
                 component={Link}
                 href="/Liga/Classification"
+                onClick={() => handleListItemClick("Classificação")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
+                  ...getListItemStyles("Classificação"),
                 }}
               >
                 <ListItemIcon
@@ -183,7 +200,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: "white",
+                    color: selectedItem === "Classificação" ? "#FFD700" : "white",
                   }}
                 >
                   <SportsSoccerRoundedIcon />
@@ -194,6 +211,7 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
+                        color: selectedItem === "Classificação" ? "#FFD700" : "white"
                       }}
                     >
                       Liga
@@ -210,11 +228,13 @@ export default function Nav({ onDrawerToggle }) {
                 <ListItemButton
                   component={Link}
                   href="/Liga/Calendar"
+                  onClick={() => handleListItemClick("Calendário")}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                     flexDirection: open ? "row" : "column",
+                    ...getListItemStyles("Calendário"),
                   }}
                 >
                   <ListItemIcon
@@ -222,7 +242,7 @@ export default function Nav({ onDrawerToggle }) {
                       minWidth: 0,
                       mr: open ? 3 : "auto",
                       justifyContent: "center",
-                      color: "white",
+                      color: selectedItem === "Calendário" ? "#FFD700" : "white",
                     }}
                   >
                     <CalendarMonthRoundedIcon />
@@ -233,6 +253,7 @@ export default function Nav({ onDrawerToggle }) {
                         sx={{
                           fontSize: open ? "inherit" : "0.75rem",
                           textAlign: open ? "left" : "center",
+                          color: selectedItem === "Calendário" ? "#FFD700" : "white"
                         }}
                       >
                         Calendário
@@ -246,11 +267,13 @@ export default function Nav({ onDrawerToggle }) {
                 <ListItemButton
                   component={Link}
                   href="/Liga/TopScorers"
+                  onClick={() => handleListItemClick("Melhores marcadores")}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                     flexDirection: open ? "row" : "column",
+                    ...getListItemStyles("Melhores marcadores"),
                   }}
                 >
                   <ListItemIcon
@@ -258,7 +281,7 @@ export default function Nav({ onDrawerToggle }) {
                       minWidth: 0,
                       mr: open ? 3 : "auto",
                       justifyContent: "center",
-                      color: "white",
+                      color: selectedItem === "Melhores marcadores" ? "#FFD700" : "white",
                     }}
                   >
                     <LeaderboardRoundedIcon />
@@ -269,6 +292,7 @@ export default function Nav({ onDrawerToggle }) {
                         sx={{
                           fontSize: open ? "inherit" : "0.75rem",
                           textAlign: open ? "left" : "center",
+                          color: selectedItem === "Melhores marcadores" ? "#FFD700" : "white"
                         }}
                       >
                         Melhores marcadores
@@ -282,11 +306,13 @@ export default function Nav({ onDrawerToggle }) {
                 <ListItemButton
                   component={Link}
                   href="/Liga/Discipline"
+                  onClick={() => handleListItemClick("Disciplina")}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                     flexDirection: open ? "row" : "column",
+                    ...getListItemStyles("Disciplina"),
                   }}
                 >
                   <ListItemIcon
@@ -294,7 +320,7 @@ export default function Nav({ onDrawerToggle }) {
                       minWidth: 0,
                       mr: open ? 3 : "auto",
                       justifyContent: "center",
-                      color: "white",
+                      color: selectedItem === "Disciplina" ? "#FFD700" : "white",
                     }}
                   >
                     <SportsRoundedIcon />
@@ -305,6 +331,7 @@ export default function Nav({ onDrawerToggle }) {
                         sx={{
                           fontSize: open ? "inherit" : "0.75rem",
                           textAlign: open ? "left" : "center",
+                          color: selectedItem === "Disciplina" ? "#FFD700" : "white"
                         }}
                       >
                         Disciplina
@@ -332,11 +359,13 @@ export default function Nav({ onDrawerToggle }) {
               <ListItemButton
                 component={Link}
                 href="/Taca/Draw"
+                onClick={() => handleListItemClick("Taça")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
+                  ...getListItemStyles("Taça"),
                 }}
               >
                 <ListItemIcon
@@ -344,7 +373,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: "white",
+                    color: selectedItem === "Taça" ? "#FFD700" : "white",
                   }}
                 >
                   <EmojiEventsRoundedIcon />
@@ -355,6 +384,7 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
+                        color: selectedItem === "Taça" ?  "#FFD700" : "white"
                       }}
                     >
                       Taça
@@ -371,11 +401,13 @@ export default function Nav({ onDrawerToggle }) {
                 <ListItemButton
                   component={Link}
                   href="/Taca/Calendar"
+                  onClick={() => handleListItemClick("Calendário Taça")}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                     flexDirection: open ? "row" : "column",
+                    ...getListItemStyles("Calendário Taça"),
                   }}
                 >
                   <ListItemIcon
@@ -383,7 +415,7 @@ export default function Nav({ onDrawerToggle }) {
                       minWidth: 0,
                       mr: open ? 3 : "auto",
                       justifyContent: "center",
-                      color: "white",
+                      color: selectedItem === "Calendário Taça" ? "#FFD700" : "white",
                     }}
                   >
                     <CalendarMonthRoundedIcon />
@@ -394,6 +426,7 @@ export default function Nav({ onDrawerToggle }) {
                         sx={{
                           fontSize: open ? "inherit" : "0.75rem",
                           textAlign: open ? "left" : "center",
+                          color: selectedItem === "Calendário Taça" ? "#FFD700" : "white"
                         }}
                       >
                         Calendário
@@ -407,11 +440,13 @@ export default function Nav({ onDrawerToggle }) {
                 <ListItemButton
                   component={Link}
                   href="/Taca/TopScorers"
+                  onClick={() => handleListItemClick("Melhores marcadores Taça")}
                   sx={{
                     minHeight: 48,
                     justifyContent: open ? "initial" : "center",
                     px: 2.5,
                     flexDirection: open ? "row" : "column",
+                    ...getListItemStyles("Melhores marcadores Taça"),
                   }}
                 >
                   <ListItemIcon
@@ -419,7 +454,7 @@ export default function Nav({ onDrawerToggle }) {
                       minWidth: 0,
                       mr: open ? 3 : "auto",
                       justifyContent: "center",
-                      color: "white",
+                      color: selectedItem === "Melhores marcadores Taça" ? "#FFD700" : "white",
                     }}
                   >
                     <LeaderboardRoundedIcon />
@@ -430,6 +465,7 @@ export default function Nav({ onDrawerToggle }) {
                         sx={{
                           fontSize: open ? "inherit" : "0.75rem",
                           textAlign: open ? "left" : "center",
+                          color: selectedItem === "Melhores marcadores Taça" ? "#FFD700" : "white"
                         }}
                       >
                         Melhores marcadores
@@ -448,6 +484,58 @@ export default function Nav({ onDrawerToggle }) {
             variant="h6"
             sx={{ padding: theme.spacing(1), color: "white" }}
           >
+            Supertaça
+          </Typography>
+        )}
+        <List>
+          {shouldDisplayItem("Supertaça") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/Supertaca"
+                onClick={() => handleListItemClick("Supertaça")}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
+                  ...getListItemStyles("Supertaça"),
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: selectedItem === "Supertaça" ? "#FFD700" : "white",
+                  }}
+                >
+                  <StadiumIcon/>
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: open ? "inherit" : "0.75rem",
+                        textAlign: open ? "left" : "center",
+                        color: selectedItem === "Supertaça" ?  "#FFD700" : "white"
+                      }}
+                    >
+                      Supertaça
+                    </Typography>
+                  }
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
+        </List>
+        <Divider />
+        {open && (
+          <Typography
+            variant="h6"
+            sx={{ padding: theme.spacing(1), color: "white" }}
+          >
             Informações
           </Typography>
         )}
@@ -457,11 +545,13 @@ export default function Nav({ onDrawerToggle }) {
               <ListItemButton
                 component={Link}
                 href="/Info"
+                onClick={() => handleListItemClick("Sobre")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
+                  ...getListItemStyles("Sobre"),
                 }}
               >
                 <ListItemIcon
@@ -469,7 +559,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: "white",
+                    color: selectedItem === "Sobre" ? "#FFD700" : "white",
                   }}
                 >
                   <InfoRoundedIcon />
@@ -480,6 +570,7 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
+                        color: selectedItem === "Sobre" ? "#FFD700" : "white"
                       }}
                     >
                       Info
@@ -506,11 +597,13 @@ export default function Nav({ onDrawerToggle }) {
               <ListItemButton
                 component={Link}
                 href="/Galeria"
+                onClick={() => handleListItemClick("Galeria")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
+                  ...getListItemStyles("Galeria"),
                 }}
               >
                 <ListItemIcon
@@ -518,7 +611,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: "white",
+                    color: selectedItem === "Galeria" ? "#FFD700" : "white",
                   }}
                 >
                   <CollectionsRoundedIcon />
@@ -529,6 +622,7 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
+                        color: selectedItem === "Galeria" ? "#FFD700" : "white"
                       }}
                     >
                       Galeria
