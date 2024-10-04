@@ -55,7 +55,7 @@ const KnockoutPhase = () => {
   };
 
   return (
-    <div className="max-w-6xl">
+    <div>
       <Typography variant="h4" align="center" gutterBottom>
         Knockout Phase (Cup)
       </Typography>
@@ -85,21 +85,21 @@ const KnockoutPhase = () => {
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       {/* Home team */}
                       <Box display="flex" alignItems="center">
-                        <img
-                          src={match.home_team.logo_url}
-                          alt={match.home_team.short_name}
-                          style={{ width: "40px", marginRight: "10px" }}
-                        />
                         <Typography
                           variant="body1"
                           style={{
                             fontWeight:
-                              matchResult === "home_win" ? "bold" : "normal",
+                            matchResult === "home_win" ? "bold" : "normal",
                             color: matchResult === "home_win" ? "green" : "inherit",
                           }}
                         >
                           {match.home_team.short_name}
                         </Typography>
+                          <img
+                            src={match.home_team.logo_url}
+                            alt={match.home_team.short_name}
+                            style={{ width: "40px", marginLeft: "10px" }}
+                          />
                       </Box>
 
                       {/* Match result */}
@@ -126,6 +126,11 @@ const KnockoutPhase = () => {
 
                       {/* Away team */}
                       <Box display="flex" alignItems="center">
+                        <img
+                          src={match.away_team.logo_url}
+                          alt={match.away_team.short_name}
+                          style={{ width: "40px", marginRight: "10px" }}
+                        />
                         <Typography
                           variant="body1"
                           style={{
@@ -136,11 +141,6 @@ const KnockoutPhase = () => {
                         >
                           {match.away_team.short_name}
                         </Typography>
-                        <img
-                          src={match.away_team.logo_url}
-                          alt={match.away_team.short_name}
-                          style={{ width: "40px", marginLeft: "10px" }}
-                        />
                       </Box>
                     </Box>
                   </Paper>
