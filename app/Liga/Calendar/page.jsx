@@ -46,7 +46,7 @@ const LeagueFixtures = () => {
         home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
         away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
       `)
-      .eq("competition_type", "Supercup")
+      .eq("competition_type", "League")
       .eq("season", "2024")
       .order("week", { ascending: true })
       .order("match_date", { ascending: true });
