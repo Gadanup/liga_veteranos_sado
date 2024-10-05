@@ -14,7 +14,7 @@ import Image from "next/image";
 export default function Documentacao() {
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h4" sx={{color:'#6B4BA1'}} gutterBottom>
+      <Typography align="center" variant="h4" sx={{color:'#6B4BA1'}} gutterBottom>
         INFORMAÇÃO
       </Typography>
 

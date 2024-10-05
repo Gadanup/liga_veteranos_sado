@@ -6,7 +6,7 @@ export default function Sorteio() {
     <Container maxWidth="md" sx={{ mt: 4 }}>
       {/* Header */}
       <Typography variant="h4" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
-        Sorteio do Campeonato
+        SORTEIO DO CAMPEONATO
       </Typography>
 
       {/* Notes Section */}

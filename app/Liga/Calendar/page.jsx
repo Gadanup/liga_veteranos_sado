@@ -134,8 +134,8 @@ const LeagueFixtures = () => {
   return (
     <div>
       {/* Page Header */}
-      <Typography variant="h3" align="center" gutterBottom>
-        Jornadas
+      <Typography variant="h4" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
+        JORNADAS
       </Typography>
 
       {/* Week Navigation Buttons */}
@@ -166,7 +166,7 @@ const LeagueFixtures = () => {
           }}
         >
           {/* Week Header */}
-          <Typography variant="h5" align="center" gutterBottom>
+          <Typography variant="h5" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
             Jornada {currentWeek}
           </Typography>
 

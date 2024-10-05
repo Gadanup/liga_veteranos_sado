@@ -63,7 +63,7 @@ const Supercup = () => {
   return (
     <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}> {/* Added more top and bottom padding */}
       <Typography variant="h4" sx={{color:'#6B4BA1'}} gutterBottom>
-        Supertaça
+        SUPERTAÇA
       </Typography>
 
       {matchDetails ? (

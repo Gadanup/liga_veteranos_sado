@@ -83,7 +83,7 @@ const Cup = () => {
   return (
 
     <Box sx={{ padding: "2rem", position: "relative" }}>
-      <Typography variant="h4" gutterBottom align="center">
+      <Typography sx={{color:'#6B4BA1'}} variant="h4" gutterBottom align="center">
         Taça
       </Typography>
 
