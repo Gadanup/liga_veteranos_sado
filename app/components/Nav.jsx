@@ -673,7 +673,7 @@ export default function Nav({ onDrawerToggle }) {
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Equipas"
+                href="/Galeria/Equipas"
                 onClick={() => handleListItemClick("Equipas")}
                 sx={{
                   minHeight: 48,

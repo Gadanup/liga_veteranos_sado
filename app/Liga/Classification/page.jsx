@@ -37,9 +37,9 @@ const Classification = () => {
   return (
     <Box  sx={{ padding: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" component="h2" color="primary">Classificação</Typography>
+        <Typography variant="h5" component="h2" sx={{color:'#6B4BA1'}}>CLASSIFICAÇÃO</Typography>
         <Box>
-          <Typography  variant="body1" component="label" fontWeight="bold" color="primary" mr={2}>Temporada:</Typography>
+          <Typography  variant="body1" component="label" fontWeight="bold" sx={{color:'#6B4BA1'}} mr={2}>Temporada:</Typography>
           <Select
             id="season"
             defaultValue="2023/2024"

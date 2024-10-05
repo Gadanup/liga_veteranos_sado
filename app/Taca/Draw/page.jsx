@@ -56,7 +56,7 @@ const KnockoutPhase = () => {
 
   return (
     <div>
-      <Typography variant="h4" align="center" gutterBottom>
+      <Typography variant="h4" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
         Knockout Phase (Cup)
       </Typography>
 
