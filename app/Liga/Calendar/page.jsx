@@ -174,14 +174,20 @@ const LeagueFixtures = () => {
           <TableContainer>
             <Table style={{ borderCollapse: "collapse" }}>
               <TableBody>
-                {fixturesByWeek[currentWeek].map((match) => {
+                {fixturesByWeek[currentWeek].map((match, index) => {
                   const matchResult = determineMatchResult(
                     match.home_goals,
                     match.away_goals
                   );
 
                   return (
-                    <TableRow key={match.id} style={{ borderBottom: "none" }}>
+                    <TableRow 
+                      key={match.id} 
+                      style={{ 
+                        borderBottom: "none",
+                        backgroundColor: index % 2 != 0 ? "rgba(165, 132, 224, 0.1)" : "inherit"
+                      }}
+                    >
                       {/* Match Date and Time */}
                       <TableCell style={{ borderBottom: "none" }}>
                         {dayjs(match.match_date).format("DD/MM/YYYY")} 
@@ -194,22 +200,22 @@ const LeagueFixtures = () => {
 
                       {/* Home Team */}
                       <TableCell style={{ borderBottom: "none" }}>
-                        <Box display="flex" alignItems="center">
-                          <img
-                            src={match.home_team.logo_url}
-                            alt={match.home_team.short_name}
-                            style={{ width: "30px", marginRight: "10px" }}
-                          />
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <span
                             style={{
                               fontWeight:
-                                matchResult === "home_win" ? "bold" : "normal",
+                              matchResult === "home_win" ? "bold" : "normal",
                               color:
-                                matchResult === "home_win" ? "green" : "inherit",
+                              matchResult === "home_win" ? "green" : "inherit",
                             }}
                           >
                             {match.home_team.short_name}
                           </span>
+                            <img
+                              src={match.home_team.logo_url}
+                              alt={match.home_team.short_name}
+                              style={{ width: "30px", marginLeft: "10px" }}
+                            />
                         </Box>
                       </TableCell>
 

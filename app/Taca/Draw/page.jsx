@@ -81,6 +81,7 @@ const Cup = () => {
   };
 
   return (
+
     <Box sx={{ padding: "2rem", position: "relative" }}>
       <Typography variant="h4" gutterBottom align="center">
         Taça
@@ -261,6 +262,7 @@ const Cup = () => {
               </Typography>
             </Box>
 
+
             {/* Right Side: Stadium (if available) */}
             <CardContent sx={{ textAlign: "right", flex: 1 }}>
               {team13.stadium_name && (
@@ -273,6 +275,7 @@ const Cup = () => {
         )}
       </Box>
     </Box>
+
   );
 };
 
