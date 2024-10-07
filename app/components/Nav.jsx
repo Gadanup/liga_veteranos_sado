@@ -13,7 +13,6 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
-import LeaderboardRoundedIcon from "@mui/icons-material/LeaderboardRounded";
 import CollectionsRoundedIcon from "@mui/icons-material/CollectionsRounded";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -28,7 +27,7 @@ import SportsRoundedIcon from "@mui/icons-material/SportsRounded";
 import StadiumIcon from "@mui/icons-material/Stadium";
 import GavelIcon from "@mui/icons-material/Gavel";
 import DescriptionIcon from "@mui/icons-material/Description";
-import InfoIcon from "@mui/icons-material/Info";
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import GroupsIcon from '@mui/icons-material/Groups';
 
 const drawerWidth = 240;
@@ -209,7 +208,7 @@ export default function Nav({ onDrawerToggle }) {
                       selectedItem === "Classificação" ? "#FFD700" : "white",
                   }}
                 >
-                  <SportsSoccerRoundedIcon />
+                  <LeaderboardIcon/>
                 </ListItemIcon>
                 <ListItemText
                   primary={
@@ -298,7 +297,7 @@ export default function Nav({ onDrawerToggle }) {
                           : "white",
                     }}
                   >
-                    <LeaderboardRoundedIcon />
+                    <SportsSoccerRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
                     primary={
@@ -487,7 +486,7 @@ export default function Nav({ onDrawerToggle }) {
                           : "white",
                     }}
                   >
-                    <LeaderboardRoundedIcon />
+                    <SportsSoccerRoundedIcon />
                   </ListItemIcon>
                   <ListItemText
                     primary={

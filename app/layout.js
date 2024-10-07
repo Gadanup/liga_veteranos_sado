@@ -36,6 +36,10 @@ export default function RootLayout({ children }) {
     }
   }, [drawerOpen]);
 
+  useEffect(() => {
+    document.title = "Liga Veteranos do Sado"; // Set the document title
+  }, []);
+
   return (
     <html lang="en">
       <body
