@@ -179,14 +179,14 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white" }}
+            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
           >
             Liga
           </Typography>
         )}
-        <List>
+        <List sx={{paddingBottom: 0, paddingTop: 0}}>
           {shouldDisplayItem("Classificação") && (
-            <ListItem disablePadding sx={{ display: "block", mb:0.1 , mt:0.1 }}>
+            <ListItem disablePadding sx={{ display: "block"}}>
               <ListItemButton
                 component={Link}
                 href="/Liga/Classification"
@@ -366,12 +366,12 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white" }}
+            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
           >
             Taça
           </Typography>
         )}
-        <List>
+        <List sx={{paddingBottom: 0, paddingTop: 0}}>
           {shouldDisplayItem("Taça") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -514,12 +514,12 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white" }}
+            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
           >
             Supertaça
           </Typography>
         )}
-        <List>
+        <List sx={{paddingBottom: 0, paddingTop: 0}}>
           {shouldDisplayItem("Supertaça") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -567,12 +567,12 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white" }}
+            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
           >
             Informações
           </Typography>
         )}
-        <List>
+        <List sx={{paddingBottom: 0, paddingTop: 0}}>
           {shouldDisplayItem("Sorteio") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -662,12 +662,12 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white" }}
+            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
           >
             Galeria
           </Typography>
         )}
-        <List>
+        <List sx={{paddingBottom: 0, paddingTop: 0}}>
           {shouldDisplayItem("Equipas") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
