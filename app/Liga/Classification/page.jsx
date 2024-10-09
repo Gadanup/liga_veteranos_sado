@@ -1,18 +1,30 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, Typography, Box
-} from '@mui/material';
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Select,
+  MenuItem,
+  Typography,
+  Box,
+} from "@mui/material";
 
 const Classification = () => {
   const [classification, setClassification] = useState([]);
+  const router = useRouter(); // Initialize the router
 
   // Function to fetch and sort classification data
   const readClassification = async () => {
-    const { data: classificationData, error } = await supabase
-      .from("league_standings")
-      .select(`
+    const { data: classificationData, error } = await supabase.from(
+      "league_standings"
+    ).select(`
         team_id, 
         teams!league_standings_team_id_fkey (short_name, logo_url),
         matches_played,
@@ -52,14 +64,23 @@ const Classification = () => {
   return (
     <Box sx={{ padding: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" component="h2" sx={{color:'#6B4BA1'}}>CLASSIFICAÇÃO</Typography>
+        <Typography variant="h5" component="h2" sx={{ color: "#6B4BA1" }}>
+          CLASSIFICAÇÃO
+        </Typography>
         <Box>
-          {/* <Typography variant="body1" component="label" fontWeight="bold" color="primary" mr={2}>Temporada:</Typography> */}
-          <Typography  variant="body1" component="label" fontWeight="bold" sx={{color:'#6B4BA1'}} mr={2}>Temporada:</Typography>
+          <Typography
+            variant="body1"
+            component="label"
+            fontWeight="bold"
+            sx={{ color: "#6B4BA1" }}
+            mr={2}
+          >
+            Temporada:
+          </Typography>
           <Select
             id="season"
             defaultValue="2024"
-            sx={{ border: '1px solid', borderRadius: 1, padding: '4px 8px' }}
+            sx={{ border: "1px solid", borderRadius: 1, padding: "4px 8px" }}
           >
             <MenuItem value="2024">2024/2025</MenuItem>
           </Select>
@@ -71,32 +92,57 @@ const Classification = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: 'rgba(165, 132, 224, 0.4)' }}>
-              <TableCell sx={{ fontWeight: 'bold' }}>POS</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>EQUIPA</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">J</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">V</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">E</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">D</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">G</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">DG</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }} align="center">P</TableCell>
+            <TableRow sx={{ backgroundColor: "rgba(165, 132, 224, 0.4)" }}>
+              <TableCell sx={{ fontWeight: "bold" }}>POS</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>EQUIPA</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                J
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                V
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                E
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                D
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                G
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                DG
+              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }} align="center">
+                P
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {classification.map((team, index) => (
-              <TableRow key={team.team_id} sx={{ backgroundColor: index % 2 !== 0 ? 'rgba(165, 132, 224, 0.1)' : 'inherit' }}>
+              <TableRow
+                key={team.team_id}
+                onClick={() => router.push(`/equipas/${team.teams.short_name}`)} // Navigate to team page on click
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "rgba(165, 132, 224, 0.2)", // Hover effect
+                  },
+                  backgroundColor:
+                    index % 2 !== 0 ? "rgba(165, 132, 224, 0.1)" : "inherit",
+                }}
+              >
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     <img
                       src={team.teams.logo_url}
                       alt={`${team.teams.short_name} logo`}
                       style={{
-                        width: "40px",  // Set fixed width to 40px
-                        height: "40px", // Set fixed height to 40px
-                        objectFit: "contain", // Ensure the image scales correctly
-                        marginRight: "8px"  // Add margin between logo and team name
+                        width: "40px",
+                        height: "40px",
+                        objectFit: "contain",
+                        marginRight: "8px",
                       }}
                     />
                     {team.teams.short_name}
@@ -106,11 +152,27 @@ const Classification = () => {
                 <TableCell align="center">{team.wins}</TableCell>
                 <TableCell align="center">{team.draws}</TableCell>
                 <TableCell align="center">{team.losses}</TableCell>
-                <TableCell align="center">{team.goals_for}:{team.goals_against}</TableCell>
-                <TableCell align="center" style={{ fontWeight: 'bold', color: team.goals_for - team.goals_against > 0 ? 'green' : team.goals_for - team.goals_against < 0 ? 'red' : 'gray' }}>
+                <TableCell align="center">
+                  {team.goals_for}:{team.goals_against}
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    fontWeight: "bold",
+                    color:
+                      team.goals_for - team.goals_against > 0
+                        ? "green"
+                        : team.goals_for - team.goals_against < 0
+                          ? "red"
+                          : "gray",
+                  }}
+                >
                   {team.goals_for - team.goals_against}
                 </TableCell>
-                <TableCell align="center" style={{ fontWeight: 'bold', color: 'primary' }}>
+                <TableCell
+                  align="center"
+                  style={{ fontWeight: "bold", color: "primary" }}
+                >
                   {team.points}
                 </TableCell>
               </TableRow>
