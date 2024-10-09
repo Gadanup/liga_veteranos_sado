@@ -40,7 +40,7 @@ export default function Documentacao() {
           Jokers - Idade Mínima e Limite
         </Typography>
         <Typography>
-          A idade mínima para inscrição de Jokers é de 32 anos, limitados a 2 jokers por equipa.
+          A idade mínima para inscrição de Jokers é de 33 anos, limitados a 2 jokers por equipa.
         </Typography>
       </Box>
 

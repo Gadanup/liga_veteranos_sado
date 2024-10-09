@@ -109,7 +109,7 @@ export default function Nav({ onDrawerToggle }) {
 
   const shouldDisplayItem = (label) => {
     if (open) return true;
-    return ["Classificação", "Taça", "Supertaça", "Equipas", "Sorteio"].includes(
+    return ["Classificação", "Taça", "Supertaça", "Galeria", "Informação"].includes(
       label
     );
   };
@@ -415,51 +415,7 @@ export default function Nav({ onDrawerToggle }) {
           )}
           {open && (
             <>
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <ListItemButton
-                  component={Link}
-                  href="/Taca/Calendar"
-                  onClick={() => handleListItemClick("Calendário Taça")}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    flexDirection: open ? "row" : "column",
-                    ...getListItemStyles("Calendário Taça"),
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color:
-                        selectedItem === "Calendário Taça"
-                          ? "#FFD700"
-                          : "white",
-                    }}
-                  >
-                    <CalendarMonthRoundedIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography
-                        sx={{
-                          fontSize: open ? "inherit" : "0.75rem",
-                          textAlign: open ? "left" : "center",
-                          color:
-                            selectedItem === "Calendário Taça"
-                              ? "#FFD700"
-                              : "white",
-                        }}
-                      >
-                        Calendário
-                      </Typography>
-                    }
-                    sx={{ opacity: open ? 1 : 1, color: "white" }}
-                  />
-                </ListItemButton>
-              </ListItem>
+              
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
@@ -573,18 +529,18 @@ export default function Nav({ onDrawerToggle }) {
           </Typography>
         )}
         <List sx={{paddingBottom: 0, paddingTop: 0}}>
-          {shouldDisplayItem("Sorteio") && (
+          {shouldDisplayItem("Informação") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Informacao/Sorteio"
-                onClick={() => handleListItemClick("Sorteio")}
+                href="/Informacao"
+                onClick={() => handleListItemClick("Informação")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
-                  ...getListItemStyles("Sorteio"),
+                  ...getListItemStyles("Informação"),
                 }}
               >
                 <ListItemIcon
@@ -592,7 +548,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: selectedItem === "Sorteio" ? "#FFD700" : "white",
+                    color: selectedItem === "Informação" ? "#FFD700" : "white",
                   }}
                 >
                   <GavelIcon />
@@ -603,10 +559,10 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Sorteio" ? "#FFD700" : "white",
+                        color: selectedItem === "Informação" ? "#FFD700" : "white",
                       }}
                     >
-                      Sorteio
+                      Informação
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -668,18 +624,18 @@ export default function Nav({ onDrawerToggle }) {
           </Typography>
         )}
         <List sx={{paddingBottom: 0, paddingTop: 0}}>
-          {shouldDisplayItem("Equipas") && (
+          {shouldDisplayItem("Galeria") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Galeria/Equipas"
-                onClick={() => handleListItemClick("Equipas")}
+                href="/Galeria"
+                onClick={() => handleListItemClick("Galeria")}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
-                  ...getListItemStyles("Equipas"),
+                  ...getListItemStyles("Galeria"),
                 }}
               >
                 <ListItemIcon
@@ -687,7 +643,7 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: selectedItem === "Equipas" ? "#FFD700" : "white",
+                    color: selectedItem === "Galeria" ? "#FFD700" : "white",
                   }}
                 >
                   <GroupsIcon />
@@ -698,10 +654,10 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Equipas" ? "#FFD700" : "white",
+                        color: selectedItem === "Galeria" ? "#FFD700" : "white",
                       }}
                     >
-                      Equipas
+                      Galeria
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
