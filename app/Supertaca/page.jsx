@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, Link } from "@mui/material";
 import dayjs from "dayjs";
 
 /**
@@ -61,7 +61,7 @@ const Supercup = () => {
   };
 
   return (
-    <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}> {/* Added more top and bottom padding */}
+    <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}>
       <Typography variant="h4" sx={{color:'#6B4BA1'}} gutterBottom>
         SUPERTAÇA
       </Typography>
@@ -78,23 +78,27 @@ const Supercup = () => {
             }}
           >
             {/* Home Team Logo and Name */}
-            <Box sx={{ textAlign: "center", mr: 4 }}> {/* Increased margin right */}
+            <Box sx={{ textAlign: "center", mr: 4 }}>
               <img
                 src={matchDetails.home_team.logo_url}
                 alt={matchDetails.home_team.short_name}
                 style={{ 
-                  width: "225px", // Increased logo size (150px + 50% of 150px)
+                  width: "225px", 
                   height: "225px", 
                   objectFit: "contain" 
                 }} 
               />
-              <Typography variant="h6" style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "home")} sx={{ mt: 2 }}> {/* Added margin top for spacing */}
+              <Typography
+                variant="h6"
+                style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "home")}
+                sx={{ mt: 2 }}
+              >
                 {matchDetails.home_team.short_name}
               </Typography>
             </Box>
 
             {/* Match Result */}
-            <Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", mx: 4 }}> {/* Increased margin horizontal */}
+            <Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", mx: 4 }}>
               {/* Date and Time Display */}
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                 <Typography variant="h5" sx={{ marginBottom: "0.5rem" }}>
@@ -118,17 +122,21 @@ const Supercup = () => {
             </Box>
 
             {/* Away Team Logo and Name */}
-            <Box sx={{ textAlign: "center", ml: 4 }}> {/* Increased margin left */}
+            <Box sx={{ textAlign: "center", ml: 4 }}>
               <img
                 src={matchDetails.away_team.logo_url}
                 alt={matchDetails.away_team.short_name}
                 style={{ 
-                  width: "225px", // Increased logo size (150px + 50% of 150px)
+                  width: "225px", 
                   height: "225px", 
                   objectFit: "contain" 
                 }} 
               />
-              <Typography variant="h6" style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "away")} sx={{ mt: 2 }}> {/* Added margin top for spacing */}
+              <Typography
+                variant="h6"
+                style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "away")}
+                sx={{ mt: 2 }}
+              >
                 {matchDetails.away_team.short_name}
               </Typography>
             </Box>
@@ -140,8 +148,22 @@ const Supercup = () => {
           </Typography>
         </Box>
       ) : (
-        <Typography variant="body1">Carregar dados da Supertaça...</Typography> // Loading state
+        <Typography variant="body1">Carregar dados da Supertaça...</Typography>
       )}
+
+      {/* Ficha de Jogo Link */}
+      <Box sx={{ marginTop: "3rem" }}>
+        <Link
+          href="/fichajogosupertaca/saograbrielvsindependente.pdf" // Adjust the path to the correct location of your PDF
+          target="_blank"
+          rel="noopener noreferrer"
+          underline="none"
+        >
+          <Typography variant="h6" sx={{color:'#1976d2'}}>
+            Ficha de Jogo
+          </Typography>
+        </Link>
+      </Box>
     </Box>
   );
 };
