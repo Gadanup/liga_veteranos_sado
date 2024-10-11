@@ -1,7 +1,16 @@
-'use client'
-import { useState, useEffect } from 'react';
-import { supabase } from "../../../lib/supabase";
-import { Card, CardMedia, CardContent, Typography, Grid, Container, Avatar, Box } from '@mui/material';
+"use client";
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Grid,
+  Container,
+  Avatar,
+  Box,
+} from "@mui/material";
 
 export default function Equipas() {
   const [teams, setTeams] = useState([]);
@@ -27,7 +36,12 @@ export default function Equipas() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{ color: "#6B4BA1" }}
+        gutterBottom
+      >
         EQUIPAS
       </Typography>
       <Grid container spacing={4}>
@@ -44,10 +58,22 @@ export default function Equipas() {
 // TeamCard Component to display each team's logo, name, and roster image
 function TeamCard({ team }) {
   return (
-    <Card sx={{ maxWidth: 345, margin: 'auto', boxShadow: 3 }}>
-      <CardContent sx={{ paddingBottom: 1, backgroundColor: 'rgba(165, 132, 224, 0.4)'  }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src={team.logo_url} alt={`${team.short_name} logo`} className="w-10 h-10 inline-block mr-2" />
+    <Card sx={{ maxWidth: 345, margin: "auto", boxShadow: 3 }}>
+      <CardContent
+        sx={{ paddingBottom: 1, backgroundColor: "rgba(165, 132, 224, 0.4)" }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <img
+            src={team.logo_url}
+            alt={`${team.short_name} logo`}
+            className="w-10 h-10 inline-block mr-2"
+          />
           <Typography variant="h6" component="div">
             <strong>{team.short_name}</strong>
           </Typography>
@@ -56,9 +82,9 @@ function TeamCard({ team }) {
       <CardMedia
         component="img"
         height="200"
-        image={team.roster_url} 
+        image={team.roster_url}
         alt={`${team.short_name} roster`}
-        sx={{ objectFit: 'cover' }}
+        sx={{ objectFit: "cover" }}
       />
     </Card>
   );
