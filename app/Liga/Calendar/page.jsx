@@ -13,10 +13,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 /**
  * LeagueFixtures Component
- * 
+ *
  * This component fetches and displays football match fixtures grouped by week.
  * It allows navigation between different weeks using buttons and shows details
  * of matches like teams, stadiums, results, and match date and time.
@@ -24,6 +25,7 @@ import dayjs from "dayjs";
 const LeagueFixtures = () => {
   const [fixturesByWeek, setFixturesByWeek] = useState({}); // Store fixtures grouped by week
   const [currentWeek, setCurrentWeek] = useState(null); // Current visible week
+  const router = useRouter(); // Initialize the router
 
   // Media query for responsive styles
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
@@ -36,7 +38,8 @@ const LeagueFixtures = () => {
   const readAllMatches = async () => {
     const { data: matches, error } = await supabase
       .from("matches")
-      .select(`
+      .select(
+        `
         id,
         match_date,
         match_time,
@@ -45,7 +48,8 @@ const LeagueFixtures = () => {
         away_goals,
         home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
         away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
-      `)
+      `
+      )
       .eq("competition_type", "League")
       .eq("season", "2024")
       .order("week", { ascending: true })
@@ -74,7 +78,7 @@ const LeagueFixtures = () => {
 
   /**
    * Finds the closest week with a match to today's date.
-   * 
+   *
    * @param {Object} groupedMatches - Matches grouped by week.
    * @returns {string|null} The closest week's number or null if no matches.
    */
@@ -107,7 +111,7 @@ const LeagueFixtures = () => {
 
   /**
    * Handles changing the visible week.
-   * 
+   *
    * @param {string} week - The week number to switch to.
    */
   const handleWeekChange = (week) => {
@@ -116,7 +120,7 @@ const LeagueFixtures = () => {
 
   /**
    * Determines the result of a match based on home and away goals.
-   * 
+   *
    * @param {number|null} home_goals - Number of home team goals.
    * @param {number|null} away_goals - Number of away team goals.
    * @returns {string} - 'home_win', 'away_win', or 'draw' based on the goals.
@@ -134,7 +138,12 @@ const LeagueFixtures = () => {
   return (
     <div>
       {/* Page Header */}
-      <Typography variant="h4" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{ color: "#6B4BA1" }}
+        gutterBottom
+      >
         JORNADAS
       </Typography>
 
@@ -160,13 +169,18 @@ const LeagueFixtures = () => {
       </Box>
 
       {currentWeek && fixturesByWeek[currentWeek] && (
-        <Box 
+        <Box
           sx={{
             margin: isSmallScreen ? "1rem" : "4rem", // Responsive margin
           }}
         >
           {/* Week Header */}
-          <Typography variant="h5" align="center" sx={{color:'#6B4BA1'}} gutterBottom>
+          <Typography
+            variant="h5"
+            align="center"
+            sx={{ color: "#6B4BA1" }}
+            gutterBottom
+          >
             Jornada {currentWeek}
           </Typography>
 
@@ -181,16 +195,19 @@ const LeagueFixtures = () => {
                   );
 
                   return (
-                    <TableRow 
-                      key={match.id} 
-                      style={{ 
+                    <TableRow
+                      key={match.id}
+                      style={{
                         borderBottom: "none",
-                        backgroundColor: index % 2 != 0 ? "rgba(165, 132, 224, 0.1)" : "inherit"
+                        backgroundColor:
+                          index % 2 != 0
+                            ? "rgba(165, 132, 224, 0.1)"
+                            : "inherit",
                       }}
                     >
                       {/* Match Date and Time */}
                       <TableCell style={{ borderBottom: "none" }}>
-                        {dayjs(match.match_date).format("DD/MM/YYYY")} 
+                        {dayjs(match.match_date).format("DD/MM/YYYY")}
                         {match.match_time && (
                           <Typography variant="body2">
                             {match.match_time}
@@ -200,22 +217,42 @@ const LeagueFixtures = () => {
 
                       {/* Home Team */}
                       <TableCell style={{ borderBottom: "none" }}>
-                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="flex-end"
+                        >
                           <span
+                            onClick={() =>
+                              router.push(
+                                `/equipas/${match.home_team.short_name}`
+                              )
+                            } // Navigate to team page on click
                             style={{
                               fontWeight:
-                              matchResult === "home_win" ? "bold" : "normal",
+                                matchResult === "home_win" ? "bold" : "normal",
                               color:
-                              matchResult === "home_win" ? "green" : "inherit",
+                                matchResult === "home_win"
+                                  ? "green"
+                                  : "inherit",
+                                  cursor: "pointer",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.fontWeight = "bold";
+                              e.currentTarget.style.color = "#6B4BA1";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.fontWeight = matchResult === "home_win" ? "bold" : "normal";
+                              e.currentTarget.style.color = matchResult === "home_win" ? "green" : "inherit";
                             }}
                           >
                             {match.home_team.short_name}
                           </span>
-                            <img
-                              src={match.home_team.logo_url}
-                              alt={match.home_team.short_name}
-                              style={{ width: "30px", marginLeft: "10px" }}
-                            />
+                          <img
+                            src={match.home_team.logo_url}
+                            alt={match.home_team.short_name}
+                            style={{ width: "30px", marginLeft: "10px" }}
+                          />
                         </Box>
                       </TableCell>
 
@@ -239,11 +276,27 @@ const LeagueFixtures = () => {
                             style={{ width: "30px", marginRight: "10px" }}
                           />
                           <span
+                            onClick={() =>
+                              router.push(
+                                `/equipas/${match.away_team.short_name}`
+                              )
+                            } // Navigate to team page on click
                             style={{
                               fontWeight:
                                 matchResult === "away_win" ? "bold" : "normal",
                               color:
-                                matchResult === "away_win" ? "green" : "inherit",
+                                matchResult === "away_win"
+                                  ? "green"
+                                  : "inherit",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.fontWeight = "bold";
+                              e.currentTarget.style.color = "#6B4BA1";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.fontWeight = matchResult === "away_win" ? "bold" : "normal";
+                              e.currentTarget.style.color = matchResult === "away_win" ? "green" : "inherit";
                             }}
                           >
                             {match.away_team.short_name}
@@ -252,16 +305,19 @@ const LeagueFixtures = () => {
                       </TableCell>
 
                       {/* Match Result */}
-                      <TableCell style={{ borderBottom: "none", fontWeight: "bold" }}>
-                        {match.home_goals !== null && match.away_goals !== null ? (
+                      <TableCell
+                        style={{ borderBottom: "none", fontWeight: "bold" }}
+                      >
+                        {match.home_goals !== null &&
+                        match.away_goals !== null ? (
                           <span
                             style={{
                               color:
                                 matchResult === "draw"
                                   ? "gray"
                                   : matchResult === "home_win"
-                                  ? "green"
-                                  : "red",
+                                    ? "green"
+                                    : "red",
                             }}
                           >
                             {match.home_goals} - {match.away_goals}
