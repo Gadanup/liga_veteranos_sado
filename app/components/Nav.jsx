@@ -110,6 +110,7 @@ export default function Nav({ onDrawerToggle }) {
   const shouldDisplayItem = (label) => {
     if (open) return true;
     return ["Classificação", "Taça", "Supertaça", "Galeria", "Info"].includes(
+
       label
     );
   };
@@ -423,51 +424,7 @@ export default function Nav({ onDrawerToggle }) {
           )}
           {open && (
             <>
-              <ListItem disablePadding sx={{ display: "block" }}>
-                <ListItemButton
-                  component={Link}
-                  href="/Taca/Calendar"
-                  onClick={() => handleListItemClick("Calendário Taça")}
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? "initial" : "center",
-                    px: 2.5,
-                    flexDirection: open ? "row" : "column",
-                    ...getListItemStyles("Calendário Taça"),
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : "auto",
-                      justifyContent: "center",
-                      color:
-                        selectedItem === "Calendário Taça"
-                          ? "#FFD700"
-                          : "white",
-                    }}
-                  >
-                    <CalendarMonthRoundedIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography
-                        sx={{
-                          fontSize: open ? "inherit" : "0.75rem",
-                          textAlign: open ? "left" : "center",
-                          color:
-                            selectedItem === "Calendário Taça"
-                              ? "#FFD700"
-                              : "white",
-                        }}
-                      >
-                        Calendário
-                      </Typography>
-                    }
-                    sx={{ opacity: open ? 1 : 1, color: "white" }}
-                  />
-                </ListItemButton>
-              </ListItem>
+              
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
@@ -595,12 +552,14 @@ export default function Nav({ onDrawerToggle }) {
                 component={Link}
                 href="/Informacao/Sorteio"
                 onClick={() => handleListItemClick("Info")}
+
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
                   ...getListItemStyles("Info"),
+
                 }}
               >
                 <ListItemIcon
@@ -609,6 +568,7 @@ export default function Nav({ onDrawerToggle }) {
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
                     color: selectedItem === "Info" ? "#FFD700" : "white",
+
                   }}
                 >
                   <GavelIcon />
@@ -619,10 +579,11 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Sorteio" ? "#FFD700" : "white",
+                        color: selectedItem === "Informação" ? "#FFD700" : "white",
                       }}
                     >
                       {open ? "Sorteio" : "Info"}
+
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -688,11 +649,13 @@ export default function Nav({ onDrawerToggle }) {
           </Typography>
         )}
         <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
+
           {shouldDisplayItem("Galeria") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
                 href="/Galeria/Equipas"
+
                 onClick={() => handleListItemClick("Galeria")}
                 sx={{
                   minHeight: 48,
@@ -718,10 +681,11 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Equipas" ? "#FFD700" : "white",
+                        color: selectedItem === "Galeria" ? "#FFD700" : "white",
                       }}
                     >
                       {open ? "Equipas" : "Galeria"}
+
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
