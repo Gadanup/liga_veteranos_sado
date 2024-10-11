@@ -17,7 +17,7 @@ export default function Documentacao() {
         </Typography>
         <List>
           {[
-            { text: "REGULAMENTO 2016/17", link: "https://onedrive.live.com/?redeem=aHR0cHM6Ly8xZHJ2Lm1zL2IvcyFBclA5NGNaLTBod1FoV1ZXUkJWVmVRc1RVenkw&cid=101CD27EC6E1FDB3&id=101CD27EC6E1FDB3%21741&parId=101CD27EC6E1FDB3%21195&o=OneUp" },
+            { text: "REGULAMENTO 2024/2025", link: "https://drive.google.com/file/d/1PntSOOChfXJMn2_Tdyp0mU8qcy_HhJMj/view?usp=sharing" },
             { text: "RELATÓRIO DO ÁRBITRO", link: "https://onedrive.live.com/?redeem=aHR0cHM6Ly8xZHJ2Lm1zL2IvcyFBclA5NGNaLTBod1FoV2FVQUlMd1lGV1FoQnFh&cid=101CD27EC6E1FDB3&id=101CD27EC6E1FDB3%21742&parId=101CD27EC6E1FDB3%21195&o=OneUp" },
             { text: "FICHA DE JOGO EM BRANCO", link: "https://onedrive.live.com/?redeem=aHR0cHM6Ly8xZHJ2Lm1zL2IvcyFBclA5NGNaLTBod1FoV2RZTWpwY0drYUtMbWY2&cid=101CD27EC6E1FDB3&id=101CD27EC6E1FDB3%21743&parId=101CD27EC6E1FDB3%21195&o=OneUp" },
             { text: "FICHA DE TRANSFERÊNCIA", link: "https://drive.google.com/file/d/1Vvxz82fHThEZyDWsx9hDALXRsjUFKWeh/view" },

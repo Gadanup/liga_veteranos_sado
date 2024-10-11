@@ -5,6 +5,7 @@ import {
   Box,
   Typography,
   Table,
+  Avatar,
   TableHead,
   TableBody,
   TableCell,
@@ -169,11 +170,12 @@ const TeamPage = ({ params }) => {
                       {nextGame.away_team.short_name}
                     </span>
                   </Box>
-                    <Box textAlign="center">
-                      <Typography variant="body2">
-                        {dayjs(nextGame.match_date).format("DD/MM/YYYY")} - {nextGame.home_team.stadium_name}
-                      </Typography>
-                    </Box>
+                  <Box textAlign="center">
+                    <Typography variant="body2">
+                      {dayjs(nextGame.match_date).format("DD/MM/YYYY")} -{" "}
+                      {nextGame.home_team.stadium_name}
+                    </Typography>
+                  </Box>
                 </Box>
               )}
             </Box>
@@ -301,57 +303,35 @@ const TeamPage = ({ params }) => {
           )}
 
           {tabIndex === 1 && (
-            <Box sx={{ marginTop: 2 }}>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow
-                      sx={{ backgroundColor: "rgba(165, 132, 224, 0.4)" }}
-                    >
-                      <TableCell sx={{ fontWeight: "bold", width: "10%" }}>
-                        #
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: "bold", width: "90%" }}>
-                        Nome
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {players.map((player, index) => (
-                      <TableRow
-                        key={player.id}
-                        sx={{
-                          cursor: "pointer",
-                          "&:hover": {
-                            backgroundColor: "rgba(165, 132, 224, 0.2)",
-                          },
-                          backgroundColor:
-                            index % 2 !== 0
-                              ? "rgba(165, 132, 224, 0.1)"
-                              : "inherit",
-                        }}
-                      >
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <img
-                              src={player.photo_url}
-                              alt={`${player.name} photo`}
-                              style={{
-                                width: "40px",
-                                height: "40px",
-                                objectFit: "fill",
-                                marginRight: "8px",
-                              }}
-                            />
-                            {player.name}
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr 1fr",
+                  lg: "1fr 1fr 1fr 1fr",
+                }, // Responsive grid
+                gap: 1,
+              }}
+            >
+              {players.map((player, index) => (
+                <Box
+                  key={player.name}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    margin: "5px 0",
+                    width: "100%",
+                  }}
+                >
+                  <Avatar
+                    alt={player.name}
+                    src={player.photo_url}
+                    sx={{ width: 70, height: 70, marginRight: 1 }} // Avatar size
+                  />
+                  <Typography variant="body1">{player.name}</Typography>
+                </Box>
+              ))}
             </Box>
           )}
         </>
