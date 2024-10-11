@@ -27,8 +27,8 @@ import SportsRoundedIcon from "@mui/icons-material/SportsRounded";
 import StadiumIcon from "@mui/icons-material/Stadium";
 import GavelIcon from "@mui/icons-material/Gavel";
 import DescriptionIcon from "@mui/icons-material/Description";
-import LeaderboardIcon from '@mui/icons-material/Leaderboard';
-import GroupsIcon from '@mui/icons-material/Groups';
+import LeaderboardIcon from "@mui/icons-material/Leaderboard";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 const drawerWidth = 240;
 
@@ -109,7 +109,8 @@ export default function Nav({ onDrawerToggle }) {
 
   const shouldDisplayItem = (label) => {
     if (open) return true;
-    return ["Classificação", "Taça", "Supertaça", "Galeria", "Informação"].includes(
+    return ["Classificação", "Taça", "Supertaça", "Galeria", "Info"].includes(
+
       label
     );
   };
@@ -179,14 +180,18 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
+            sx={{
+              padding: theme.spacing(1),
+              color: "white",
+              paddingBottom: "0px",
+            }}
           >
             Liga
           </Typography>
         )}
-        <List sx={{paddingBottom: 0, paddingTop: 0}}>
+        <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
           {shouldDisplayItem("Classificação") && (
-            <ListItem disablePadding sx={{ display: "block"}}>
+            <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
                 href="/Liga/Classification"
@@ -208,7 +213,7 @@ export default function Nav({ onDrawerToggle }) {
                       selectedItem === "Classificação" ? "#FFD700" : "white",
                   }}
                 >
-                  <LeaderboardIcon/>
+                  <LeaderboardIcon />
                 </ListItemIcon>
                 <ListItemText
                   primary={
@@ -366,12 +371,16 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
+            sx={{
+              padding: theme.spacing(1),
+              color: "white",
+              paddingBottom: "0px",
+            }}
           >
             Taça
           </Typography>
         )}
-        <List sx={{paddingBottom: 0, paddingTop: 0}}>
+        <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
           {shouldDisplayItem("Taça") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -470,12 +479,16 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
+            sx={{
+              padding: theme.spacing(1),
+              color: "white",
+              paddingBottom: "0px",
+            }}
           >
             Supertaça
           </Typography>
         )}
-        <List sx={{paddingBottom: 0, paddingTop: 0}}>
+        <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
           {shouldDisplayItem("Supertaça") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
@@ -523,24 +536,30 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
+            sx={{
+              padding: theme.spacing(1),
+              color: "white",
+              paddingBottom: "0px",
+            }}
           >
             Informações
           </Typography>
         )}
-        <List sx={{paddingBottom: 0, paddingTop: 0}}>
-          {shouldDisplayItem("Informação") && (
+        <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
+          {shouldDisplayItem("Info") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Informacao"
-                onClick={() => handleListItemClick("Informação")}
+                href="/Informacao/Sorteio"
+                onClick={() => handleListItemClick("Info")}
+
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
-                  ...getListItemStyles("Informação"),
+                  ...getListItemStyles("Info"),
+
                 }}
               >
                 <ListItemIcon
@@ -548,7 +567,8 @@ export default function Nav({ onDrawerToggle }) {
                     minWidth: 0,
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
-                    color: selectedItem === "Informação" ? "#FFD700" : "white",
+                    color: selectedItem === "Info" ? "#FFD700" : "white",
+
                   }}
                 >
                   <GavelIcon />
@@ -562,7 +582,8 @@ export default function Nav({ onDrawerToggle }) {
                         color: selectedItem === "Informação" ? "#FFD700" : "white",
                       }}
                     >
-                      Informação
+                      {open ? "Sorteio" : "Info"}
+
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -618,17 +639,23 @@ export default function Nav({ onDrawerToggle }) {
         {open && (
           <Typography
             variant="h6"
-            sx={{ padding: theme.spacing(1), color: "white", paddingBottom: '0px' }}
+            sx={{
+              padding: theme.spacing(1),
+              color: "white",
+              paddingBottom: "0px",
+            }}
           >
             Galeria
           </Typography>
         )}
-        <List sx={{paddingBottom: 0, paddingTop: 0}}>
+        <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
+
           {shouldDisplayItem("Galeria") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
-                href="/Galeria"
+                href="/Galeria/Equipas"
+
                 onClick={() => handleListItemClick("Galeria")}
                 sx={{
                   minHeight: 48,
@@ -657,7 +684,8 @@ export default function Nav({ onDrawerToggle }) {
                         color: selectedItem === "Galeria" ? "#FFD700" : "white",
                       }}
                     >
-                      Galeria
+                      {open ? "Equipas" : "Galeria"}
+
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -697,7 +725,9 @@ export default function Nav({ onDrawerToggle }) {
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
                         color:
-                          selectedItem === "Convivio 23/24" ? "#FFD700" : "white",
+                          selectedItem === "Convivio 23/24"
+                            ? "#FFD700"
+                            : "white",
                       }}
                     >
                       Convivio 23/24
