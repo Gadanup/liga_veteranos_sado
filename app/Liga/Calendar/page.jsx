@@ -196,13 +196,18 @@ const LeagueFixtures = () => {
 
                   return (
                     <TableRow
+                      onClick={() => router.push(`/Liga/Matches/${match.id}`)} // Navigate to Match day Page on click
                       key={match.id}
-                      style={{
+                      sx={{
+                        cursor: "pointer",
                         borderBottom: "none",
                         backgroundColor:
-                          index % 2 != 0
+                          index % 2 !== 0
                             ? "rgba(165, 132, 224, 0.1)"
                             : "inherit",
+                        "&:hover": {
+                          backgroundColor: "rgba(165, 132, 224, 0.2)",
+                        },
                       }}
                     >
                       {/* Match Date and Time */}
@@ -223,11 +228,11 @@ const LeagueFixtures = () => {
                           justifyContent="flex-end"
                         >
                           <span
-                            onClick={() =>
-                              router.push(
-                                `/equipas/${match.home_team.short_name}`
-                              )
-                            } // Navigate to team page on click
+                            // onClick={() =>
+                            //   router.push(
+                            //     `/equipas/${match.home_team.short_name}`
+                            //   )
+                            // } // Navigate to team page on click
                             style={{
                               fontWeight:
                                 matchResult === "home_win" ? "bold" : "normal",
@@ -235,16 +240,20 @@ const LeagueFixtures = () => {
                                 matchResult === "home_win"
                                   ? "green"
                                   : "inherit",
-                                  cursor: "pointer",
+                              cursor: "pointer",
                             }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.fontWeight = "bold";
-                              e.currentTarget.style.color = "#6B4BA1";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.fontWeight = matchResult === "home_win" ? "bold" : "normal";
-                              e.currentTarget.style.color = matchResult === "home_win" ? "green" : "inherit";
-                            }}
+                            // onMouseEnter={(e) => {
+                            //   e.currentTarget.style.fontWeight = "bold";
+                            //   e.currentTarget.style.color = "#6B4BA1";
+                            // }}
+                            // onMouseLeave={(e) => {
+                            //   e.currentTarget.style.fontWeight =
+                            //     matchResult === "home_win" ? "bold" : "normal";
+                            //   e.currentTarget.style.color =
+                            //     matchResult === "home_win"
+                            //       ? "green"
+                            //       : "inherit";
+                            // }}
                           >
                             {match.home_team.short_name}
                           </span>
@@ -276,11 +285,11 @@ const LeagueFixtures = () => {
                             style={{ width: "30px", marginRight: "10px" }}
                           />
                           <span
-                            onClick={() =>
-                              router.push(
-                                `/equipas/${match.away_team.short_name}`
-                              )
-                            } // Navigate to team page on click
+                            // onClick={() =>
+                            //   router.push(
+                            //     `/equipas/${match.away_team.short_name}`
+                            //   )
+                            // } // Navigate to team page on click
                             style={{
                               fontWeight:
                                 matchResult === "away_win" ? "bold" : "normal",
@@ -290,14 +299,18 @@ const LeagueFixtures = () => {
                                   : "inherit",
                               cursor: "pointer",
                             }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.fontWeight = "bold";
-                              e.currentTarget.style.color = "#6B4BA1";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.fontWeight = matchResult === "away_win" ? "bold" : "normal";
-                              e.currentTarget.style.color = matchResult === "away_win" ? "green" : "inherit";
-                            }}
+                            // onMouseEnter={(e) => {
+                            //   e.currentTarget.style.fontWeight = "bold";
+                            //   e.currentTarget.style.color = "#6B4BA1";
+                            // }}
+                            // onMouseLeave={(e) => {
+                            //   e.currentTarget.style.fontWeight =
+                            //     matchResult === "away_win" ? "bold" : "normal";
+                            //   e.currentTarget.style.color =
+                            //     matchResult === "away_win"
+                            //       ? "green"
+                            //       : "inherit";
+                            // }}
                           >
                             {match.away_team.short_name}
                           </span>
