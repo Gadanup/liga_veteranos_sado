@@ -15,6 +15,8 @@ const Supercup = () => {
   const [matchDetails, setMatchDetails] = useState(null); // Store match details
   const [homePlayers, setHomePlayers] = useState([]); // Home team players
   const [awayPlayers, setAwayPlayers] = useState([]); // Away team players
+  const [matchEvents, setMatchEvents] = useState([]); // Store match events
+  const [playersData, setPlayersData] = useState([]); // Store players data for goalscorers
 
   /**
    * Fetches match details and players from the Supabase database.
@@ -41,6 +43,7 @@ const Supercup = () => {
     } else {
       setMatchDetails(matchData); // Set match details state
       fetchPlayers(matchData.home_team.id, matchData.away_team.id); // Fetch players based on team IDs
+      fetchMatchEvents(matchData.id); // Fetch match events based on match ID
     }
   };
 
@@ -51,12 +54,12 @@ const Supercup = () => {
   const fetchPlayers = async (homeTeamId, awayTeamId) => {
     const { data: homePlayersData, error: homeError } = await supabase
       .from("players")
-      .select("name, photo_url")
+      .select("name, photo_url, id") // Include id for filtering
       .eq("team_id", homeTeamId);
 
     const { data: awayPlayersData, error: awayError } = await supabase
       .from("players")
-      .select("name, photo_url")
+      .select("name, photo_url, id") // Include id for filtering
       .eq("team_id", awayTeamId);
 
     if (homeError || awayError) {
@@ -64,6 +67,41 @@ const Supercup = () => {
     } else {
       setHomePlayers(homePlayersData); // Set home players state
       setAwayPlayers(awayPlayersData); // Set away players state
+    }
+  };
+
+  /**
+   * Fetches match events from the match_events table based on match ID.
+   */
+  const fetchMatchEvents = async (matchId) => {
+    const { data: eventsData, error } = await supabase
+      .from("match_events")
+      .select("event_type, player_id")
+      .eq("match_id", matchId);
+
+    if (error) {
+      console.error("Error fetching match events:", error);
+    } else {
+      setMatchEvents(eventsData); // Set match events state
+      fetchPlayersData(eventsData); // Fetch players' names based on player IDs from match events
+    }
+  };
+
+  /**
+   * Fetches player details for goalscorers from the players table.
+   */
+  const fetchPlayersData = async (events) => {
+    const playerIds = events.map(event => event.player_id);
+
+    const { data: playersData, error } = await supabase
+      .from("players")
+      .select("id, name")
+      .in("id", playerIds);
+
+    if (error) {
+      console.error("Error fetching player details:", error);
+    } else {
+      setPlayersData(playersData); // Set players data for goalscorers
     }
   };
 
@@ -81,6 +119,25 @@ const Supercup = () => {
       }
     }
     return {}; // Default style
+  };
+
+  // Function to get goalscorers for each team
+  const getGoalscorers = (teamId) => {
+    const playerIds = teamId === matchDetails.home_team.id
+      ? homePlayers.map(player => player.id)
+      : awayPlayers.map(player => player.id);
+
+    const goalscorerCounts = matchEvents
+      .filter(event => event.event_type === 'GOAL' && playerIds.includes(event.player_id))
+      .reduce((acc, event) => {
+        const player = playersData.find(p => p.id === event.player_id);
+        if (player) {
+          acc[player.name] = (acc[player.name] || 0) + 1; // Count goals per player
+        }
+        return acc;
+      }, {});
+
+    return Object.entries(goalscorerCounts).map(([name, count]) => `${name} (${count})`);
   };
 
   return (
@@ -165,9 +222,42 @@ const Supercup = () => {
             </Box>
           </Box>
 
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', alignItems: 'top' }}>
+            {/* Display Goalscorers for Home Team */}
+            <Box sx={{ textAlign: "center", mr: 5 }}>
+              <Typography variant="h6">Marcadores {matchDetails.home_team.short_name}:</Typography>
+              {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
+                getGoalscorers(matchDetails.home_team.id).map((goalscorer, index) => (
+                  <Typography key={index} variant="body1">
+                    {goalscorer}
+                  </Typography>
+                ))
+              ) : (
+                <Typography variant="body2">No goalscorers</Typography>
+              )}
+            </Box>
+
+            {/* Vertical Line Divider */}
+            <Box sx={{ width: '2px', backgroundColor: 'gray', height: 'auto', mx: 2 }} />
+
+            {/* Display Goalscorers for Away Team */}
+            <Box sx={{ textAlign: "center", ml: 5 }}>
+              <Typography variant="h6">Marcadores {matchDetails.away_team.short_name}:</Typography>
+              {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
+                getGoalscorers(matchDetails.away_team.id).map((goalscorer, index) => (
+                  <Typography key={index} variant="body1">
+                    {goalscorer}
+                  </Typography>
+                ))
+              ) : (
+                <Typography variant="body2">No goalscorers</Typography>
+              )}
+            </Box>
+          </Box>
+
           {/* Hardcoded Stadium Name */}
           <Typography variant="h5" sx={{ marginTop: "3rem" }}>
-            Estadio:  Campo António Henrique de Matos
+            Estadio: Campo António Henrique de Matos
           </Typography>
 
           {/* Ficha de Jogo Link */}
