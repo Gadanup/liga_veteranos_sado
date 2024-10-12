@@ -233,7 +233,7 @@ const Supercup = () => {
                   </Typography>
                 ))
               ) : (
-                <Typography variant="body2">No goalscorers</Typography>
+                <Typography variant="body2">Sem marcadores</Typography>
               )}
             </Box>
 
@@ -250,7 +250,7 @@ const Supercup = () => {
                   </Typography>
                 ))
               ) : (
-                <Typography variant="body2">No goalscorers</Typography>
+                <Typography variant="body2">Sem marcadores</Typography>
               )}
             </Box>
           </Box>
