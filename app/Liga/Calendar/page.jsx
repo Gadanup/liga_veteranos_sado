@@ -196,7 +196,7 @@ const LeagueFixtures = () => {
 
                   return (
                     <TableRow
-                      onClick={() => router.push(`/Liga/Matches/${match.id}`)} // Navigate to Match day Page on click
+                      onClick={() => router.push(`/Jogos/${match.id}`)} // Navigate to Match day Page on click
                       key={match.id}
                       sx={{
                         cursor: "pointer",

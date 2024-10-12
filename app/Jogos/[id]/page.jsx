@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { supabase } from "../../../../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 import { Box, Typography, Link, Avatar } from "@mui/material";
 import dayjs from "dayjs";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -162,7 +162,11 @@ const MatchPage = () => {
           <Typography variant="h4" sx={{ color: "#6B4BA1" }} gutterBottom>
             {matchDetails.competition_type === "League"
               ? `Jornada ${matchDetails.week}`
-              : `Taça : Ronda ${matchDetails.round}`}
+              : matchDetails.competition_type === "Cup"
+                ? `Taça : Ronda ${matchDetails.round}`
+                : matchDetails.competition_type === "Supercup"
+                  ? "Supertaça"
+                  : ""}
           </Typography>
 
           <Box sx={{ mt: 5, mb: 5 }}>
@@ -322,12 +326,22 @@ const MatchPage = () => {
 
             {/* Stadium Name */}
             <Typography variant="h5" sx={{ marginTop: "3rem" }}>
-              {matchDetails.home_team.stadium_name}
+              {matchDetails.competition_type === "Supercup"
+                ? "Estádio: Campo António Henrique de Matos"
+                : matchDetails.home_team.stadium_name}
             </Typography>
 
             {/* Ficha de Jogo Link */}
             <Box sx={{ marginTop: "3rem" }}>
               <Link
+                href={
+                  matchDetails.competition_type === "Supercup"
+                    ? "/fichajogosupertaca/saograbrielvsindependente.pdf"
+                    : "#"
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                underline="none"
               >
                 <DownloadIcon sx={{ marginRight: 1 }} />{" "}
                 {/* Icon with right margin */}
