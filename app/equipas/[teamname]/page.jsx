@@ -60,6 +60,7 @@ const TeamPage = ({ params }) => {
             match_time,
             home_goals,
             away_goals,
+            competition_type,
             home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
             away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
           `
@@ -96,6 +97,18 @@ const TeamPage = ({ params }) => {
       return "draw";
     }
   };
+
+
+  const translateCompetitionType = (competitionType) => {
+    const translations = {
+      Supercup: 'Supertaça',
+      Cup: 'Taça',
+      League: 'Liga'
+    };
+    
+    return translations[competitionType] || competitionType; // Fallback to original if not found
+  };
+  
 
   return (
     <Box sx={{ p: 4 }}>
@@ -293,6 +306,7 @@ const TeamPage = ({ params }) => {
                             )}
                           </TableCell>
                           <TableCell>{match.home_team.stadium_name}</TableCell>
+                          <TableCell>{translateCompetitionType(match.competition_type)}</TableCell>
                         </TableRow>
                       );
                     })}
