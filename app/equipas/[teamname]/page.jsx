@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 const TeamPage = ({ params }) => {
   const { teamname } = params;
@@ -26,6 +27,7 @@ const TeamPage = ({ params }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [teamFixtures, setTeamFixtures] = useState([]);
   const [nextGame, setNextGame] = useState(null);
+  const router = useRouter(); // Initialize the router
 
   useEffect(() => {
     const fetchTeamData = async () => {
@@ -61,6 +63,8 @@ const TeamPage = ({ params }) => {
             home_goals,
             away_goals,
             competition_type,
+            round,
+            week,
             home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
             away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
           `
@@ -98,17 +102,29 @@ const TeamPage = ({ params }) => {
     }
   };
 
-
   const translateCompetitionType = (competitionType) => {
     const translations = {
-      Supercup: 'Supertaça',
-      Cup: 'Taça',
-      League: 'Liga'
+      Supercup: "Supertaça",
+      Cup: "Taça",
+      League: "Liga",
     };
-    
+
     return translations[competitionType] || competitionType; // Fallback to original if not found
   };
-  
+
+  const renderCompetitionDetails = (match) => {
+    const competitionType = translateCompetitionType(match.competition_type);
+
+    if (match.competition_type === "Supercup") {
+      return competitionType;
+    } else if (match.competition_type === "Cup") {
+      return `${competitionType} - ${match.round}`;
+    } else if (match.competition_type === "League") {
+      return `Jornada ${match.week}`;
+    } else {
+      return competitionType; // Fallback for any other types
+    }
+  };
 
   return (
     <Box sx={{ p: 4 }}>
@@ -215,12 +231,18 @@ const TeamPage = ({ params }) => {
                       );
                       return (
                         <TableRow
+                          onClick={() => router.push(`/Jogos/${match.id}`)} // Navigate to Match day Page on click
                           key={match.id}
                           sx={{
+                            cursor: "pointer",
+                            borderBottom: "none",
                             backgroundColor:
                               index % 2 !== 0
                                 ? "rgba(165, 132, 224, 0.1)"
                                 : "inherit",
+                            "&:hover": {
+                              backgroundColor: "rgba(165, 132, 224, 0.2)",
+                            },
                           }}
                         >
                           <TableCell>
@@ -306,7 +328,9 @@ const TeamPage = ({ params }) => {
                             )}
                           </TableCell>
                           <TableCell>{match.home_team.stadium_name}</TableCell>
-                          <TableCell>{translateCompetitionType(match.competition_type)}</TableCell>
+                          <TableCell>
+                            {renderCompetitionDetails(match)}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
