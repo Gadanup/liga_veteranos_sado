@@ -156,14 +156,14 @@ export default function Nav({ onDrawerToggle }) {
               Liga Veteranos do Sado
             </Typography>
           </div>
-          <Button
+          {/* <Button
             color="inherit"
             component={Link}
             href="/login"
             className="text-secondary border border-accent"
           >
             Log in
-          </Button>
+          </Button> */}
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
