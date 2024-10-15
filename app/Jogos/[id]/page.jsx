@@ -139,7 +139,7 @@ const MatchPage = () => {
     const goalscorerCounts = matchEvents
       .filter(
         (event) =>
-          event.event_type === "GOAL" && playerIds.includes(event.player_id)
+          event.event_type === 1 && playerIds.includes(event.player_id)
       )
       .reduce((acc, event) => {
         const player = playersData.find((p) => p.id === event.player_id);
