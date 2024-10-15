@@ -45,6 +45,7 @@ const TeamPage = ({ params }) => {
         const { data: playersData, error: playersError } = await supabase
           .from("players")
           .select("*")
+          .order("name", {ascending: true})
           .eq("team_id", team.id);
 
         if (playersError) {
