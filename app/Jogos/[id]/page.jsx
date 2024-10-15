@@ -63,6 +63,7 @@ const MatchPage = () => {
     const { data: homePlayersData, error: homeError } = await supabase
       .from("players")
       .select("name, photo_url, id") // Include id for filtering
+      .order("name", {ascending: true})
       .eq("team_id", homeTeamId);
 
     const { data: awayPlayersData, error: awayError } = await supabase
