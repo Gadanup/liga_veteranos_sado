@@ -549,7 +549,7 @@ const MatchPage = () => {
           </Box>
         </>
       ) : (
-        <Typography variant="body1">Carregar dados da Supertaça...</Typography>
+        <Typography variant="body1">Carregar dados do Jogo</Typography>
       )}
     </Box>
   );
