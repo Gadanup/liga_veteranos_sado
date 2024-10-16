@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../../lib/supabase";
-import { Box, Typography, Link, Avatar } from "@mui/material";
+import { Box, Typography, Link, Avatar, CircularProgress, Alert } from "@mui/material";
 import dayjs from "dayjs";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useParams } from "next/navigation";
+import jsPDF from "jspdf";
+// import 'jspdf-autotable';
 
 /**
  * MatchPage Component
@@ -19,6 +21,8 @@ const MatchPage = () => {
   const [awayPlayers, setAwayPlayers] = useState([]); // Away team players
   const [matchEvents, setMatchEvents] = useState([]); // Store match events
   const [playersData, setPlayersData] = useState([]); // Store players data for goalscorers
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
   const params = useParams();
   const { id } = params; // retrieve the id from the route params
 
@@ -63,7 +67,6 @@ const MatchPage = () => {
     const { data: homePlayersData, error: homeError } = await supabase
       .from("players")
       .select("name, photo_url, id") // Include id for filtering
-      .order("name", {ascending: true})
       .eq("team_id", homeTeamId);
 
     const { data: awayPlayersData, error: awayError } = await supabase
@@ -140,7 +143,7 @@ const MatchPage = () => {
     const goalscorerCounts = matchEvents
       .filter(
         (event) =>
-          event.event_type === 1 && playerIds.includes(event.player_id)
+          event.event_type === "GOAL" && playerIds.includes(event.player_id)
       )
       .reduce((acc, event) => {
         const player = playersData.find((p) => p.id === event.player_id);
@@ -154,6 +157,80 @@ const MatchPage = () => {
       ([name, count]) => `${name} (${count})`
     );
   };
+
+
+  const generatePDF = async () => {
+    const doc = new jsPDF();
+
+    // Set document title and competition info
+    doc.setFontSize(18);
+    doc.text("LIGA DE FUTEBOL", 20, 20);
+    doc.setFontSize(14);
+    doc.text("VETERANOS DO SADO", 20, 30);
+    doc.setFontSize(10);
+    doc.text("2024/25", 20, 40);
+    doc.text("Super Taça", 20, 45);
+    doc.text(dayjs().format("DD-MM-YYYY"), 20, 50); // Use current date in format DD-MM-YYYY
+
+    // Team Names
+    doc.setFontSize(16);
+    doc.text("A", 20, 65);
+    doc.text(`${matchDetails.home_team.short_name}`, 20, 70); // Home team name
+    doc.text("Vs", 100, 70);
+    doc.text(`${matchDetails.away_team.short_name}`, 160, 70); // Away team name
+    doc.text("B", 160, 65);
+
+    // Player Table Headers
+    doc.setFontSize(12);
+    doc.text("Nº", 20, 90);
+    doc.text("NOMES DOS ATLETAS", 30, 90);
+    doc.text("GOLS", 120, 90);
+    doc.text("DISCIPLINA", 140, 90);
+    doc.text("GOLS", 160, 90);
+    doc.text("NOMES DOS ATLETAS", 170, 90);
+    doc.text("Nº", 210, 90);
+
+    // Add Home Team Players
+    homePlayers.forEach((player, index) => {
+        doc.text(`${index + 1}`, 20, 100 + index * 10);
+        doc.text(player.name, 30, 100 + index * 10);
+        // Add Gols and Disciplina placeholders if necessary
+    });
+
+    // Add Away Team Players
+    awayPlayers.forEach((player, index) => {
+        doc.text(`${index + 1}`, 170, 100 + index * 10);
+        doc.text(player.name, 180, 100 + index * 10);
+        // Add Gols placeholders if necessary
+    });
+
+    // Additional Sections for Coaches and Observations
+    doc.text("NOMES DOS TREINADORES E DELEGADOS", 20, 100 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("TREINADOR -", 20, 120 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("DELEGADO -", 20, 130 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("DELEGADO -", 20, 140 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    
+    doc.text("OBSERVAÇÕES:", 20, 150 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    
+    // Goals Section
+    doc.text("GOLS -- Nº DO JOGADOR", 20, 170 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("A", 20, 180 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("B", 120, 180 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+
+    // Result Section
+    doc.text(`${matchDetails.home_team.short_name}`, 20, 200 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("RESULTADO FINAL", 100, 200 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text(`${matchDetails.away_team.short_name}`, 200, 200 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+
+    doc.text("DELEGADO", 20, 220 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("ARBITRO", 100, 220 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    doc.text("DELEGADO", 200, 220 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+
+    // Save the PDF
+    doc.save(`fichajogo${matchDetails.home_team.short_name}${matchDetails.away_team.short_name}.pdf`);
+};
+
+
 
   return (
     <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}>
@@ -335,15 +412,17 @@ const MatchPage = () => {
             {/* Ficha de Jogo Link */}
             <Box sx={{ marginTop: "3rem" }}>
               <Link
-                href={
-                  matchDetails.competition_type === "Supercup"
-                    ? "/fichajogosupertaca/saograbrielvsindependente.pdf"
-                    : "#"
-                }
-                target="_blank"
+                // href={
+                //   matchDetails.competition_type === "Supercup"
+                //     ? "/fichajogosupertaca/saograbrielvsindependente.pdf"
+                //     : "#"
+                // }
+                // target="_blank"
+                onClick={generatePDF}
                 rel="noopener noreferrer"
                 underline="none"
               >
+
                 <DownloadIcon sx={{ marginRight: 1 }} />{" "}
                 {/* Icon with right margin */}
                 <Typography variant="h6" sx={{ color: "#1976d2" }}>
