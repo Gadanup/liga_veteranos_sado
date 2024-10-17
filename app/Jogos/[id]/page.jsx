@@ -2,11 +2,20 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { supabase } from "../../../lib/supabase";
-import { Box, Typography, Link, Avatar, CircularProgress, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Link,
+  Avatar,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 import dayjs from "dayjs";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useParams } from "next/navigation";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
 // import 'jspdf-autotable';
 
 /**
@@ -158,79 +167,149 @@ const MatchPage = () => {
     );
   };
 
+  // Check if matchDetails is available before setting competitionText
+  const competitionText = matchDetails
+    ? matchDetails.competition_type === "League"
+      ? `Jornada ${matchDetails.week}`
+      : matchDetails.competition_type === "Cup"
+        ? `Taça : Ronda ${matchDetails.round}`
+        : matchDetails.competition_type === "Supercup"
+          ? "Super Taça"
+          : ""
+    : "";
 
   const generatePDF = async () => {
     const doc = new jsPDF();
 
+    // Add league logo
+    const img = new Image();
+    img.src = "/logo/logo.png";
+    doc.addImage(img, "PNG", 10, 10, 20, 20); // Adjusted size for better layout
+
     // Set document title and competition info
     doc.setFontSize(18);
-    doc.text("LIGA DE FUTEBOL", 20, 20);
-    doc.setFontSize(14);
-    doc.text("VETERANOS DO SADO", 20, 30);
+    doc.setTextColor(107, 75, 161); // Set color to #6B4BA1
+    doc.text("LIGA DE FUTEBOL VETERANOS DO SADO", 50, 20);
+    // Reset text color to black for other sections if needed
+    doc.setTextColor(0, 0, 0); // Black color for other text
+    doc.setFontSize(15);
+    doc.text("2024/25", 95, 27);
     doc.setFontSize(10);
-    doc.text("2024/25", 20, 40);
-    doc.text("Super Taça", 20, 45);
-    doc.text(dayjs().format("DD-MM-YYYY"), 20, 50); // Use current date in format DD-MM-YYYY
+    // Check matchDetails before accessing match_date
+    const matchDateText = matchDetails
+      ? dayjs(matchDetails.match_date).format("DD/MM/YYYY")
+      : "Date TBD";
+    doc.text(`${competitionText} - ${matchDateText}`, 87, 35);
 
-    // Team Names
+    // Divider line below title section
+    doc.line(10, 40, 200, 40);
+
+    // Team Names with "A" and "B" labels and "VS" in the middle
     doc.setFontSize(16);
-    doc.text("A", 20, 65);
-    doc.text(`${matchDetails.home_team.short_name}`, 20, 70); // Home team name
-    doc.text("Vs", 100, 70);
-    doc.text(`${matchDetails.away_team.short_name}`, 160, 70); // Away team name
-    doc.text("B", 160, 65);
+    doc.text("A", 15, 50);
+    doc.text(`${matchDetails.home_team.short_name}`, 30, 50);
+    doc.text("VS", 100, 50);
+    if (matchDetails.away_team.short_name === "Bairro Santos Nicolau") {
+      doc.text(`${matchDetails.away_team.short_name}`, 137, 50);
+    } else {
+      doc.text(`${matchDetails.away_team.short_name}`, 140, 50);
+    }
+    doc.text("B", 195, 50); // Shifted "B" further to the right
+
+    // Divider line below team names section
+    doc.line(10, 55, 200, 55);
 
     // Player Table Headers
-    doc.setFontSize(12);
-    doc.text("Nº", 20, 90);
-    doc.text("NOMES DOS ATLETAS", 30, 90);
-    doc.text("GOLS", 120, 90);
-    doc.text("DISCIPLINA", 140, 90);
-    doc.text("GOLS", 160, 90);
-    doc.text("NOMES DOS ATLETAS", 170, 90);
-    doc.text("Nº", 210, 90);
+    doc.setFontSize(8); // Reduced font size for compact table
+    doc.text("Nº", 20, 60);
+    doc.text("NOMES DOS ATLETAS", 30, 60);
+    doc.text("GOLOS", 80, 60);
+    doc.text("DISCIPLINA", 100, 60);
+    doc.text("GOLOS", 130, 60);
+    doc.text("NOMES DOS ATLETAS", 160, 60);
+    doc.text("Nº", 195, 60); // Closer to the right side for better alignment
 
-    // Add Home Team Players
+    // Calculate the y-coordinate for the line's end
+    const lastPlayerY =
+      65 + Math.max(homePlayers.length, awayPlayers.length) * 4;
+
+    // Draw the vertical line to separate the two columns
+    doc.line(108, 62, 108, lastPlayerY); // From just below header to last player row
+
+    // Player Table Data
     homePlayers.forEach((player, index) => {
-        doc.text(`${index + 1}`, 20, 100 + index * 10);
-        doc.text(player.name, 30, 100 + index * 10);
-        // Add Gols and Disciplina placeholders if necessary
+      doc.text(player.name, 30, 65 + index * 4);
     });
 
-    // Add Away Team Players
     awayPlayers.forEach((player, index) => {
-        doc.text(`${index + 1}`, 170, 100 + index * 10);
-        doc.text(player.name, 180, 100 + index * 10);
-        // Add Gols placeholders if necessary
+      doc.text(player.name, 160, 65 + index * 4);
     });
 
-    // Additional Sections for Coaches and Observations
-    doc.text("NOMES DOS TREINADORES E DELEGADOS", 20, 100 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("TREINADOR -", 20, 120 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("DELEGADO -", 20, 130 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("DELEGADO -", 20, 140 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    
-    doc.text("OBSERVAÇÕES:", 20, 150 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    
-    // Goals Section
-    doc.text("GOLS -- Nº DO JOGADOR", 20, 170 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("A", 20, 180 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("B", 120, 180 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    // Divider line below player table section
+    const yOffset =
+      65 + Math.max(homePlayers.length, awayPlayers.length) * 4 + 5;
+    doc.line(10, yOffset - 2, 200, yOffset - 2);
 
-    // Result Section
-    doc.text(`${matchDetails.home_team.short_name}`, 20, 200 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("RESULTADO FINAL", 100, 200 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text(`${matchDetails.away_team.short_name}`, 200, 200 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    // Coaches and Delegates Section
+    doc.setFontSize(10);
+    doc.text("NOMES DOS TREINADORES E DELEGADOS", 20, yOffset + 3);
+    doc.text("TREINADOR -", 20, yOffset + 10);
+    doc.text("DELEGADO -", 20, yOffset + 20);
+    doc.text("TREINADOR -", 130, yOffset + 10); // Right side for Team B
+    doc.text("DELEGADO -", 130, yOffset + 20); // Right side for Team B
 
-    doc.text("DELEGADO", 20, 220 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("ARBITRO", 100, 220 + (homePlayers.length + awayPlayers.length) * 10 + 10);
-    doc.text("DELEGADO", 200, 220 + (homePlayers.length + awayPlayers.length) * 10 + 10);
+    // Divider line below coaches and delegates section
+    doc.line(10, yOffset + 25, 200, yOffset + 25);
+
+    // Observations Section
+    doc.rect(20, yOffset + 30, 170, 20);
+    doc.text("OBSERVAÇÕES:", 25, yOffset + 35);
+
+    // Divider line below observations section
+    doc.line(10, yOffset + 55, 200, yOffset + 55);
+
+    // Goals Section as a two-row table with smaller boxes
+    doc.setFontSize(10);
+    doc.text("GOLOS -- Nº DO JOGADOR", 20, yOffset + 60);
+
+    // Row for Team A
+    doc.text("A", 20, yOffset + 70);
+    for (let i = 0; i < 15; i++) {
+      doc.rect(30 + i * 11, yOffset + 65, 10, 8); // Smaller boxes (10x8)
+    }
+
+    // Row for Team B
+    doc.text("B", 20, yOffset + 80);
+    for (let i = 0; i < 15; i++) {
+      doc.rect(30 + i * 11, yOffset + 75, 10, 8); // Smaller boxes (10x8)
+    }
+
+    // Divider line below goals section
+    doc.line(10, yOffset + 90, 200, yOffset + 90);
+
+    // Final Result Section
+    doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 101);
+    doc.circle(70, yOffset + 100, 5); // Circle for home team goals
+    doc.text("VS", 100, yOffset + 101);
+    doc.circle(140, yOffset + 100, 5); // Circle for away team goals
+    doc.text(`${matchDetails.away_team.short_name}`, 160, yOffset + 101);
+
+    // Divider line below final result section
+    doc.line(10, yOffset + 110, 200, yOffset + 110);
+
+    // Signature Section
+    doc.text("DELEGADO", 20, yOffset + 117);
+    doc.line(20, yOffset + 125, 60, yOffset + 125); // Line for delegate signature
+    doc.text("ÁRBITRO", 90, yOffset + 117);
+    doc.line(90, yOffset + 125, 130, yOffset + 125); // Line for referee signature
+    doc.text("DELEGADO", 160, yOffset + 117);
+    doc.line(160, yOffset + 125, 200, yOffset + 125); // Line for delegate signature
 
     // Save the PDF
-    doc.save(`fichajogo${matchDetails.home_team.short_name}${matchDetails.away_team.short_name}.pdf`);
-};
-
-
+    doc.save(
+      `fichajogo_${matchDetails.home_team.short_name}_vs_${matchDetails.away_team.short_name}.pdf`
+    );
+  };
 
   return (
     <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}>
@@ -409,27 +488,38 @@ const MatchPage = () => {
                 : matchDetails.home_team.stadium_name}
             </Typography>
 
-            {/* Ficha de Jogo Link */}
-            <Box sx={{ marginTop: "3rem" }}>
-              <Link
-                // href={
-                //   matchDetails.competition_type === "Supercup"
-                //     ? "/fichajogosupertaca/saograbrielvsindependente.pdf"
-                //     : "#"
-                // }
-                // target="_blank"
-                onClick={generatePDF}
-                rel="noopener noreferrer"
-                underline="none"
+            <div>
+              {/* Hidden div to render PDF template */}
+              {/* <div
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  top: "-9999px",
+                }}
               >
-
-                <DownloadIcon sx={{ marginRight: 1 }} />{" "}
-                {/* Icon with right margin */}
-                <Typography variant="h6" sx={{ color: "#1976d2" }}>
-                  Ficha de Jogo
-                </Typography>
-              </Link>
-            </Box>
+                <PDFTemplate />
+              </div> */}
+              {/* Ficha de Jogo Link */}
+              <Box sx={{ marginTop: "3rem", cursor: "pointer" }}>
+                <Link
+                  // href={
+                  //   matchDetails.competition_type === "Supercup"
+                  //     ? "/fichajogosupertaca/saograbrielvsindependente.pdf"
+                  //     : "#"
+                  // }
+                  // target="_blank"
+                  onClick={generatePDF}
+                  rel="noopener noreferrer"
+                  underline="none"
+                >
+                  <DownloadIcon sx={{ marginRight: 1 }} />{" "}
+                  {/* Icon with right margin */}
+                  <Typography variant="h6" sx={{ color: "#1976d2" }}>
+                    Ficha de Jogo
+                  </Typography>
+                </Link>
+              </Box>
+            </div>
 
             {/* Players List for both teams */}
             <Box
