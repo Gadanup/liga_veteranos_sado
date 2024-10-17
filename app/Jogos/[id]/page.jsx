@@ -170,11 +170,11 @@ const MatchPage = () => {
   // Check if matchDetails is available before setting competitionText
   const competitionText = matchDetails
     ? matchDetails.competition_type === "League"
-      ? `Jornada ${matchDetails.week}`
+      ? `Liga - Jornada ${matchDetails.week}`
       : matchDetails.competition_type === "Cup"
         ? `Taça : Ronda ${matchDetails.round}`
         : matchDetails.competition_type === "Supercup"
-          ? "Super Taça"
+          ? "Supertaça"
           : ""
     : "";
 
@@ -206,7 +206,7 @@ const MatchPage = () => {
 
     // Team Names with "A" and "B" labels and "VS" in the middle
     doc.setFontSize(16);
-    doc.text("A", 15, 50);
+    doc.text("A", 10, 50);
     doc.text(`${matchDetails.home_team.short_name}`, 30, 50);
     doc.text("VS", 100, 50);
     if (matchDetails.away_team.short_name === "Bairro Santos Nicolau") {
@@ -221,29 +221,54 @@ const MatchPage = () => {
 
     // Player Table Headers
     doc.setFontSize(8); // Reduced font size for compact table
-    doc.text("Nº", 20, 60);
-    doc.text("NOMES DOS ATLETAS", 30, 60);
-    doc.text("GOLOS", 80, 60);
-    doc.text("DISCIPLINA", 100, 60);
-    doc.text("GOLOS", 130, 60);
-    doc.text("NOMES DOS ATLETAS", 160, 60);
-    doc.text("Nº", 195, 60); // Closer to the right side for better alignment
+    doc.text("Nº", 12, 61);
+    doc.text("NOMES DOS ATLETAS", 19, 61);
+    doc.text("GOLOS", 64, 61);
+    doc.text("DISCIPLINA", 98, 61);
+    doc.text("GOLOS", 125, 61);
+    doc.text("NOMES DOS ATLETAS", 150, 61);
+    doc.text("Nº", 195, 61); // Closer to the right side for better alignment
 
-    // Calculate the y-coordinate for the line's end
+    // Define initial y-coordinate for player rows
+    let rowStartY = 65;
+    let rowHeight = 4;
+
+    // Calculate the y-coordinate for the end of the table based on the number of players
     const lastPlayerY =
-      65 + Math.max(homePlayers.length, awayPlayers.length) * 4;
+      rowStartY + Math.max(homePlayers.length, awayPlayers.length) * rowHeight;
 
-    // Draw the vertical line to separate the two columns
-    doc.line(108, 62, 108, lastPlayerY); // From just below header to last player row
+    // Draw vertical lines for each column
+    const columnsX = [10, 17, 62, 87, 123, 148, 193, 200]; // X-coordinates for the column lines
+    columnsX.forEach((x) => {
+      doc.line(x, 58, x, lastPlayerY); // Vertical lines from headers to the last row
+    });
 
-    // Player Table Data
+    // Draw the vertical line to divide the "DISCIPLINA" column into two sections
+    const disciplinaX = 105; // X-coordinate for "DISCIPLINA" header
+    doc.line(disciplinaX, 62, disciplinaX, lastPlayerY); // Vertical line below the header
+
+    // Draw horizontal lines for each row (including headers)
+    for (let y = 58; y <= lastPlayerY; y += rowHeight) {
+      doc.line(10, y, 200, y); // Horizontal line spanning across all columns
+    }
+
+    // Draw player data within the grid
     homePlayers.forEach((player, index) => {
-      doc.text(player.name, 30, 65 + index * 4);
+      let yPos = rowStartY + index * rowHeight;
+      doc.text(String(player.number || ""), 20, yPos); // Player number
+      doc.text(player.name, 19, yPos); // Player name
+      // Draw additional columns for "GOLOS" and "DISCIPLINA" as needed
     });
 
     awayPlayers.forEach((player, index) => {
-      doc.text(player.name, 160, 65 + index * 4);
+      let yPos = rowStartY + index * rowHeight;
+      doc.text(String(player.number || ""), 195, yPos); // Player number (right side)
+      doc.text(player.name, 150, yPos); // Player name (right side)
+      // Draw additional columns for "GOLOS" and "DISCIPLINA" as needed
     });
+
+    // Final horizontal line at the bottom of the table
+    doc.line(10, lastPlayerY, 200, lastPlayerY); // Bottom border of the table
 
     // Divider line below player table section
     const yOffset =
@@ -252,58 +277,57 @@ const MatchPage = () => {
 
     // Coaches and Delegates Section
     doc.setFontSize(10);
-    doc.text("NOMES DOS TREINADORES E DELEGADOS", 20, yOffset + 3);
-    doc.text("TREINADOR -", 20, yOffset + 10);
-    doc.text("DELEGADO -", 20, yOffset + 20);
-    doc.text("TREINADOR -", 130, yOffset + 10); // Right side for Team B
-    doc.text("DELEGADO -", 130, yOffset + 20); // Right side for Team B
+    doc.text("TREINADOR -", 20, yOffset + 5);
+    doc.text("DELEGADO -", 20, yOffset + 10);
+    doc.text("TREINADOR -", 130, yOffset + 5); // Right side for Team B
+    doc.text("DELEGADO -", 130, yOffset + 10); // Right side for Team B
 
     // Divider line below coaches and delegates section
-    doc.line(10, yOffset + 25, 200, yOffset + 25);
+    doc.line(10, yOffset + 15, 200, yOffset + 15);
 
     // Observations Section
-    doc.rect(20, yOffset + 30, 170, 20);
-    doc.text("OBSERVAÇÕES:", 25, yOffset + 35);
+    doc.rect(20, yOffset + 20, 170, 20);
+    doc.text("OBSERVAÇÕES:", 25, yOffset + 25);
 
     // Divider line below observations section
-    doc.line(10, yOffset + 55, 200, yOffset + 55);
+    doc.line(10, yOffset + 45, 200, yOffset + 45);
 
     // Goals Section as a two-row table with smaller boxes
     doc.setFontSize(10);
-    doc.text("GOLOS -- Nº DO JOGADOR", 20, yOffset + 60);
+    doc.text("GOLOS -- Nº DO JOGADOR", 20, yOffset + 50);
 
     // Row for Team A
-    doc.text("A", 20, yOffset + 70);
-    for (let i = 0; i < 15; i++) {
-      doc.rect(30 + i * 11, yOffset + 65, 10, 8); // Smaller boxes (10x8)
+    doc.text("A", 20, yOffset + 60);
+    for (let i = 0; i < 20; i++) {
+      doc.rect(30 + i * 8, yOffset + 55, 8, 8); // Smaller boxes (8x8)
     }
 
     // Row for Team B
-    doc.text("B", 20, yOffset + 80);
-    for (let i = 0; i < 15; i++) {
-      doc.rect(30 + i * 11, yOffset + 75, 10, 8); // Smaller boxes (10x8)
+    doc.text("B", 20, yOffset + 70);
+    for (let i = 0; i < 20; i++) {
+      doc.rect(30 + i * 8, yOffset + 65, 8, 8); // Smaller boxes (8x8)
     }
 
     // Divider line below goals section
-    doc.line(10, yOffset + 90, 200, yOffset + 90);
+    doc.line(10, yOffset + 80, 200, yOffset + 80);
 
     // Final Result Section
-    doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 101);
-    doc.circle(70, yOffset + 100, 5); // Circle for home team goals
-    doc.text("VS", 100, yOffset + 101);
-    doc.circle(140, yOffset + 100, 5); // Circle for away team goals
-    doc.text(`${matchDetails.away_team.short_name}`, 160, yOffset + 101);
+    doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 91);
+    doc.circle(70, yOffset + 90, 8); // Increased radius for home team goals (was 5)
+    doc.text("VS", 100, yOffset + 91);
+    doc.circle(140, yOffset + 90, 8); // Increased radius for away team goals (was 5)
+    doc.text(`${matchDetails.away_team.short_name}`, 160, yOffset + 91);
 
     // Divider line below final result section
-    doc.line(10, yOffset + 110, 200, yOffset + 110);
+    doc.line(10, yOffset + 100, 200, yOffset + 100);
 
     // Signature Section
-    doc.text("DELEGADO", 20, yOffset + 117);
-    doc.line(20, yOffset + 125, 60, yOffset + 125); // Line for delegate signature
-    doc.text("ÁRBITRO", 90, yOffset + 117);
-    doc.line(90, yOffset + 125, 130, yOffset + 125); // Line for referee signature
-    doc.text("DELEGADO", 160, yOffset + 117);
-    doc.line(160, yOffset + 125, 200, yOffset + 125); // Line for delegate signature
+    doc.text("DELEGADO", 20, yOffset + 107);
+    doc.line(20, yOffset + 115, 60, yOffset + 115); // Line for delegate signature
+    doc.text("ÁRBITRO", 90, yOffset + 107);
+    doc.line(90, yOffset + 115, 130, yOffset + 115); // Line for referee signature
+    doc.text("DELEGADO", 160, yOffset + 107);
+    doc.line(160, yOffset + 115, 200, yOffset + 115); // Line for delegate signature
 
     // Save the PDF
     doc.save(
