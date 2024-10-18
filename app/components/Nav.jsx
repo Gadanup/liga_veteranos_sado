@@ -29,6 +29,7 @@ import GavelIcon from "@mui/icons-material/Gavel";
 import DescriptionIcon from "@mui/icons-material/Description";
 import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 import GroupsIcon from "@mui/icons-material/Groups";
+import RestoreOutlinedIcon from "@mui/icons-material/RestoreOutlined";
 
 const drawerWidth = 240;
 
@@ -109,10 +110,14 @@ export default function Nav({ onDrawerToggle }) {
 
   const shouldDisplayItem = (label) => {
     if (open) return true;
-    return ["Classificação", "Taça", "Supertaça", "Galeria", "Info"].includes(
-
-      label
-    );
+    return [
+      "Classificação",
+      "Taça",
+      "Supertaça",
+      "Galeria",
+      "Info",
+      "Histórico",
+    ].includes(label);
   };
 
   const getListItemStyles = (item) => ({
@@ -424,7 +429,6 @@ export default function Nav({ onDrawerToggle }) {
           )}
           {open && (
             <>
-              
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
@@ -552,14 +556,12 @@ export default function Nav({ onDrawerToggle }) {
                 component={Link}
                 href="/Informacao/Sorteio"
                 onClick={() => handleListItemClick("Info")}
-
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
                   ...getListItemStyles("Info"),
-
                 }}
               >
                 <ListItemIcon
@@ -568,7 +570,6 @@ export default function Nav({ onDrawerToggle }) {
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
                     color: selectedItem === "Info" ? "#FFD700" : "white",
-
                   }}
                 >
                   <GavelIcon />
@@ -579,11 +580,11 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Informação" ? "#FFD700" : "white",
+                        color:
+                          selectedItem === "Informação" ? "#FFD700" : "white",
                       }}
                     >
                       {open ? "Sorteio" : "Info"}
-
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -649,13 +650,11 @@ export default function Nav({ onDrawerToggle }) {
           </Typography>
         )}
         <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
-
           {shouldDisplayItem("Galeria") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
                 href="/Galeria/Equipas"
-
                 onClick={() => handleListItemClick("Galeria")}
                 sx={{
                   minHeight: 48,
@@ -685,7 +684,6 @@ export default function Nav({ onDrawerToggle }) {
                       }}
                     >
                       {open ? "Equipas" : "Galeria"}
-
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -731,6 +729,63 @@ export default function Nav({ onDrawerToggle }) {
                       }}
                     >
                       Convivio 23/24
+                    </Typography>
+                  }
+                  sx={{ opacity: open ? 1 : 1, color: "white" }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
+        </List>
+        <Divider />
+        {open && (
+          <Typography
+            variant="h6"
+            sx={{
+              padding: theme.spacing(1),
+              color: "white",
+              paddingBottom: "0px",
+            }}
+          >
+            Histórico
+          </Typography>
+        )}
+        <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
+          {shouldDisplayItem("Histórico") && (
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                component={Link}
+                href="/historico"
+                onClick={() => handleListItemClick("Histórico")}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  flexDirection: open ? "row" : "column",
+                  ...getListItemStyles("Histórico"),
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color: selectedItem === "Histórico" ? "#FFD700" : "white",
+                  }}
+                >
+                  <RestoreOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography
+                      sx={{
+                        fontSize: open ? "inherit" : "0.75rem",
+                        textAlign: open ? "left" : "center",
+                        color:
+                          selectedItem === "Histórico" ? "#FFD700" : "white",
+                      }}
+                    >
+                      Histórico
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
