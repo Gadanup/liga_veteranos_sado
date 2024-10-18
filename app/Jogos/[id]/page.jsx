@@ -75,12 +75,12 @@ const MatchPage = () => {
   const fetchPlayers = async (homeTeamId, awayTeamId) => {
     const { data: homePlayersData, error: homeError } = await supabase
       .from("players")
-      .select("name, photo_url, id") // Include id for filtering
+      .select("name, photo_url, id, joker") // Include id for filtering
       .eq("team_id", homeTeamId);
 
     const { data: awayPlayersData, error: awayError } = await supabase
       .from("players")
-      .select("name, photo_url, id") // Include id for filtering
+      .select("name, photo_url, id, joker") // Include id for filtering
       .eq("team_id", awayTeamId);
 
     if (homeError || awayError) {
@@ -116,7 +116,7 @@ const MatchPage = () => {
 
     const { data: playersData, error } = await supabase
       .from("players")
-      .select("id, name")
+      .select("id, name, joker")
       .in("id", playerIds);
 
     if (error) {
@@ -170,9 +170,19 @@ const MatchPage = () => {
   // Check if matchDetails is available before setting competitionText
   const competitionText = matchDetails
     ? matchDetails.competition_type === "League"
-      ? `Liga - Jornada ${matchDetails.week}`
+      ? `Jornada ${matchDetails.week}`
       : matchDetails.competition_type === "Cup"
-        ? `Taça : Ronda ${matchDetails.round}`
+        ? `Ronda ${matchDetails.round}`
+        : matchDetails.competition_type === "Supercup"
+          ? ""
+          : ""
+    : "";
+  // Check if matchDetails is available before setting competitionText
+  const competitionType = matchDetails
+    ? matchDetails.competition_type === "League"
+      ? `Campeonato`
+      : matchDetails.competition_type === "Cup"
+        ? `Taça`
         : matchDetails.competition_type === "Supercup"
           ? "Supertaça"
           : ""
@@ -191,15 +201,18 @@ const MatchPage = () => {
     doc.setTextColor(107, 75, 161); // Set color to #6B4BA1
     doc.text("LIGA DE FUTEBOL VETERANOS DO SADO", 50, 20);
     // Reset text color to black for other sections if needed
-    doc.setTextColor(0, 0, 0); // Black color for other text
     doc.setFontSize(15);
     doc.text("2024/25", 95, 27);
+    doc.setTextColor(0, 0, 0); // Black color for other text
     doc.setFontSize(10);
     // Check matchDetails before accessing match_date
     const matchDateText = matchDetails
       ? dayjs(matchDetails.match_date).format("DD/MM/YYYY")
       : "Date TBD";
-    doc.text(`${competitionText} - ${matchDateText}`, 87, 35);
+
+    doc.text(`${competitionType}`, 30, 35);
+    doc.text(`${matchDateText}`, 95, 35);
+    doc.text(`${competitionText}`, 170, 35);
 
     // Divider line below title section
     doc.line(10, 40, 200, 40);
@@ -233,9 +246,18 @@ const MatchPage = () => {
     let rowStartY = 65;
     let rowHeight = 4;
 
+    // Order home and away players alphabetically
+    const sortedHomePlayers = [...homePlayers].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    const sortedAwayPlayers = [...awayPlayers].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
     // Calculate the y-coordinate for the end of the table based on the number of players
     const lastPlayerY =
-      rowStartY + Math.max(homePlayers.length, awayPlayers.length) * rowHeight;
+      rowStartY +
+      Math.max(sortedHomePlayers.length, sortedAwayPlayers.length) * rowHeight;
 
     // Draw vertical lines for each column
     const columnsX = [10, 17, 62, 87, 123, 148, 193, 200]; // X-coordinates for the column lines
@@ -253,18 +275,21 @@ const MatchPage = () => {
     }
 
     // Draw player data within the grid
-    homePlayers.forEach((player, index) => {
+    sortedHomePlayers.forEach((player, index) => {
       let yPos = rowStartY + index * rowHeight;
+      // Add (JK) if the player is a joker
+      const playerName = player.joker ? player.name + " (JK)" : player.name;
+
       doc.text(String(player.number || ""), 20, yPos); // Player number
-      doc.text(player.name, 19, yPos); // Player name
-      // Draw additional columns for "GOLOS" and "DISCIPLINA" as needed
+      doc.text(playerName, 19, yPos); // Player name
     });
 
-    awayPlayers.forEach((player, index) => {
+    sortedAwayPlayers.forEach((player, index) => {
       let yPos = rowStartY + index * rowHeight;
+      // Add (JK) if the player is a joker
+      const playerName = player.joker ? player.name + " (JK)" : player.name;
       doc.text(String(player.number || ""), 195, yPos); // Player number (right side)
-      doc.text(player.name, 150, yPos); // Player name (right side)
-      // Draw additional columns for "GOLOS" and "DISCIPLINA" as needed
+      doc.text(playerName, 150, yPos); // Player name (right side)
     });
 
     // Final horizontal line at the bottom of the table
@@ -277,24 +302,36 @@ const MatchPage = () => {
 
     // Coaches and Delegates Section
     doc.setFontSize(10);
-    doc.text("TREINADOR -", 20, yOffset + 5);
-    doc.text("DELEGADO -", 20, yOffset + 10);
-    doc.text("TREINADOR -", 130, yOffset + 5); // Right side for Team B
-    doc.text("DELEGADO -", 130, yOffset + 10); // Right side for Team B
+    doc.text("NOMES DOS TREINADORES E DELEGADOS", 10, yOffset + 3);
+    doc.setFontSize(8);
+    doc.line(10, 55, 200, 55);
+    doc.text("TREINADOR -", 12, yOffset + 10);
+    doc.text("DELEGADO -", 12, yOffset + 15);
+    doc.text("TREINADOR -", 120, yOffset + 10); // Right side for Team B
+    doc.text("DELEGADO -", 120, yOffset + 15); // Right side for Team B
+
+    doc.line(10, yOffset + 7, 200, yOffset + 7);
+    doc.line(10, yOffset + 12, 200, yOffset + 12);
+    doc.line(10, yOffset + 17, 200, yOffset + 17);
+    doc.line(10, yOffset + 7, 10, yOffset + 17);
+    doc.line(118, yOffset + 7, 118, yOffset + 17);
+    doc.line(100, yOffset + 7, 100, yOffset + 17);
+    doc.line(82, yOffset + 7, 82, yOffset + 17);
+    doc.line(200, yOffset + 7, 200, yOffset + 17);
 
     // Divider line below coaches and delegates section
-    doc.line(10, yOffset + 15, 200, yOffset + 15);
+    doc.line(10, yOffset + 20, 200, yOffset + 20);
 
     // Observations Section
-    doc.rect(20, yOffset + 20, 170, 20);
-    doc.text("OBSERVAÇÕES:", 25, yOffset + 25);
+    doc.rect(20, yOffset + 25, 170, 15);
+    doc.text("OBSERVAÇÕES:", 25, yOffset + 30);
 
     // Divider line below observations section
     doc.line(10, yOffset + 45, 200, yOffset + 45);
 
     // Goals Section as a two-row table with smaller boxes
     doc.setFontSize(10);
-    doc.text("GOLOS -- Nº DO JOGADOR", 20, yOffset + 50);
+    doc.text("GOLOS -- Nº DO JOGADOR", 10, yOffset + 50);
 
     // Row for Team A
     doc.text("A", 20, yOffset + 60);
@@ -312,22 +349,25 @@ const MatchPage = () => {
     doc.line(10, yOffset + 80, 200, yOffset + 80);
 
     // Final Result Section
-    doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 91);
-    doc.circle(70, yOffset + 90, 8); // Increased radius for home team goals (was 5)
-    doc.text("VS", 100, yOffset + 91);
-    doc.circle(140, yOffset + 90, 8); // Increased radius for away team goals (was 5)
-    doc.text(`${matchDetails.away_team.short_name}`, 160, yOffset + 91);
+    doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 98);
+    doc.circle(70, yOffset + 97, 8); // Increased radius for home team goals (was 5)
+    doc.setFontSize(12);
+    doc.text("RESULTADO FINAL", 86, yOffset + 91 - 5); // Added above VS
+    doc.setFontSize(10);
+    doc.text("VS", 100, yOffset + 98);
+    doc.circle(140, yOffset + 97, 8); // Increased radius for away team goals (was 5)
+    doc.text(`${matchDetails.away_team.short_name}`, 160, yOffset + 98);
 
     // Divider line below final result section
-    doc.line(10, yOffset + 100, 200, yOffset + 100);
+    doc.line(10, yOffset + 110, 200, yOffset + 110);
 
     // Signature Section
-    doc.text("DELEGADO", 20, yOffset + 107);
-    doc.line(20, yOffset + 115, 60, yOffset + 115); // Line for delegate signature
-    doc.text("ÁRBITRO", 90, yOffset + 107);
-    doc.line(90, yOffset + 115, 130, yOffset + 115); // Line for referee signature
-    doc.text("DELEGADO", 160, yOffset + 107);
-    doc.line(160, yOffset + 115, 200, yOffset + 115); // Line for delegate signature
+    doc.text("DELEGADO", 20, yOffset + 117);
+    doc.line(20, yOffset + 125, 60, yOffset + 125); // Line for delegate signature
+    doc.text("ÁRBITRO", 90, yOffset + 117);
+    doc.line(90, yOffset + 125, 130, yOffset + 125); // Line for referee signature
+    doc.text("DELEGADO", 160, yOffset + 117);
+    doc.line(160, yOffset + 125, 200, yOffset + 125); // Line for delegate signature
 
     // Save the PDF
     doc.save(
