@@ -35,7 +35,7 @@ const CupGoalscorers = () => {
       .from("match_events")
       .select("player_id")
       .in("match_id", matchIds) // Use the match IDs fetched
-      .eq("event_type", "GOAL");
+      .eq("event_type", 1);
 
     if (eventsError) {
       console.error("Error fetching match events:", eventsError);

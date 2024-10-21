@@ -707,9 +707,9 @@ const MatchPage = () => {
                   rel="noopener noreferrer"
                   underline="none"
                 >
-                  <DownloadIcon sx={{ marginRight: 1 }} />{" "}
+                  <DownloadIcon sx={{ marginRight: 1, color:"#6B4BA1" }} />{" "}
                   {/* Icon with right margin */}
-                  <Typography variant="h6" sx={{ color: "#1976d2" }}>
+                  <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
                     Ficha de Jogo
                   </Typography>
                 </Link>
