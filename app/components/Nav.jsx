@@ -100,6 +100,16 @@ export default function Nav({ onDrawerToggle }) {
     onDrawerToggle(!open);
   };
 
+  const handleMouseEnter = () => {
+    setOpen(true);
+    onDrawerToggle(true);
+  };
+
+  const handleMouseLeave = () => {
+    setOpen(false);
+    onDrawerToggle(false);
+  };
+
   const handleListItemClick = (item) => {
     if (!open) {
       setOpen(true);
@@ -171,7 +181,12 @@ export default function Nav({ onDrawerToggle }) {
           </Button> */}
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
+      <Drawer
+        variant="permanent"
+        open={open}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <DrawerHeader>
           <IconButton>
             {theme.direction === "rtl" ? (
