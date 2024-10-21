@@ -142,17 +142,17 @@ const MatchPage = () => {
     return {}; // Default style
   };
 
-  // Function to get goalscorers for each team
+  // Function to get goalscorers for each team, including own goals
   const getGoalscorers = (teamId) => {
-    const playerIds =
-      teamId === matchDetails.home_team.id
-        ? homePlayers.map((player) => player.id)
-        : awayPlayers.map((player) => player.id);
+    const isHomeTeam = teamId === matchDetails.home_team.id;
+    const playerIds = isHomeTeam
+      ? homePlayers.map((player) => player.id)
+      : awayPlayers.map((player) => player.id);
 
+    // Regular goals (event_type === 1)
     const goalscorerCounts = matchEvents
       .filter(
-        (event) =>
-          event.event_type === 1 && playerIds.includes(event.player_id)
+        (event) => event.event_type === 1 && playerIds.includes(event.player_id)
       )
       .reduce((acc, event) => {
         const player = playersData.find((p) => p.id === event.player_id);
@@ -162,9 +162,59 @@ const MatchPage = () => {
         return acc;
       }, {});
 
-    return Object.entries(goalscorerCounts).map(
-      ([name, count]) => `${name} (${count})`
-    );
+    // Own goals (event_type === 4)
+    const ownGoals = matchEvents
+      .filter(
+        (event) =>
+          event.event_type === 4 && // Own goal event
+          ((isHomeTeam &&
+            awayPlayers.map((p) => p.id).includes(event.player_id)) ||
+            (!isHomeTeam &&
+              homePlayers.map((p) => p.id).includes(event.player_id)))
+      )
+      .map((event) => {
+        const player = playersData.find((p) => p.id === event.player_id);
+        return player ? `${player.name} (Auto-Golo)` : null;
+      })
+      .filter((goal) => goal !== null); // Filter out nulls
+
+    // Combine regular goals and own goals
+    const allGoals = [
+      ...Object.entries(goalscorerCounts).map(
+        ([name, count]) => `${name} (${count})`
+      ),
+      ...ownGoals, // Include own goals
+    ];
+
+    return allGoals;
+  };
+
+  // Function to get yellow and red cards for each team
+  const getCards = (teamId) => {
+    const playerIds =
+      teamId === matchDetails.home_team.id
+        ? homePlayers.map((player) => player.id)
+        : awayPlayers.map((player) => player.id);
+
+    const cardEvents = matchEvents
+      .filter(
+        (event) =>
+          (event.event_type === 2 || event.event_type === 3) &&
+          playerIds.includes(event.player_id)
+      )
+      .map((event) => {
+        const player = playersData.find((p) => p.id === event.player_id);
+        if (player) {
+          return {
+            name: player.name,
+            cardType: event.event_type === 2 ? "yellow" : "red", // Card type based on event type
+          };
+        }
+        return null;
+      })
+      .filter((event) => event !== null);
+
+    return cardEvents;
   };
 
   // Check if matchDetails is available before setting competitionText
@@ -516,6 +566,45 @@ const MatchPage = () => {
                   <Typography variant="body2">Sem marcadores</Typography>
                 )}
               </Box>
+              <Box sx={{ textAlign: "center", mr: 5 }}>
+                <Typography variant="h6">
+                  Cartões {matchDetails.home_team.short_name}:
+                </Typography>
+                {getCards(matchDetails.home_team.id).length > 0 ? (
+                  getCards(matchDetails.home_team.id).map(
+                    (cardEvent, index) => (
+                      <Typography key={index} variant="body1">
+                        {cardEvent.name}{" "}
+                        {cardEvent.cardType === "yellow" ? (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "13px",
+                              height: "20px",
+                              backgroundColor: "#ffcd00",
+                              borderRadius: "2px",
+                              verticalAlign: "middle",
+                            }}
+                          ></span>
+                        ) : (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "13px",
+                              height: "20px",
+                              backgroundColor: "red",
+                              borderRadius: "2px",
+                              verticalAlign: "middle",
+                            }}
+                          ></span>
+                        )}
+                      </Typography>
+                    )
+                  )
+                ) : (
+                  <Typography variant="body2">Sem cartões</Typography>
+                )}
+              </Box>
 
               {/* Vertical Line Divider */}
               <Box
@@ -526,6 +615,47 @@ const MatchPage = () => {
                   mx: 2,
                 }}
               />
+
+              {/* Display Yellow/Red Cards for Away Team */}
+              <Box sx={{ textAlign: "center", ml: 5 }}>
+                <Typography variant="h6">
+                  Cartões {matchDetails.away_team.short_name}:
+                </Typography>
+                {getCards(matchDetails.away_team.id).length > 0 ? (
+                  getCards(matchDetails.away_team.id).map(
+                    (cardEvent, index) => (
+                      <Typography key={index} variant="body1">
+                        {cardEvent.name}{" "}
+                        {cardEvent.cardType === "yellow" ? (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "13px",
+                              height: "20px",
+                              backgroundColor: "#ffcd00",
+                              borderRadius: "2px",
+                              verticalAlign: "middle",
+                            }}
+                          ></span>
+                        ) : (
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "13px",
+                              height: "20px",
+                              backgroundColor: "red",
+                              borderRadius: "2px",
+                              verticalAlign: "middle",
+                            }}
+                          ></span>
+                        )}
+                      </Typography>
+                    )
+                  )
+                ) : (
+                  <Typography variant="body2">Sem cartões</Typography>
+                )}
+              </Box>
 
               {/* Display Goalscorers for Away Team */}
               <Box sx={{ textAlign: "center", ml: 5 }}>

@@ -99,6 +99,16 @@ export default function Nav({ onDrawerToggle }) {
     onDrawerToggle(!open);
   };
 
+  const handleMouseEnter = () => {
+    setOpen(true);
+    onDrawerToggle(true);
+  };
+
+  const handleMouseLeave = () => {
+    setOpen(false);
+    onDrawerToggle(false);
+  };
+
   const handleListItemClick = (item) => {
     if (!open) {
       setOpen(true);
@@ -110,7 +120,6 @@ export default function Nav({ onDrawerToggle }) {
   const shouldDisplayItem = (label) => {
     if (open) return true;
     return ["Classificação", "Taça", "Supertaça", "Galeria", "Info"].includes(
-
       label
     );
   };
@@ -166,7 +175,12 @@ export default function Nav({ onDrawerToggle }) {
           </Button> */}
         </Toolbar>
       </AppBar>
-      <Drawer variant="permanent" open={open}>
+      <Drawer
+        variant="permanent"
+        open={open}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <DrawerHeader>
           <IconButton>
             {theme.direction === "rtl" ? (
@@ -424,7 +438,6 @@ export default function Nav({ onDrawerToggle }) {
           )}
           {open && (
             <>
-              
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
@@ -552,14 +565,12 @@ export default function Nav({ onDrawerToggle }) {
                 component={Link}
                 href="/Informacao/Sorteio"
                 onClick={() => handleListItemClick("Info")}
-
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
                   px: 2.5,
                   flexDirection: open ? "row" : "column",
                   ...getListItemStyles("Info"),
-
                 }}
               >
                 <ListItemIcon
@@ -568,7 +579,6 @@ export default function Nav({ onDrawerToggle }) {
                     mr: open ? 3 : "auto",
                     justifyContent: "center",
                     color: selectedItem === "Info" ? "#FFD700" : "white",
-
                   }}
                 >
                   <GavelIcon />
@@ -579,11 +589,11 @@ export default function Nav({ onDrawerToggle }) {
                       sx={{
                         fontSize: open ? "inherit" : "0.75rem",
                         textAlign: open ? "left" : "center",
-                        color: selectedItem === "Informação" ? "#FFD700" : "white",
+                        color:
+                          selectedItem === "Informação" ? "#FFD700" : "white",
                       }}
                     >
                       {open ? "Sorteio" : "Info"}
-
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
@@ -649,13 +659,11 @@ export default function Nav({ onDrawerToggle }) {
           </Typography>
         )}
         <List sx={{ paddingBottom: 0, paddingTop: 0 }}>
-
           {shouldDisplayItem("Galeria") && (
             <ListItem disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 component={Link}
                 href="/Galeria/Equipas"
-
                 onClick={() => handleListItemClick("Galeria")}
                 sx={{
                   minHeight: 48,
@@ -685,7 +693,6 @@ export default function Nav({ onDrawerToggle }) {
                       }}
                     >
                       {open ? "Equipas" : "Galeria"}
-
                     </Typography>
                   }
                   sx={{ opacity: open ? 1 : 1, color: "white" }}
