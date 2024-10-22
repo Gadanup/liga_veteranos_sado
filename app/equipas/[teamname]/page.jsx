@@ -45,7 +45,7 @@ const TeamPage = ({ params }) => {
         const { data: playersData, error: playersError } = await supabase
           .from("players")
           .select("*")
-          .order("name", {ascending: true})
+          .order("name", { ascending: true })
           .eq("team_id", team.id);
 
         if (playersError) {
@@ -202,8 +202,10 @@ const TeamPage = ({ params }) => {
                   </Box>
                   <Box textAlign="center">
                     <Typography variant="body2">
-                      {dayjs(nextGame.match_date).format("DD/MM/YYYY")} -{" "}
-                      {nextGame.home_team.stadium_name}
+                      {nextGame.match_date
+                        ? dayjs(nextGame.match_date).format("DD/MM/YYYY")
+                        : "Data a definir"}{" "}
+                      - {nextGame.home_team.stadium_name}
                     </Typography>
                   </Box>
                 </Box>
@@ -247,13 +249,16 @@ const TeamPage = ({ params }) => {
                           }}
                         >
                           <TableCell>
-                            {dayjs(match.match_date).format("DD/MM/YYYY")}
+                            {match.match_date
+                              ? dayjs(match.match_date).format("DD/MM/YYYY")
+                              : "Data a definir"}
                             {match.match_time && (
                               <Typography variant="body2">
                                 {match.match_time}
                               </Typography>
                             )}
                           </TableCell>
+
                           <TableCell>
                             <Box
                               display="flex"
@@ -282,9 +287,34 @@ const TeamPage = ({ params }) => {
                             </Box>
                           </TableCell>
                           <TableCell
-                            style={{ textAlign: "center", fontWeight: "bold" }}
+                            style={{
+                              borderBottom: "none",
+                              textAlign: "center",
+                              fontWeight: "bold",
+                            }}
                           >
-                            VS
+                            {match.home_goals !== null &&
+                            match.away_goals !== null ? (
+                              <span
+                                style={{
+                                  color:
+                                    matchResult === "draw"
+                                      ? "gray"
+                                      : matchResult === "home_win"
+                                        ? "green"
+                                        : "red",
+                                }}
+                              >
+                                {match.home_goals} - {match.away_goals}
+                              </span>
+                            ) : (
+                              <Typography
+                                sx={{ fontWeight: "bold" }}
+                                color="textSecondary"
+                              >
+                                VS
+                              </Typography>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Box display="flex" alignItems="center">
@@ -309,25 +339,7 @@ const TeamPage = ({ params }) => {
                               </span>
                             </Box>
                           </TableCell>
-                          <TableCell style={{ fontWeight: "bold" }}>
-                            {match.home_goals !== null &&
-                            match.away_goals !== null ? (
-                              <span
-                                style={{
-                                  color:
-                                    matchResult === "draw"
-                                      ? "gray"
-                                      : matchResult === "home_win"
-                                        ? "green"
-                                        : "red",
-                                }}
-                              >
-                                {match.home_goals} - {match.away_goals}
-                              </span>
-                            ) : (
-                              <Typography color="textSecondary">TBD</Typography>
-                            )}
-                          </TableCell>
+
                           <TableCell>{match.home_team.stadium_name}</TableCell>
                           <TableCell>
                             {renderCompetitionDetails(match)}
