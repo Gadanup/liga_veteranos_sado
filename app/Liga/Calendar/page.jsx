@@ -212,7 +212,9 @@ const LeagueFixtures = () => {
                     >
                       {/* Match Date and Time */}
                       <TableCell style={{ borderBottom: "none" }}>
-                        {dayjs(match.match_date).format("DD/MM/YYYY")}
+                        {match.match_date
+                          ? dayjs(match.match_date).format("DD/MM/YYYY")
+                          : "Data a definir"}
                         {match.match_time && (
                           <Typography variant="body2">
                             {match.match_time}
@@ -273,7 +275,28 @@ const LeagueFixtures = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        VS
+                        {match.home_goals !== null &&
+                        match.away_goals !== null ? (
+                          <span
+                            style={{
+                              color:
+                                matchResult === "draw"
+                                  ? "gray"
+                                  : matchResult === "home_win"
+                                    ? "green"
+                                    : "red",
+                            }}
+                          >
+                            {match.home_goals} - {match.away_goals}
+                          </span>
+                        ) : (
+                          <Typography
+                            sx={{ fontWeight: "bold" }}
+                            color="textSecondary"
+                          >
+                            VS
+                          </Typography>
+                        )}
                       </TableCell>
 
                       {/* Away Team */}
@@ -315,29 +338,6 @@ const LeagueFixtures = () => {
                             {match.away_team.short_name}
                           </span>
                         </Box>
-                      </TableCell>
-
-                      {/* Match Result */}
-                      <TableCell
-                        style={{ borderBottom: "none", fontWeight: "bold" }}
-                      >
-                        {match.home_goals !== null &&
-                        match.away_goals !== null ? (
-                          <span
-                            style={{
-                              color:
-                                matchResult === "draw"
-                                  ? "gray"
-                                  : matchResult === "home_win"
-                                    ? "green"
-                                    : "red",
-                            }}
-                          >
-                            {match.home_goals} - {match.away_goals}
-                          </span>
-                        ) : (
-                          <Typography color="textSecondary">TBD</Typography>
-                        )}
                       </TableCell>
 
                       {/* Stadium Name */}
