@@ -124,6 +124,7 @@ const HistoryPage = () => {
             {firstColumn.map((season, index) => (
               <React.Fragment key={season.year}>
                 <ListItem
+                  button={true}
                   component={Link}
                   href={season.url}
                   target="_blank"
@@ -155,6 +156,7 @@ const HistoryPage = () => {
             {secondColumn.map((season, index) => (
               <React.Fragment key={season.year}>
                 <ListItem
+                  button={true}
                   component={Link}
                   href={season.url}
                   target="_blank"
@@ -180,54 +182,6 @@ const HistoryPage = () => {
           </List>
         </Grid>
       </Grid>
-
-      {/* Fichas de Jogo Section */}
-      <Typography
-        variant="h5"
-        sx={{ color: "#6B4BA1", mt: 4, mb: 2 }}
-        gutterBottom
-      >
-        FICHAS DE JOGO
-      </Typography>
-
-      {loading ? (
-        <Typography>Loading match files...</Typography>
-      ) : (
-        <Grid container spacing={2}>
-          {/* Generate 4 columns */}
-          {[0, 1, 2, 3].map((colIndex) => (
-            <Grid item xs={12} sm={6} md={3} key={colIndex}>
-              {" "}
-              {/* 4 columns */}
-              <List>
-                {jornadas
-                  .filter((_, index) => index % 4 === colIndex) // Filter to create columns
-                  .map((jornada, index) => (
-                    <React.Fragment key={jornada.jornada}>
-                      <ListItem
-                        button
-                        component={Link}
-                        href={jornada.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ListItemText
-                          sx={{ color: "#6B4BA1" }}
-                          primary={`Jornada ${jornada.jornada}`}
-                        />
-                        <OpenInNewIcon
-                          fontSize="small"
-                          sx={{ ml: 1, color: "#6B4BA1" }}
-                        />
-                      </ListItem>
-                      {index < jornadas.length - 1 && <Divider />}
-                    </React.Fragment>
-                  ))}
-              </List>
-            </Grid>
-          ))}
-        </Grid>
-      )}
     </Box>
   );
 };
