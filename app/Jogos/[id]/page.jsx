@@ -52,6 +52,7 @@ const MatchPage = () => {
         away_goals,
         match_date,
         match_time,
+        match_sheet,
         home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
         away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
       `
@@ -696,23 +697,33 @@ const MatchPage = () => {
               </div> */}
               {/* Ficha de Jogo Link */}
               <Box sx={{ marginTop: "3rem", cursor: "pointer" }}>
-                <Link
-                  // href={
-                  //   matchDetails.competition_type === "Supercup"
-                  //     ? "/fichajogosupertaca/saograbrielvsindependente.pdf"
-                  //     : "#"
-                  // }
-                  // target="_blank"
-                  onClick={generatePDF}
-                  rel="noopener noreferrer"
-                  underline="none"
-                >
-                  <DownloadIcon sx={{ marginRight: 1, color:"#6B4BA1" }} />{" "}
-                  {/* Icon with right margin */}
-                  <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
-                    Ficha de Jogo
-                  </Typography>
-                </Link>
+                {matchDetails &&
+                dayjs().isAfter(dayjs(matchDetails.match_date)) ? (
+                  <Link
+                    href={matchDetails.match_sheet} // Use match_sheet if the match_date has passed
+                    target="_blank" // Open the link in a new window
+                    rel="noopener noreferrer"
+                    underline="none"
+                  >
+                    <DownloadIcon sx={{ marginRight: 1, color: "#6B4BA1" }} />{" "}
+                    {/* Icon with right margin */}
+                    <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
+                      Ficha de Jogo Completa
+                    </Typography>
+                  </Link>
+                ) : (
+                  <Link
+                    onClick={generatePDF} // Generate PDF if the match_date has not passed
+                    rel="noopener noreferrer"
+                    underline="none"
+                  >
+                    <DownloadIcon sx={{ marginRight: 1, color: "#6B4BA1" }} />{" "}
+                    {/* Icon with right margin */}
+                    <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
+                      Ficha de Jogo
+                    </Typography>
+                  </Link>
+                )}
               </Box>
             </div>
 
