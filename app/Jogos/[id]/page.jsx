@@ -329,19 +329,42 @@ const MatchPage = () => {
     // Draw player data within the grid
     sortedHomePlayers.forEach((player, index) => {
       let yPos = rowStartY + index * rowHeight;
-      // Add (JK) if the player is a joker
       const playerName = player.joker ? player.name + " (JK)" : player.name;
 
-      doc.text(String(player.number || ""), 20, yPos); // Player number
-      doc.text(playerName, 19, yPos); // Player name
+      // Player number
+      doc.text(String(player.number || ""), 12, yPos);
+
+      // Player name
+      doc.text(playerName, 19, yPos);
+
+      // Golos column - Add "Castigado" in bold and red if the player is suspended
+      if ([76, 231].includes(player.id)) {
+        doc.setTextColor(255, 0, 0); // Set color to red
+        doc.setFont("helvetica", "bold"); // Set font to bold
+        doc.text("CASTIGADO", 66, yPos);
+        doc.setFont("helvetica", "normal"); // Reset font to normal
+        doc.setTextColor(0, 0, 0); // Reset color to black
+      }
     });
 
     sortedAwayPlayers.forEach((player, index) => {
       let yPos = rowStartY + index * rowHeight;
-      // Add (JK) if the player is a joker
       const playerName = player.joker ? player.name + " (JK)" : player.name;
-      doc.text(String(player.number || ""), 195, yPos); // Player number (right side)
-      doc.text(playerName, 150, yPos); // Player name (right side)
+
+      // Player number on the right side
+      doc.text(String(player.number || ""), 195, yPos);
+
+      // Player name on the right side
+      doc.text(playerName, 150, yPos);
+
+      // Golos column for away team - Add "Castigado" in bold and red if the player is suspended
+      if ([76, 231].includes(player.id)) {
+        doc.setTextColor(255, 0, 0); // Set color to red
+        doc.setFont("helvetica", "bold"); // Set font to bold
+        doc.text("CASTIGADO", 127, yPos);
+        doc.setFont("helvetica", "normal"); // Reset font to normal
+        doc.setTextColor(0, 0, 0); // Reset color to black
+      }
     });
 
     // Final horizontal line at the bottom of the table
