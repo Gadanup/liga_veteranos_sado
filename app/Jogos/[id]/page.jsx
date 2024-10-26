@@ -720,8 +720,7 @@ const MatchPage = () => {
               </div> */}
               {/* Ficha de Jogo Link */}
               <Box sx={{ marginTop: "3rem", cursor: "pointer" }}>
-                {matchDetails &&
-                dayjs().isAfter(dayjs(matchDetails.match_date)) ? (
+                {matchDetails && dayjs().isAfter(dayjs(matchDetails.match_date).add(1, 'day')) ? (
                   <Link
                     href={matchDetails.match_sheet} // Use match_sheet if the match_date has passed
                     target="_blank" // Open the link in a new window
