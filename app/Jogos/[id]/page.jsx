@@ -174,7 +174,7 @@ const MatchPage = () => {
               homePlayers.map((p) => p.id).includes(event.player_id)))
       )
       .map((event) => {
-        const player = playersData.find((p) => p.id === event.player_id);
+        // const player = playersData.find((p) => p.id === event.player_id);
         return "Auto-Golo";
       })
       .filter((goal) => goal !== null); // Filter out nulls
