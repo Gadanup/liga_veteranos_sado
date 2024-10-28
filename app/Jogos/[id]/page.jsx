@@ -174,8 +174,8 @@ const MatchPage = () => {
               homePlayers.map((p) => p.id).includes(event.player_id)))
       )
       .map((event) => {
-        const player = playersData.find((p) => p.id === event.player_id);
-        return player ? `${player.name} (Auto-Golo)` : null;
+        // const player = playersData.find((p) => p.id === event.player_id);
+        return "Auto-Golo";
       })
       .filter((goal) => goal !== null); // Filter out nulls
 
@@ -576,7 +576,7 @@ const MatchPage = () => {
               {/* Display Goalscorers for Home Team */}
               <Box sx={{ textAlign: "center", mr: 5 }}>
                 <Typography variant="h6">
-                  Marcadores {matchDetails.home_team.short_name}:
+                  Golos
                 </Typography>
                 {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
                   getGoalscorers(matchDetails.home_team.id).map(
@@ -592,7 +592,7 @@ const MatchPage = () => {
               </Box>
               <Box sx={{ textAlign: "center", mr: 5 }}>
                 <Typography variant="h6">
-                  Cartões {matchDetails.home_team.short_name}:
+                  Cartões {matchDetails.home_team.short_name}Disciplina
                 </Typography>
                 {getCards(matchDetails.home_team.id).length > 0 ? (
                   getCards(matchDetails.home_team.id).map(
