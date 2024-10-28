@@ -684,7 +684,7 @@ const MatchPage = () => {
               {/* Display Goalscorers for Away Team */}
               <Box sx={{ textAlign: "center", ml: 5 }}>
                 <Typography variant="h6">
-                  Marcadores {matchDetails.away_team.short_name}:
+                  Golos
                 </Typography>
                 {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
                   getGoalscorers(matchDetails.away_team.id).map(
