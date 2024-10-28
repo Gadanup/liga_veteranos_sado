@@ -246,15 +246,15 @@ const MatchPage = () => {
     // Add league logo
     const img = new Image();
     img.src = "/logo/logo.png";
-    doc.addImage(img, "PNG", 10, 10, 20, 20); // Adjusted size for better layout
+    doc.addImage(img, "PNG", 10, 5, 20, 20); // Adjusted size for better layout
 
     // Set document title and competition info
     doc.setFontSize(18);
     doc.setTextColor(107, 75, 161); // Set color to #6B4BA1
-    doc.text("LIGA DE FUTEBOL VETERANOS DO SADO", 50, 20);
+    doc.text("LIGA DE FUTEBOL VETERANOS DO SADO", 50, 10);
     // Reset text color to black for other sections if needed
     doc.setFontSize(15);
-    doc.text("2024/25", 95, 27);
+    doc.text("2024/25", 95, 17);
     doc.setTextColor(0, 0, 0); // Black color for other text
     doc.setFontSize(10);
     // Check matchDetails before accessing match_date
@@ -262,41 +262,41 @@ const MatchPage = () => {
       ? dayjs(matchDetails.match_date).format("DD/MM/YYYY")
       : "Date TBD";
 
-    doc.text(`${competitionType}`, 30, 35);
-    doc.text(`${matchDateText}`, 95, 35);
-    doc.text(`${competitionText}`, 170, 35);
+    doc.text(`${competitionType}`, 30, 25);
+    doc.text(`${matchDateText}`, 95, 25);
+    doc.text(`${competitionText}`, 170, 25);
 
     // Divider line below title section
-    doc.line(10, 40, 200, 40);
+    doc.line(10, 27, 200, 27);
 
     // Team Names with "A" and "B" labels and "VS" in the middle
     doc.setFontSize(16);
-    doc.text("A", 10, 50);
-    doc.text(`${matchDetails.home_team.short_name}`, 30, 50);
-    doc.text("VS", 100, 50);
+    doc.text("A", 10, 35);
+    doc.text(`${matchDetails.home_team.short_name}`, 30, 35);
+    doc.text("VS", 100, 35);
     if (matchDetails.away_team.short_name === "Bairro Santos Nicolau") {
-      doc.text(`${matchDetails.away_team.short_name}`, 137, 50);
+      doc.text(`${matchDetails.away_team.short_name}`, 137, 35);
     } else {
-      doc.text(`${matchDetails.away_team.short_name}`, 140, 50);
+      doc.text(`${matchDetails.away_team.short_name}`, 140, 35);
     }
-    doc.text("B", 195, 50); // Shifted "B" further to the right
+    doc.text("B", 195, 35); // Shifted "B" further to the right
 
     // Divider line below team names section
-    doc.line(10, 55, 200, 55);
+    doc.line(10, 38, 200, 38);
 
     // Player Table Headers
-    doc.setFontSize(8); // Reduced font size for compact table
-    doc.text("Nº", 12, 61);
-    doc.text("NOMES DOS ATLETAS", 19, 61);
-    doc.text("GOLOS", 64, 61);
-    doc.text("DISCIPLINA", 98, 61);
-    doc.text("GOLOS", 125, 61);
-    doc.text("NOMES DOS ATLETAS", 150, 61);
-    doc.text("Nº", 195, 61); // Closer to the right side for better alignment
+    doc.setFontSize(11); // Reduced font size for compact table
+    doc.text("Nº", 12, 45);
+    doc.text("NOMES DOS ATLETAS", 19, 45);
+    doc.text("GOLOS", 63, 45);
+    doc.text("DISCIPLINA", 95, 45);
+    doc.text("GOLOS", 124, 45);
+    doc.text("NOMES DOS ATLETAS", 150, 45);
+    doc.text("Nº", 195, 45); // Closer to the right side for better alignment
 
     // Define initial y-coordinate for player rows
-    let rowStartY = 65;
-    let rowHeight = 4;
+    let rowStartY = 48;
+    let rowHeight = 5;
 
     // Order home and away players alphabetically
     const sortedHomePlayers = [...homePlayers].sort((a, b) =>
@@ -314,15 +314,15 @@ const MatchPage = () => {
     // Draw vertical lines for each column
     const columnsX = [10, 17, 62, 87, 123, 148, 193, 200]; // X-coordinates for the column lines
     columnsX.forEach((x) => {
-      doc.line(x, 58, x, lastPlayerY); // Vertical lines from headers to the last row
+      doc.line(x, 41, x, lastPlayerY +2); // Vertical lines from headers to the last row
     });
 
     // Draw the vertical line to divide the "DISCIPLINA" column into two sections
     const disciplinaX = 105; // X-coordinate for "DISCIPLINA" header
-    doc.line(disciplinaX, 62, disciplinaX, lastPlayerY); // Vertical line below the header
+    doc.line(disciplinaX, 46, disciplinaX, lastPlayerY+2); // Vertical line below the header
 
     // Draw horizontal lines for each row (including headers)
-    for (let y = 58; y <= lastPlayerY; y += rowHeight) {
+    for (let y = 41; y <= lastPlayerY; y += rowHeight) {
       doc.line(10, y, 200, y); // Horizontal line spanning across all columns
     }
 
@@ -335,13 +335,13 @@ const MatchPage = () => {
       doc.text(String(player.number || ""), 12, yPos);
 
       // Player name
-      doc.text(playerName, 19, yPos);
+      doc.text(playerName, 19, yPos + 2);
 
       // Golos column - Add "Castigado" in bold and red if the player is suspended
       if ([76, 231].includes(player.id)) {
         doc.setTextColor(255, 0, 0); // Set color to red
         doc.setFont("helvetica", "bold"); // Set font to bold
-        doc.text("CASTIGADO", 66, yPos);
+        doc.text("CASTIGADO", 63, yPos + 2);
         doc.setFont("helvetica", "normal"); // Reset font to normal
         doc.setTextColor(0, 0, 0); // Reset color to black
       }
@@ -355,31 +355,31 @@ const MatchPage = () => {
       doc.text(String(player.number || ""), 195, yPos);
 
       // Player name on the right side
-      doc.text(playerName, 150, yPos);
+      doc.text(playerName, 150, yPos + 2);
 
       // Golos column for away team - Add "Castigado" in bold and red if the player is suspended
       if ([76, 231].includes(player.id)) {
         doc.setTextColor(255, 0, 0); // Set color to red
         doc.setFont("helvetica", "bold"); // Set font to bold
-        doc.text("CASTIGADO", 127, yPos);
+        doc.text("CASTIGADO", 124, yPos + 2);
         doc.setFont("helvetica", "normal"); // Reset font to normal
         doc.setTextColor(0, 0, 0); // Reset color to black
       }
     });
 
     // Final horizontal line at the bottom of the table
-    doc.line(10, lastPlayerY, 200, lastPlayerY); // Bottom border of the table
+    doc.line(10, lastPlayerY + 2, 200, lastPlayerY + 2); // Bottom border of the table
 
     // Divider line below player table section
     const yOffset =
-      65 + Math.max(homePlayers.length, awayPlayers.length) * 4 + 5;
+      70 + Math.max(homePlayers.length, awayPlayers.length) * 4 + 5;
     doc.line(10, yOffset - 2, 200, yOffset - 2);
 
     // Coaches and Delegates Section
     doc.setFontSize(10);
     doc.text("NOMES DOS TREINADORES E DELEGADOS", 10, yOffset + 3);
     doc.setFontSize(8);
-    doc.line(10, 55, 200, 55);
+    // doc.line(10, 55, 200, 55);
     doc.text("TREINADOR -", 12, yOffset + 10);
     doc.text("DELEGADO -", 12, yOffset + 15);
     doc.text("TREINADOR -", 120, yOffset + 10); // Right side for Team B
