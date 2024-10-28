@@ -592,7 +592,7 @@ const MatchPage = () => {
               </Box>
               <Box sx={{ textAlign: "center", mr: 5 }}>
                 <Typography variant="h6">
-                  Cartões {matchDetails.home_team.short_name}Disciplina
+                  Disciplina
                 </Typography>
                 {getCards(matchDetails.home_team.id).length > 0 ? (
                   getCards(matchDetails.home_team.id).map(
@@ -643,7 +643,7 @@ const MatchPage = () => {
               {/* Display Yellow/Red Cards for Away Team */}
               <Box sx={{ textAlign: "center", ml: 5 }}>
                 <Typography variant="h6">
-                  Cartões {matchDetails.away_team.short_name}:
+                  Disciplina
                 </Typography>
                 {getCards(matchDetails.away_team.id).length > 0 ? (
                   getCards(matchDetails.away_team.id).map(
