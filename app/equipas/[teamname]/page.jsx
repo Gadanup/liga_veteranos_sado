@@ -127,6 +127,20 @@ const TeamPage = ({ params }) => {
     }
   };
 
+  // Styling for avatar border with diagonal color split
+  const avatarBorderStyle = {
+    borderRadius: "50%",
+    padding: "2px", // Inner padding for the gradient border
+    background: `conic-gradient(
+    from 45deg,
+    ${teamData?.main_color || "#c0c0c0"} 0deg,
+    ${teamData?.main_color || "#c0c0c0"} 180deg,
+    ${teamData?.alternative_color || teamData?.main_color || "#c0c0c0"} 180deg,
+    ${teamData?.alternative_color || teamData?.main_color || "#c0c0c0"} 360deg
+  )`,
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Shadow effect
+  };
+
   return (
     <Box sx={{ p: 4 }}>
       {teamData && (
@@ -142,9 +156,6 @@ const TeamPage = ({ params }) => {
                 />
                 <Box>
                   <Typography variant="h4">{teamData.name}</Typography>
-                  <Typography variant="subtitle1">
-                    {teamData.manager_name}
-                  </Typography>
                   <Typography variant="body1">
                     Campo: {teamData.stadium_name}
                   </Typography>
@@ -354,35 +365,77 @@ const TeamPage = ({ params }) => {
           )}
 
           {tabIndex === 1 && (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr 1fr",
-                  lg: "1fr 1fr 1fr 1fr",
-                }, // Responsive grid
-                gap: 1,
-              }}
-            >
-              {players.map((player, index) => (
+            <Box>
+              {/* Treinador Section */}
+              <Box sx={{ marginBottom: 2 }}>
+                <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
+                  Treinador
+                </Typography>
                 <Box
-                  key={player.name}
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    margin: "5px 0",
-                    width: "100%",
+                    marginTop: 1,
+                    marginBottom: 2,
                   }}
                 >
-                  <Avatar
-                    alt={player.name}
-                    src={player.photo_url}
-                    sx={{ width: 70, height: 70, marginRight: 1 }} // Avatar size
-                  />
-                  <Typography variant="body1">{player.name}</Typography>
+                  <Box sx={{ ...avatarBorderStyle }}>
+                    <Avatar
+                      alt={teamData?.manager_name}
+                      src={teamData?.manager_photo_url}
+                      sx={{
+                        width: 70,
+                        height: 70,
+                        border: "1px solid transparent",
+                      }}
+                    />
+                  </Box>
+                  <Typography sx={{marginLeft:1}} variant="body1">
+                    {teamData?.manager_name}
+                  </Typography>
                 </Box>
-              ))}
+              </Box>
+
+              {/* Jogadores Section */}
+              <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
+                Jogadores
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "1fr 1fr 1fr",
+                    lg: "1fr 1fr 1fr 1fr",
+                  },
+                  gap: 1,
+                }}
+              >
+                {players.map((player) => (
+                  <Box
+                    key={player.name}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      margin: "5px 0",
+                      width: "100%",
+                    }}
+                  >
+                    <Box sx={{ ...avatarBorderStyle }}>
+                      <Avatar
+                        alt={player.name}
+                        src={player.photo_url}
+                        sx={{
+                          width: 70,
+                          height: 70,
+                          border: "1px solid transparent",
+                        }}
+                      />
+                    </Box>
+                    <Typography variant="body1" sx={{marginLeft:1}}>{player.name}</Typography>
+                  </Box>
+                ))}
+              </Box>
             </Box>
           )}
         </>
