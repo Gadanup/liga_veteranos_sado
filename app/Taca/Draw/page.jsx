@@ -116,7 +116,7 @@ const Cup = () => {
           team: {
             name:
               match.id === 248 && !match.away_team
-                ? "-------------"
+                ? "------------"
                 : match.away_team
                   ? match.away_team.short_name
                   : "TBD",
