@@ -34,6 +34,24 @@ const MatchPage = () => {
   const [error, setError] = useState(null); // Error state
   const params = useParams();
   const { id } = params; // retrieve the id from the route params
+  const [suspendedPlayerIds, setSuspendedPlayerIds] = useState([]); // State to hold suspended player IDs
+
+  /**
+   * Fetches suspended players from the Supabase database.
+   * Looks for players with active = 'true'.
+   */
+  const fetchSuspendedPlayers = async () => {
+    const { data: suspendedPlayers, error } = await supabase
+      .from("suspensions")
+      .select("player_id")
+      .eq("active", true); // Only get players with active suspensions
+
+    if (error) {
+      console.error("Error fetching suspended players:", error);
+    } else {
+      setSuspendedPlayerIds(suspendedPlayers.map((record) => record.player_id)); // Store player IDs in state
+    }
+  };
 
   /**
    * Fetches match details and players from the Supabase database.
@@ -128,7 +146,10 @@ const MatchPage = () => {
   };
 
   useEffect(() => {
-    if (id) fetchMatchDetails(); // Fetch match details once id is available
+    if (id) {
+      fetchMatchDetails(); // Fetch match details once id is available
+      fetchSuspendedPlayers(); // Fetch suspended players
+    }
   }, [id]);
 
   // Function to determine the winning team's name and score style
@@ -314,12 +335,12 @@ const MatchPage = () => {
     // Draw vertical lines for each column
     const columnsX = [10, 19, 66, 87, 123, 144, 191, 200]; // X-coordinates for the column lines
     columnsX.forEach((x) => {
-      doc.line(x, 46, x, lastPlayerY +2); // Vertical lines from headers to the last row
+      doc.line(x, 46, x, lastPlayerY + 2); // Vertical lines from headers to the last row
     });
 
     // Draw the vertical line to divide the "DISCIPLINA" column into two sections
     const disciplinaX = 105; // X-coordinate for "DISCIPLINA" header
-    doc.line(disciplinaX, 51, disciplinaX, lastPlayerY+2); // Vertical line below the header
+    doc.line(disciplinaX, 51, disciplinaX, lastPlayerY + 2); // Vertical line below the header
 
     // Draw horizontal lines for each row (including headers)
     for (let y = 46; y <= lastPlayerY; y += rowHeight) {
@@ -338,7 +359,7 @@ const MatchPage = () => {
       doc.text(playerName, 20, yPos + 2);
 
       // Golos column - Add "Castigado" in bold and red if the player is suspended
-      if ([76, 231].includes(player.id)) {
+      if (suspendedPlayerIds.includes(player.id)) {
         doc.setFontSize(9);
         doc.setTextColor(255, 0, 0); // Set color to red
         doc.setFont("helvetica", "bold"); // Set font to bold
@@ -361,7 +382,7 @@ const MatchPage = () => {
       doc.text(playerName, 145, yPos + 2);
 
       // Golos column for away team - Add "Castigado" in bold and red if the player is suspended
-      if ([76, 231].includes(player.id)) {
+      if (suspendedPlayerIds.includes(player.id)) {
         doc.setFontSize(9);
         doc.setTextColor(255, 0, 0); // Set color to red
         doc.setFont("helvetica", "bold"); // Set font to bold
@@ -433,7 +454,7 @@ const MatchPage = () => {
     doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 87);
     doc.circle(70, yOffset + 87, 8); // Increased radius for home team goals (was 5)
     doc.setFontSize(12);
-    doc.text("RESULTADO FINAL", 86, yOffset + 91 -16); // Added above VS
+    doc.text("RESULTADO FINAL", 86, yOffset + 91 - 16); // Added above VS
     doc.setFontSize(10);
     doc.text("VS", 100, yOffset + 87);
     doc.circle(140, yOffset + 86, 8); // Increased radius for away team goals (was 5)
@@ -581,9 +602,7 @@ const MatchPage = () => {
             >
               {/* Display Goalscorers for Home Team */}
               <Box sx={{ textAlign: "center", mr: 5 }}>
-                <Typography variant="h6">
-                  Golos
-                </Typography>
+                <Typography variant="h6">Golos</Typography>
                 {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
                   getGoalscorers(matchDetails.home_team.id).map(
                     (goalscorer, index) => (
@@ -597,9 +616,7 @@ const MatchPage = () => {
                 )}
               </Box>
               <Box sx={{ textAlign: "center", mr: 5 }}>
-                <Typography variant="h6">
-                  Disciplina
-                </Typography>
+                <Typography variant="h6">Disciplina</Typography>
                 {getCards(matchDetails.home_team.id).length > 0 ? (
                   getCards(matchDetails.home_team.id).map(
                     (cardEvent, index) => (
@@ -648,9 +665,7 @@ const MatchPage = () => {
 
               {/* Display Yellow/Red Cards for Away Team */}
               <Box sx={{ textAlign: "center", ml: 5 }}>
-                <Typography variant="h6">
-                  Disciplina
-                </Typography>
+                <Typography variant="h6">Disciplina</Typography>
                 {getCards(matchDetails.away_team.id).length > 0 ? (
                   getCards(matchDetails.away_team.id).map(
                     (cardEvent, index) => (
@@ -689,9 +704,7 @@ const MatchPage = () => {
 
               {/* Display Goalscorers for Away Team */}
               <Box sx={{ textAlign: "center", ml: 5 }}>
-                <Typography variant="h6">
-                  Golos
-                </Typography>
+                <Typography variant="h6">Golos</Typography>
                 {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
                   getGoalscorers(matchDetails.away_team.id).map(
                     (goalscorer, index) => (
@@ -726,7 +739,10 @@ const MatchPage = () => {
               </div> */}
               {/* Ficha de Jogo Link */}
               <Box sx={{ marginTop: "3rem", cursor: "pointer" }}>
-                {matchDetails && dayjs().isAfter(dayjs(matchDetails.match_date).add(1, 'day')) ? (
+                {matchDetails &&
+                dayjs().isAfter(
+                  dayjs(matchDetails.match_date).add(1, "day")
+                ) ? (
                   <Link
                     href={matchDetails.match_sheet} // Use match_sheet if the match_date has passed
                     target="_blank" // Open the link in a new window
@@ -790,24 +806,26 @@ const MatchPage = () => {
                       gap: 1,
                     }}
                   >
-                    {homePlayers.map((player) => (
-                      <Box
-                        key={player.name}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          margin: "5px 0",
-                          width: "100%",
-                        }}
-                      >
-                        <Avatar
-                          alt={player.name}
-                          src={player.photo_url}
-                          sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
-                        />
-                        <Typography variant="body1">{player.name}</Typography>
-                      </Box>
-                    ))}
+                    {homePlayers
+                      .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
+                      .map((player) => (
+                        <Box
+                          key={player.name}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            margin: "5px 0",
+                            width: "100%",
+                          }}
+                        >
+                          <Avatar
+                            alt={player.name}
+                            src={player.photo_url}
+                            sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
+                          />
+                          <Typography variant="body1">{player.name}</Typography>
+                        </Box>
+                      ))}
                   </Box>
                 </Box>
               </Box>
@@ -848,7 +866,9 @@ const MatchPage = () => {
                       gap: 1,
                     }}
                   >
-                    {awayPlayers.map((player) => (
+                    {awayPlayers
+                      .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
+                      .map((player) => (
                       <Box
                         key={player.name}
                         sx={{
