@@ -25,7 +25,6 @@ const Discipline = () => {
   const [currentTeamId, setCurrentTeamId] = useState(null);
   const router = useRouter();
 
-  // Function to fetch and sort discipline data, including suspended players and players at risk
   const readDiscipline = async () => {
     const { data, error } = await supabase.from("discipline_standings").select(`
       team_id,
@@ -43,7 +42,6 @@ const Discipline = () => {
       return;
     }
 
-    // Fetch suspended players along with their team_id
     const { data: suspensions, error: suspensionsError } = await supabase
       .from("suspensions")
       .select(`
@@ -51,23 +49,21 @@ const Discipline = () => {
         players (name, team_id),
         active
       `)
-      .eq("active", true); // Only get active suspensions
+      .eq("active", true);
 
     if (suspensionsError) {
       console.error("Error fetching suspended players:", suspensionsError);
       return;
     }
 
-    // Map suspended players by team_id for easy lookup
     const suspendedPlayersByTeam = suspensions.reduce((acc, suspension) => {
-      const teamId = suspension.players.team_id; // Get team_id from the player's data
-      if (!teamId) return acc; // Skip if no team_id is found
+      const teamId = suspension.players.team_id;
+      if (!teamId) return acc;
       if (!acc[teamId]) acc[teamId] = [];
       acc[teamId].push(suspension.players.name);
       return acc;
     }, {});
 
-    // Fetch players' yellow card counts for risk assessment
     const { data: players, error: playersError } = await supabase
       .from("players")
       .select(`
@@ -81,31 +77,28 @@ const Discipline = () => {
       return;
     }
 
-    // Fetch match events to calculate yellow cards
     const { data: matchEvents, error: matchEventsError } = await supabase
       .from("match_events")
       .select(`
         player_id,
         event_type
       `)
-      .eq("event_type", 2); // Only get yellow card events
+      .eq("event_type", 2);
 
     if (matchEventsError) {
       console.error("Error fetching match events:", matchEventsError);
       return;
     }
 
-    // Calculate yellow card occurrences per player
     const yellowCardCounts = matchEvents.reduce((acc, event) => {
       if (!acc[event.player_id]) acc[event.player_id] = 0;
       acc[event.player_id] += 1;
       return acc;
     }, {});
 
-    // Determine players at risk of suspension (e.g., 2, 5, 8, 11 yellow cards)
     const playersAtRisk = players.reduce((acc, player) => {
       const cards = yellowCardCounts[player.id] || 0;
-      if ((cards + 1) % 3 === 0) { // Players at risk based on new criteria
+      if ((cards + 1) % 3 === 0) {
         const teamId = player.team_id;
         if (!acc[teamId]) acc[teamId] = [];
         acc[teamId].push(player.name);
@@ -113,7 +106,6 @@ const Discipline = () => {
       return acc;
     }, {});
 
-    // Sort data, moving excluded teams to the end and appending suspended players and at-risk players
     const sortedData = data.sort((a, b) => {
       if (a.excluded && !b.excluded) return 1;
       if (!a.excluded && b.excluded) return -1;
@@ -124,13 +116,12 @@ const Discipline = () => {
     }).map((team) => ({
       ...team,
       suspendedPlayers: suspendedPlayersByTeam[team.team_id] || [],
-      atRiskPlayers: playersAtRisk[team.team_id] || [], // Adding at-risk players
+      atRiskPlayers: playersAtRisk[team.team_id] || [],
     }));
 
     setDisciplineData(sortedData);
   };
 
-  // Function to fetch punishment events for the selected team
   const fetchPunishmentEvents = async (teamId) => {
     const { data, error } = await supabase
       .from("team_punishments")
@@ -159,7 +150,6 @@ const Discipline = () => {
     }
   };
 
-  // Open punishment event modal
   const handleQuestionMarkClick = (event, teamId) => {
     event.stopPropagation();
     fetchPunishmentEvents(teamId);
@@ -167,7 +157,6 @@ const Discipline = () => {
     setOpen(true);
   };
 
-  // Close modal
   const handleClose = () => {
     setOpen(false);
   };
@@ -200,8 +189,8 @@ const Discipline = () => {
             <TableRow sx={{ backgroundColor: "rgba(165, 132, 224, 0.4)" }}>
               <TableCell sx={{ fontWeight: "bold" }}>POS</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>EQUIPA</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Em Risco</TableCell> {/* At Risk Players Column */}
-              <TableCell sx={{ fontWeight: "bold", color: "red" }}>Suspensos</TableCell> {/* Suspended Players Column */}
+              <TableCell sx={{ fontWeight: "bold" }}>Em Risco</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "red" }}>Suspensos</TableCell>
               <TableCell sx={{ fontWeight: "bold" }} align="center">J</TableCell>
               <TableCell sx={{ fontWeight: "bold" }} align="center">
                 <span style={{ display: "inline-block", width: "13px", height: "20px", backgroundColor: "#ffcd00", borderRadius: "2px", verticalAlign: "middle" }}></span>
@@ -216,12 +205,17 @@ const Discipline = () => {
           </TableHead>
           <TableBody>
             {disciplineData.map((team, index) => {
+              const isExcluded = team.excluded;
               const averagePoints = team.matches_played > 0
                 ? (team.calculated_points / team.matches_played).toFixed(2)
                 : 0;
 
               return (
-                <TableRow key={team.team_id} onClick={(event) => handleQuestionMarkClick(event, team.team_id)}>
+                <TableRow 
+                  key={team.team_id} 
+                  onClick={(event) => handleQuestionMarkClick(event, team.team_id)}
+                  sx={{ backgroundColor: isExcluded ? "#ffe6e6" : "inherit" }} // Light red background for excluded teams
+                >
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
                     <Box display="flex" alignItems="center">
@@ -231,18 +225,18 @@ const Discipline = () => {
                   </TableCell>
                   <TableCell>
                     <span style={{ color: "goldenrod", fontWeight: "bold" }}>{team.atRiskPlayers.join(", ")}</span>
-                  </TableCell> {/* At Risk Players */}
+                  </TableCell>
                   <TableCell>
                     <span style={{ color: "red", fontWeight: "bold" }}>
                       {team.suspendedPlayers.join(", ")}
                     </span>
-                  </TableCell> {/* Suspended Players */}
-                  <TableCell align="center">{team.matches_played}</TableCell>
-                  <TableCell align="center">{team.yellow_cards}</TableCell>
-                  <TableCell align="center">{team.red_cards}</TableCell>
-                  <TableCell align="center">{team.other_punishments}</TableCell>
-                  <TableCell align="center">{team.calculated_points}</TableCell>
-                  <TableCell align="center">{averagePoints}</TableCell>
+                  </TableCell>
+                  <TableCell align="center">{isExcluded ? "-" : team.matches_played}</TableCell>
+                  <TableCell align="center">{isExcluded ? "-" : team.yellow_cards}</TableCell>
+                  <TableCell align="center">{isExcluded ? "-" : team.red_cards}</TableCell>
+                  <TableCell align="center">{isExcluded ? "-" : team.other_punishments}</TableCell>
+                  <TableCell align="center">{isExcluded ? "-" : team.calculated_points}</TableCell>
+                  <TableCell align="center">{isExcluded ? "-" : averagePoints}</TableCell>
                 </TableRow>
               );
             })}
@@ -250,7 +244,6 @@ const Discipline = () => {
         </Table>
       </TableContainer>
 
-      {/* Modal for punishment events */}
       <Modal open={open} onClose={handleClose}>
         <Box sx={{ p: 2, bgcolor: "white", borderRadius: 2, maxWidth: 600, margin: "auto", mt: "10%" }}>
           <Typography variant="h6" component="h2" sx={{ mb: 2 }}>Punishment Events</Typography>
