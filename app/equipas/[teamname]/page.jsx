@@ -329,11 +329,13 @@ const TeamPage = ({ params }) => {
                           </TableCell>
                           <TableCell>
                             <Box display="flex" alignItems="center">
-                              <img
-                                src={match.away_team.logo_url}
-                                alt={match.away_team.short_name}
-                                style={{ width: "30px", marginRight: "10px" }}
-                              />
+                              {match.away_team && match.away_team.logo_url && (
+                                <img
+                                  src={match.away_team.logo_url}
+                                  alt={match.away_team.short_name}
+                                  style={{ width: "30px", marginRight: "10px" }}
+                                />
+                              )}
                               <span
                                 style={{
                                   fontWeight:
@@ -346,7 +348,7 @@ const TeamPage = ({ params }) => {
                                       : "inherit",
                                 }}
                               >
-                                {match.away_team.short_name}
+                                {match.away_team?.short_name}
                               </span>
                             </Box>
                           </TableCell>
@@ -390,7 +392,7 @@ const TeamPage = ({ params }) => {
                       }}
                     />
                   </Box>
-                  <Typography sx={{marginLeft:1}} variant="body1">
+                  <Typography sx={{ marginLeft: 1 }} variant="body1">
                     {teamData?.manager_name}
                   </Typography>
                 </Box>
@@ -432,7 +434,9 @@ const TeamPage = ({ params }) => {
                         }}
                       />
                     </Box>
-                    <Typography variant="body1" sx={{marginLeft:1}}>{player.name}</Typography>
+                    <Typography variant="body1" sx={{ marginLeft: 1 }}>
+                      {player.name}
+                    </Typography>
                   </Box>
                 ))}
               </Box>
