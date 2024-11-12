@@ -15,26 +15,36 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-// export const metadata = {
-//   title: "Liga dos Veteranos do Sado",
-//   description: "Liga dos Veteranos do Sado",
-// };
-
 export default function RootLayout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const handleDrawerToggle = (isOpen) => {
     setDrawerOpen(isOpen);
   };
 
   useEffect(() => {
+    // Check if the screen size is mobile
+    const handleResize = () => setIsMobile(window.innerWidth <= 599); // Adjust breakpoint as needed
+    handleResize(); // Initial check on load
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     const mainContent = document.querySelector(".main-content");
-    if (drawerOpen) {
-      mainContent.style.marginLeft = "240px"; // Adjust based on the width of your opened drawer
-    } else {
-      mainContent.style.marginLeft = "64px"; // Adjust based on the width of your closed drawer
+    if (mainContent) {
+      if (isMobile) {
+        mainContent.style.marginLeft = "0px"; // Set to 0px for mobile
+        mainContent.style.marginTop = "64px"; // Adjust for fixed navbar
+        mainContent.style.padding = "0px"; // Adjust padding based on drawer state
+      } else {
+        mainContent.style.marginLeft = drawerOpen ? "240px" : "64px"; // Adjust based on drawer state for larger screens
+        mainContent.style.marginTop = "64px"; // Adjust for fixed navbar
+        mainContent.style.padding = "16px"; // Adjust padding based on drawer state
+      }
     }
-  }, [drawerOpen]);
+  }, [drawerOpen, isMobile]);
 
   useEffect(() => {
     document.title = "Liga Veteranos do Sado"; // Set the document title
@@ -46,7 +56,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
       >
         <Nav onDrawerToggle={handleDrawerToggle} />
-        <div className="main-content" style={{ marginTop: "64px", padding: "16px" }}>
+        <div
+          className="main-content"
+        >
           {children}
         </div>
       </body>
