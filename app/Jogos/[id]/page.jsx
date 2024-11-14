@@ -218,23 +218,59 @@ const MatchPage = () => {
         ? homePlayers.map((player) => player.id)
         : awayPlayers.map((player) => player.id);
 
-    const cardEvents = matchEvents
+    // Track each player's events to avoid duplicate entries for red and double yellow cards
+    const playerEvents = {};
+
+    matchEvents
       .filter(
         (event) =>
-          (event.event_type === 2 || event.event_type === 3) &&
+          (event.event_type === 2 ||
+            event.event_type === 3 ||
+            event.event_type === 5) &&
           playerIds.includes(event.player_id)
       )
-      .map((event) => {
-        const player = playersData.find((p) => p.id === event.player_id);
+      .forEach((event) => {
+        const playerId = event.player_id;
+
+        // Check if this player has already been processed
+        if (!playerEvents[playerId]) {
+          playerEvents[playerId] = {
+            yellow: false,
+            red: false,
+            doubleYellow: false,
+          };
+        }
+
+        // Mark event types for the player
+        if (event.event_type === 2) {
+          playerEvents[playerId].yellow = true;
+        } else if (event.event_type === 3) {
+          playerEvents[playerId].red = true;
+        } else if (event.event_type === 5) {
+          playerEvents[playerId].doubleYellow = true;
+        }
+      });
+
+    // Generate the card events list based on prioritized conditions
+    const cardEvents = Object.keys(playerEvents)
+      .map((playerId) => {
+        const player = playersData.find((p) => p.id === parseInt(playerId));
         if (player) {
+          const { yellow, red, doubleYellow } = playerEvents[playerId];
           return {
             name: player.name,
-            cardType: event.event_type === 2 ? "yellow" : "red", // Card type based on event type
+            cardType: doubleYellow
+              ? "double-yellow"
+              : red
+                ? "red"
+                : yellow
+                  ? "yellow"
+                  : null,
           };
         }
         return null;
       })
-      .filter((event) => event !== null);
+      .filter((event) => event && event.cardType);
 
     return cardEvents;
   };
@@ -633,7 +669,7 @@ const MatchPage = () => {
                               verticalAlign: "middle",
                             }}
                           ></span>
-                        ) : (
+                        ) : cardEvent.cardType === "red" ? (
                           <span
                             style={{
                               display: "inline-block",
@@ -644,6 +680,32 @@ const MatchPage = () => {
                               verticalAlign: "middle",
                             }}
                           ></span>
+                        ) : (
+                          // Double yellow (expulsion) display
+                          <>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "13px",
+                                height: "20px",
+                                backgroundColor: "#ffcd00",
+                                borderRadius: "2px",
+                                verticalAlign: "middle",
+                                marginRight: "2px",
+                              }}
+                            ></span>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "13px",
+                                height: "20px",
+                                background:
+                                  "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                borderRadius: "2px",
+                                verticalAlign: "middle",
+                              }}
+                            ></span>
+                          </>
                         )}
                       </Typography>
                     )
@@ -682,7 +744,7 @@ const MatchPage = () => {
                               verticalAlign: "middle",
                             }}
                           ></span>
-                        ) : (
+                        ) : cardEvent.cardType === "red" ? (
                           <span
                             style={{
                               display: "inline-block",
@@ -693,6 +755,32 @@ const MatchPage = () => {
                               verticalAlign: "middle",
                             }}
                           ></span>
+                        ) : (
+                          // Double yellow (expulsion) display
+                          <>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "13px",
+                                height: "20px",
+                                backgroundColor: "#ffcd00",
+                                borderRadius: "2px",
+                                verticalAlign: "middle",
+                                marginRight: "2px",
+                              }}
+                            ></span>
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: "13px",
+                                height: "20px",
+                                background:
+                                  "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                borderRadius: "2px",
+                                verticalAlign: "middle",
+                              }}
+                            ></span>
+                          </>
                         )}
                       </Typography>
                     )
@@ -869,23 +957,23 @@ const MatchPage = () => {
                     {awayPlayers
                       .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
                       .map((player) => (
-                      <Box
-                        key={player.name}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          margin: "5px 0",
-                          width: "100%",
-                        }}
-                      >
-                        <Avatar
-                          alt={player.name}
-                          src={player.photo_url}
-                          sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
-                        />
-                        <Typography variant="body1">{player.name}</Typography>
-                      </Box>
-                    ))}
+                        <Box
+                          key={player.name}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            margin: "5px 0",
+                            width: "100%",
+                          }}
+                        >
+                          <Avatar
+                            alt={player.name}
+                            src={player.photo_url}
+                            sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
+                          />
+                          <Typography variant="body1">{player.name}</Typography>
+                        </Box>
+                      ))}
                   </Box>
                 </Box>
               </Box>
