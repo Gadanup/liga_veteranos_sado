@@ -105,7 +105,7 @@ const LeagueFixtures = () => {
         <Box display="flex" flexWrap="wrap" justifyContent="center" gap={2}>
           {isSmallScreen ? (
             <>
-              {/* "Back" button for the previous week */}
+              {/* "Back" button for navigating to the previous week */}
               <Button
                 variant="outlined"
                 disabled={!previousWeek}
@@ -119,7 +119,22 @@ const LeagueFixtures = () => {
                 Back
               </Button>
 
-              {/* Display only the current week */}
+              {/* Previous week number button */}
+              {previousWeek && (
+                <Button
+                  variant="outlined"
+                  onClick={() => handleWeekChange(previousWeek)}
+                  style={{
+                    margin: "5px",
+                    padding: "2px 8px",
+                    minWidth: "40px",
+                  }}
+                >
+                  {previousWeek}
+                </Button>
+              )}
+
+              {/* Current week button */}
               {currentWeek && (
                 <Button
                   variant="contained"
@@ -134,7 +149,22 @@ const LeagueFixtures = () => {
                 </Button>
               )}
 
-              {/* "Next" button for the following week */}
+              {/* Next week number button */}
+              {nextWeek && (
+                <Button
+                  variant="outlined"
+                  onClick={() => handleWeekChange(nextWeek)}
+                  style={{
+                    margin: "5px",
+                    padding: "2px 8px",
+                    minWidth: "40px",
+                  }}
+                >
+                  {nextWeek}
+                </Button>
+              )}
+
+              {/* "Next" button for navigating to the next week */}
               <Button
                 variant="outlined"
                 disabled={!nextWeek}
@@ -217,7 +247,12 @@ const LeagueFixtures = () => {
                             )}
                           </TableCell>
                         )}
-                        <TableCell sx={{ borderBottom: "none" }}>
+                        <TableCell
+                          sx={{
+                            borderBottom: "none",
+                            px: { xs: 0, sm: 2 },
+                          }}
+                        >
                           <Box
                             display="flex"
                             alignItems="center"
@@ -252,6 +287,7 @@ const LeagueFixtures = () => {
                             borderBottom: "none",
                             width: { xs: "70px", sm: "90px", md: "110px" },
                             minWidth: "60px",
+                            paddingX: { xs: "0px", sm: "0ppx", md: "inherit" },
                           }}
                         >
                           {match.home_goals !== null &&
@@ -273,14 +309,24 @@ const LeagueFixtures = () => {
                           )}
                         </TableCell>
 
-                        <TableCell sx={{ borderBottom: "none" }}>
-                          <Box display="flex" alignItems="center">
+                        <TableCell
+                          sx={{
+                            borderBottom: "none",
+                            px: { xs: 0, sm: 2 }, // Padding X 0 on small screens, default padding on larger screens
+                          }}
+                        >
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="flex-start"
+                          >
                             <img
                               src={match.away_team.logo_url}
                               alt={match.away_team.short_name}
                               style={{ width: "30px", marginRight: "5px" }}
                             />
                             <span
+                              justifyContent="flex-start"
                               style={{
                                 fontWeight:
                                   matchResult === "away_win"
