@@ -14,11 +14,15 @@ import {
   MenuItem,
   Typography,
   Box,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
 const Classification = () => {
   const [classification, setClassification] = useState([]);
   const router = useRouter(); // Initialize the router
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // Detect small screens
 
   // Function to fetch and sort classification data
   const readClassification = async () => {
@@ -63,11 +67,31 @@ const Classification = () => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" component="h2" sx={{ color: "#6B4BA1" }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{
+          flexDirection: { xs: "column", sm: "row" },
+          textAlign: { xs: "center", sm: "left" },
+        }}
+      >
+        <Typography
+          variant="h5"
+          component="h2"
+          sx={{
+            color: "#6B4BA1",
+            marginBottom: { xs: 1, sm: 0 },
+          }}
+        >
           CLASSIFICAÇÃO
         </Typography>
-        <Box>
+
+        <Box
+          sx={{
+            display: { xs: "none", sm: "block" }, // Hide on smaller screens
+          }}
+        >
           <Typography
             variant="body1"
             component="label"
@@ -93,40 +117,108 @@ const Classification = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "rgba(165, 132, 224, 0.4)" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>POS</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>EQUIPA</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                J
+              <TableCell sx={{ fontWeight: "bold", width: "5%" }}>
+                POS
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                V
+              <TableCell sx={{ fontWeight: "bold", width: "25%" }}>
+                EQUIPA
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                E
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                D
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                G
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                DG
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                P
-              </TableCell>
+              {isMobile ? (
+                <>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    P
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    J
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    V
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    E
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    D
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    DG
+                  </TableCell>
+                </>
+              ) : (
+                <>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    J
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    V
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    E
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    D
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    G
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    DG
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: "bold", width: "10%" }}
+                    align="center"
+                  >
+                    P
+                  </TableCell>
+                </>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
             {classification.map((team, index) => (
               <TableRow
                 key={team.team_id}
-                onClick={() => router.push(`/equipas/${team.teams.short_name}`)} // Navigate to team page on click
+                onClick={() => router.push(`/equipas/${team.teams.short_name}`)}
                 sx={{
                   cursor: "pointer",
                   "&:hover": {
-                    backgroundColor: "rgba(165, 132, 224, 0.2)", // Hover effect
+                    backgroundColor: "rgba(165, 132, 224, 0.2)",
                   },
                   backgroundColor:
                     index % 2 !== 0 ? "rgba(165, 132, 224, 0.1)" : "inherit",
@@ -139,42 +231,70 @@ const Classification = () => {
                       src={team.teams.logo_url}
                       alt={`${team.teams.short_name} logo`}
                       style={{
-                        width: "40px",
-                        height: "40px",
+                        width: isMobile ? "30px" : "40px",
+                        height: isMobile ? "30px" : "40px",
                         objectFit: "contain",
                         marginRight: "8px",
                       }}
                     />
-                    {team.teams.short_name}
+                    <Typography variant={isMobile ? "body2" : "body1"}>
+                      {team.teams.short_name}
+                    </Typography>
                   </Box>
                 </TableCell>
-                <TableCell align="center">{team.matches_played}</TableCell>
-                <TableCell align="center">{team.wins}</TableCell>
-                <TableCell align="center">{team.draws}</TableCell>
-                <TableCell align="center">{team.losses}</TableCell>
-                <TableCell align="center">
-                  {team.goals_for}:{team.goals_against}
-                </TableCell>
-                <TableCell
-                  align="center"
-                  style={{
-                    fontWeight: "bold",
-                    color:
-                      team.goals_for - team.goals_against > 0
-                        ? "green"
-                        : team.goals_for - team.goals_against < 0
-                          ? "red"
-                          : "gray",
-                  }}
-                >
-                  {team.goals_for - team.goals_against}
-                </TableCell>
-                <TableCell
-                  align="center"
-                  style={{ fontWeight: "bold", color: "primary" }}
-                >
-                  {team.points}
-                </TableCell>
+                {isMobile ? (
+                  <>
+                    <TableCell align="center">{team.points}</TableCell>
+                    <TableCell align="center">{team.matches_played}</TableCell>
+                    <TableCell align="center">{team.wins}</TableCell>
+                    <TableCell align="center">{team.draws}</TableCell>
+                    <TableCell align="center">{team.losses}</TableCell>
+                    <TableCell
+                      align="center"
+                      style={{
+                        fontWeight: "bold",
+                        color:
+                          team.goals_for - team.goals_against > 0
+                            ? "green"
+                            : team.goals_for - team.goals_against < 0
+                              ? "red"
+                              : "gray",
+                      }}
+                    >
+                      {team.goals_for - team.goals_against}
+                    </TableCell>
+                  </>
+                ) : (
+                  <>
+                    <TableCell align="center">{team.matches_played}</TableCell>
+                    <TableCell align="center">{team.wins}</TableCell>
+                    <TableCell align="center">{team.draws}</TableCell>
+                    <TableCell align="center">{team.losses}</TableCell>
+                    <TableCell align="center">
+                      {team.goals_for}:{team.goals_against}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      style={{
+                        fontWeight: "bold",
+                        color:
+                          team.goals_for - team.goals_against > 0
+                            ? "green"
+                            : team.goals_for - team.goals_against < 0
+                              ? "red"
+                              : "gray",
+                      }}
+                    >
+                      {team.goals_for - team.goals_against}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      style={{ fontWeight: "bold", color: "primary" }}
+                    >
+                      {team.points}
+                    </TableCell>
+                  </>
+                )}
               </TableRow>
             ))}
           </TableBody>
