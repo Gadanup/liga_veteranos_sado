@@ -94,22 +94,34 @@ const MatchPage = () => {
    * Uses team_id to get the correct players for each team.
    */
   const fetchPlayers = async (homeTeamId, awayTeamId) => {
-    const { data: homePlayersData, error: homeError } = await supabase
+    // Fetch players for both teams, considering previousClub
+    const { data: playersData, error } = await supabase
       .from("players")
-      .select("name, photo_url, id, joker") // Include id for filtering
-      .eq("team_id", homeTeamId);
+      .select("id, name, photo_url, joker, team_id, previousClub");
 
-    const { data: awayPlayersData, error: awayError } = await supabase
-      .from("players")
-      .select("name, photo_url, id, joker") // Include id for filtering
-      .eq("team_id", awayTeamId);
-
-    if (homeError || awayError) {
-      console.error("Error fetching players:", homeError || awayError);
-    } else {
-      setHomePlayers(homePlayersData); // Set home players state
-      setAwayPlayers(awayPlayersData); // Set away players state
+    if (error) {
+      console.error("Error fetching players:", error);
+      return;
     }
+
+    // Filter players for home and away teams
+    const homePlayersData = playersData.filter(
+      (player) =>
+        player.team_id === homeTeamId || player.previousClub === homeTeamId
+    );
+    const awayPlayersData = playersData.filter(
+      (player) =>
+        player.team_id === awayTeamId || player.previousClub === awayTeamId
+    );
+
+    // Avoid duplicates by ensuring no player is counted in both teams
+    const homePlayerIds = homePlayersData.map((player) => player.id);
+    const filteredAwayPlayers = awayPlayersData.filter(
+      (player) => !homePlayerIds.includes(player.id)
+    );
+
+    setHomePlayers(homePlayersData);
+    setAwayPlayers(filteredAwayPlayers);
   };
 
   /**
@@ -137,8 +149,10 @@ const MatchPage = () => {
 
     const { data: playersData, error } = await supabase
       .from("players")
-      .select("id, name, joker")
-      .in("id", playerIds);
+      .select("id, name, joker, previousClub")
+      .or(
+        playerIds.map((id) => `id.eq.${id},previousClub.eq.${id}`).join(",") // Checks if id or previousClub matches any of the playerIds
+      );
 
     if (error) {
       console.error("Error fetching player details:", error);
@@ -169,45 +183,47 @@ const MatchPage = () => {
   // Function to get goalscorers for each team, including own goals
   const getGoalscorers = (teamId) => {
     const isHomeTeam = teamId === matchDetails.home_team.id;
-    const playerIds = isHomeTeam
-      ? homePlayers.map((player) => player.id)
-      : awayPlayers.map((player) => player.id);
 
-    // Regular goals (event_type === 1)
+    // Determine players for the team
+    const teamPlayers = isHomeTeam ? homePlayers : awayPlayers;
+
+    // Regular goals
     const goalscorerCounts = matchEvents
-      .filter(
-        (event) => event.event_type === 1 && playerIds.includes(event.player_id)
-      )
+      .filter((event) => event.event_type === 1)
       .reduce((acc, event) => {
-        const player = playersData.find((p) => p.id === event.player_id);
+        const player = teamPlayers.find(
+          (p) => p.id === event.player_id || p.previousClub === event.player_id
+        );
         if (player) {
-          acc[player.name] = (acc[player.name] || 0) + 1; // Count goals per player
+          acc[player.name] = (acc[player.name] || 0) + 1;
         }
         return acc;
       }, {});
 
-    // Own goals (event_type === 4)
+    // Own goals
     const ownGoals = matchEvents
       .filter(
         (event) =>
-          event.event_type === 4 && // Own goal event
+          event.event_type === 4 &&
           ((isHomeTeam &&
-            awayPlayers.map((p) => p.id).includes(event.player_id)) ||
+            awayPlayers.some(
+              (p) =>
+                p.id === event.player_id || p.previousClub === event.player_id
+            )) ||
             (!isHomeTeam &&
-              homePlayers.map((p) => p.id).includes(event.player_id)))
+              homePlayers.some(
+                (p) =>
+                  p.id === event.player_id || p.previousClub === event.player_id
+              )))
       )
-      .map((event) => {
-        // const player = playersData.find((p) => p.id === event.player_id);
-        return "Auto-Golo";
-      })
-      .filter((goal) => goal !== null); // Filter out nulls
+      .map(() => "Auto-Golo");
 
     // Combine regular goals and own goals
     const allGoals = [
       ...Object.entries(goalscorerCounts).map(
         ([name, count]) => `${name} (${count})`
       ),
-      ...ownGoals, // Include own goals
+      ...ownGoals,
     ];
 
     return allGoals;
@@ -215,45 +231,54 @@ const MatchPage = () => {
 
   // Function to get yellow and red cards for each team
   const getCards = (teamId) => {
-    const playerIds =
-      teamId === matchDetails.home_team.id
-        ? homePlayers.map((player) => player.id)
-        : awayPlayers.map((player) => player.id);
+    const isHomeTeam = teamId === matchDetails.home_team.id;
 
-    // Track each player's events to avoid duplicate entries for red and double yellow cards
+    // Determine players for the team
+    const teamPlayers = isHomeTeam ? homePlayers : awayPlayers;
+
+    // Create a map of player events
     const playerEvents = {};
 
+    // Filter and process card-related events
     matchEvents
       .filter(
         (event) =>
-          (event.event_type === 2 ||
-            event.event_type === 3 ||
-            event.event_type === 5) &&
-          playerIds.includes(event.player_id)
+          (event.event_type === 2 || // Yellow card
+            event.event_type === 3 || // Red card
+            event.event_type === 5) && // Double yellow card
+          teamPlayers.some(
+            (p) =>
+              p.id === event.player_id || p.previousClub === event.player_id
+          )
       )
       .forEach((event) => {
-        const playerId = event.player_id;
+        const player = teamPlayers.find(
+          (p) => p.id === event.player_id || p.previousClub === event.player_id
+        );
+        if (player) {
+          const playerId = player.id;
 
-        // Check if this player has already been processed
-        if (!playerEvents[playerId]) {
-          playerEvents[playerId] = {
-            yellow: false,
-            red: false,
-            doubleYellow: false,
-          };
-        }
+          // Initialize the player in the events map if not already added
+          if (!playerEvents[playerId]) {
+            playerEvents[playerId] = {
+              yellow: false,
+              red: false,
+              doubleYellow: false,
+            };
+          }
 
-        // Mark event types for the player
-        if (event.event_type === 2) {
-          playerEvents[playerId].yellow = true;
-        } else if (event.event_type === 3) {
-          playerEvents[playerId].red = true;
-        } else if (event.event_type === 5) {
-          playerEvents[playerId].doubleYellow = true;
+          // Mark the card event type for the player
+          if (event.event_type === 2) {
+            playerEvents[playerId].yellow = true;
+          } else if (event.event_type === 3) {
+            playerEvents[playerId].red = true;
+          } else if (event.event_type === 5) {
+            playerEvents[playerId].doubleYellow = true;
+          }
         }
       });
 
-    // Generate the card events list based on prioritized conditions
+    // Generate the final list of card events
     const cardEvents = Object.keys(playerEvents)
       .map((playerId) => {
         const player = playersData.find((p) => p.id === parseInt(playerId));
@@ -272,7 +297,7 @@ const MatchPage = () => {
         }
         return null;
       })
-      .filter((event) => event && event.cardType);
+      .filter((event) => event && event.cardType); // Filter out players with no card type
 
     return cardEvents;
   };
