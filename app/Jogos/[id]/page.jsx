@@ -29,6 +29,8 @@ const MatchPage = () => {
   const [matchDetails, setMatchDetails] = useState(null); // Store match details
   const [homePlayers, setHomePlayers] = useState([]); // Home team players
   const [awayPlayers, setAwayPlayers] = useState([]); // Away team players
+  const [currentHomePlayers, setCurrentHomePlayers] = useState([]); // Home team players
+  const [currentAwayPlayers, setCurrentAwayPlayers] = useState([]); // Away team players
   const [matchEvents, setMatchEvents] = useState([]); // Store match events
   const [playersData, setPlayersData] = useState([]); // Store players data for goalscorers
   const [loading, setLoading] = useState(true); // Loading state
@@ -124,6 +126,29 @@ const MatchPage = () => {
     setAwayPlayers(filteredAwayPlayers);
   };
 
+  const fetchCurrentPlayers = async (homeTeamId, awayTeamId) => {
+    // Fetch players for both teams (ONLY current players)
+    const { data: playersData, error } = await supabase
+      .from("players")
+      .select("id, name, photo_url, joker, team_id");
+
+    if (error) {
+      console.error("Error fetching current players:", error);
+      return;
+    }
+
+    // Filter only current players for home and away teams
+    const currentHomePlayers = playersData.filter(
+      (player) => player.team_id === homeTeamId
+    );
+    const currentAwayPlayers = playersData.filter(
+      (player) => player.team_id === awayTeamId
+    );
+
+    setCurrentHomePlayers(currentHomePlayers); // State for current home team players
+    setCurrentAwayPlayers(currentAwayPlayers); // State for current away team players
+  };
+
   /**
    * Fetches match events from the match_events table based on match ID.
    */
@@ -167,6 +192,12 @@ const MatchPage = () => {
       fetchSuspendedPlayers(); // Fetch suspended players
     }
   }, [id]);
+
+  useEffect(() => {
+    if (matchDetails?.home_team && matchDetails?.away_team) {
+      fetchCurrentPlayers(matchDetails.home_team.id, matchDetails.away_team.id); // Fetch current players for the rosters
+    }
+  }, [matchDetails]);
 
   // Function to determine the winning team's name and score style
   const getTeamStyles = (homeGoals, awayGoals, team) => {
@@ -383,10 +414,10 @@ const MatchPage = () => {
     let rowHeight = 5;
 
     // Order home and away players alphabetically
-    const sortedHomePlayers = [...homePlayers].sort((a, b) =>
+    const sortedHomePlayers = [...currentHomePlayers].sort((a, b) =>
       a.name.localeCompare(b.name)
     );
-    const sortedAwayPlayers = [...awayPlayers].sort((a, b) =>
+    const sortedAwayPlayers = [...currentAwayPlayers].sort((a, b) =>
       a.name.localeCompare(b.name)
     );
 
@@ -462,7 +493,7 @@ const MatchPage = () => {
 
     // Divider line below player table section
     const yOffset =
-      75 + Math.max(homePlayers.length, awayPlayers.length) * 4 + 5;
+      75 + Math.max(currentHomePlayers.length, currentAwayPlayers.length) * 4 + 5;
     doc.line(10, yOffset - 2, 200, yOffset - 2);
 
     // Coaches and Delegates Section
@@ -1138,7 +1169,7 @@ const MatchPage = () => {
                     gap: 1,
                   }}
                 >
-                  {homePlayers
+                  {currentHomePlayers
                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
                     .map((player) => (
                       <Box
@@ -1198,7 +1229,7 @@ const MatchPage = () => {
                     gap: 1,
                   }}
                 >
-                  {awayPlayers
+                  {currentAwayPlayers
                     .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
                     .map((player) => (
                       <Box
