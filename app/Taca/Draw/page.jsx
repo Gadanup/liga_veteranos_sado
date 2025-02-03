@@ -102,6 +102,7 @@ const Cup = () => {
       date: match.match_date
         ? dayjs(match.match_date).format("DD/MM/YYYY")
         : "TBD",
+      time: match.match_time,
       stadium: match.home_team?.stadium_name || "TBD",
       sides: [
         {
@@ -154,7 +155,7 @@ const Cup = () => {
             title: "Oitavos de Final",
             seeds: bracketData.round8.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time || ""}  ${match.stadium || "TBD"}`, // Format date with stadium
               teams: [
                 {
                   name: (
@@ -229,7 +230,7 @@ const Cup = () => {
             title: "Quartos de Final",
             seeds: bracketData.round4.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.match_time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
               teams: match.sides.map((side) => ({
                 name: (
                   <Box
@@ -266,7 +267,7 @@ const Cup = () => {
             title: "Semifinais",
             seeds: bracketData.round2.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.match_time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
               stadium: match.stadium,
               teams: [
                 {
@@ -340,7 +341,7 @@ const Cup = () => {
             title: "Final",
             seeds: bracketData.final.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.match_time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
               stadium: match.stadium,
               teams: [
                 {
