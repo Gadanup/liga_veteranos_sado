@@ -155,7 +155,7 @@ const Cup = () => {
             title: "Oitavos de Final",
             seeds: bracketData.round8.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               teams: [
                 {
                   name: (
@@ -230,7 +230,7 @@ const Cup = () => {
             title: "Quartos de Final",
             seeds: bracketData.round4.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               teams: match.sides.map((side) => ({
                 name: (
                   <Box
@@ -267,7 +267,7 @@ const Cup = () => {
             title: "Semifinais",
             seeds: bracketData.round2.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               stadium: match.stadium,
               teams: [
                 {
@@ -341,7 +341,7 @@ const Cup = () => {
             title: "Final",
             seeds: bracketData.final.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time || ""} - ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               stadium: match.stadium,
               teams: [
                 {
