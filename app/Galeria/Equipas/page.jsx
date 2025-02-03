@@ -19,13 +19,13 @@ export default function Equipas() {
   const fetchTeams = async () => {
     const { data: teamsData, error } = await supabase
       .from("teams")
-      .select("id, short_name, logo_url, roster_url")
+      .select("id, short_name, logo_url, roster_url, excluded") 
       .order("short_name", { ascending: true });
 
     if (error) {
       console.error("Error fetching teams:", error);
     } else {
-      setTeams(teamsData);
+      setTeams(teamsData.filter((team) => !team.excluded));
     }
   };
 
