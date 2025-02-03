@@ -30,7 +30,7 @@ const Classification = () => {
       "league_standings"
     ).select(`
         team_id, 
-        teams!league_standings_team_id_fkey (short_name, logo_url),
+        teams!league_standings_team_id_fkey (short_name, logo_url, excluded),
         matches_played,
         wins,
         draws,
@@ -43,17 +43,22 @@ const Classification = () => {
     if (error) {
       console.error("Error fetching teams:", error);
     } else {
-      // Sort by points, goal difference, and goals scored
+      // Sort the classification
       const sortedData = classificationData.sort((a, b) => {
+        // Always move excluded teams to the bottom
+        if (a.teams.excluded && !b.teams.excluded) return 1;
+        if (!a.teams.excluded && b.teams.excluded) return -1;
+
+        // Sorting logic for non-excluded teams
         const goalDifferenceA = a.goals_for - a.goals_against;
         const goalDifferenceB = b.goals_for - b.goals_against;
 
         if (a.points !== b.points) {
-          return b.points - a.points; // Sort by points (descending)
+          return b.points - a.points; // Higher points first
         } else if (goalDifferenceA !== goalDifferenceB) {
-          return goalDifferenceB - goalDifferenceA; // Sort by goal difference (descending)
+          return goalDifferenceB - goalDifferenceA; // Higher goal diff first
         } else {
-          return b.goals_for - a.goals_for; // Sort by goals scored (descending)
+          return b.goals_for - a.goals_for; // Higher goals scored first
         }
       });
 
@@ -61,153 +66,26 @@ const Classification = () => {
     }
   };
 
+ 
   useEffect(() => {
     readClassification();
   }, []);
 
   return (
     <Box sx={{ padding: 2 }}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{
-          flexDirection: { xs: "column", sm: "row" },
-          textAlign: { xs: "center", sm: "left" },
-        }}
-      >
-        <Typography
-          variant="h5"
-          component="h2"
-          sx={{
-            color: "#6B4BA1",
-            marginBottom: { xs: 1, sm: 0 },
-          }}
-        >
-          CLASSIFICAÇÃO
-        </Typography>
-
-        <Box
-          sx={{
-            display: { xs: "none", sm: "block" }, // Hide on smaller screens
-          }}
-        >
-          <Typography
-            variant="body1"
-            component="label"
-            fontWeight="bold"
-            sx={{ color: "#6B4BA1" }}
-            mr={2}
-          >
-            Temporada:
-          </Typography>
-          <Select
-            id="season"
-            defaultValue="2024"
-            sx={{ border: "1px solid", borderRadius: 1, padding: "4px 8px" }}
-          >
-            <MenuItem value="2024">2024/2025</MenuItem>
-          </Select>
-        </Box>
-      </Box>
-
-      <hr className="h-px border-0 bg-gray-300 my-6" />
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "rgba(165, 132, 224, 0.4)" }}>
-              <TableCell sx={{ fontWeight: "bold", width: "5%" }}>
-                POS
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold", width: "25%" }}>
-                EQUIPA
-              </TableCell>
-              {isMobile ? (
-                <>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    P
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    J
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    V
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    E
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    D
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    DG
-                  </TableCell>
-                </>
-              ) : (
-                <>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    J
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    V
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    E
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    D
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    G
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    DG
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "bold", width: "10%" }}
-                    align="center"
-                  >
-                    P
-                  </TableCell>
-                </>
-              )}
+              <TableCell sx={{ fontWeight: "bold", width: "5%" }}>POS</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "25%" }}>EQUIPA</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">J</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">V</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">E</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">D</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">G</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">DG</TableCell>
+              <TableCell sx={{ fontWeight: "bold", width: "10%" }} align="center">P</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -217,11 +95,12 @@ const Classification = () => {
                 onClick={() => router.push(`/equipas/${team.teams.short_name}`)}
                 sx={{
                   cursor: "pointer",
-                  "&:hover": {
-                    backgroundColor: "rgba(165, 132, 224, 0.2)",
-                  },
-                  backgroundColor:
-                    index % 2 !== 0 ? "rgba(165, 132, 224, 0.1)" : "inherit",
+                  "&:hover": { backgroundColor: "rgba(165, 132, 224, 0.2)" },
+                  backgroundColor: team.teams.excluded
+                    ? "rgba(255, 0, 0, 0.1)" // Light transparent red
+                    : index % 2 !== 0
+                    ? "rgba(165, 132, 224, 0.1)"
+                    : "inherit",
                 }}
               >
                 <TableCell>{index + 1}</TableCell>
@@ -242,59 +121,37 @@ const Classification = () => {
                     </Typography>
                   </Box>
                 </TableCell>
-                {isMobile ? (
-                  <>
-                    <TableCell align="center">{team.points}</TableCell>
-                    <TableCell align="center">{team.matches_played}</TableCell>
-                    <TableCell align="center">{team.wins}</TableCell>
-                    <TableCell align="center">{team.draws}</TableCell>
-                    <TableCell align="center">{team.losses}</TableCell>
-                    <TableCell
-                      align="center"
-                      style={{
-                        fontWeight: "bold",
-                        color:
-                          team.goals_for - team.goals_against > 0
-                            ? "green"
-                            : team.goals_for - team.goals_against < 0
-                              ? "red"
-                              : "gray",
-                      }}
-                    >
-                      {team.goals_for - team.goals_against}
-                    </TableCell>
-                  </>
-                ) : (
-                  <>
-                    <TableCell align="center">{team.matches_played}</TableCell>
-                    <TableCell align="center">{team.wins}</TableCell>
-                    <TableCell align="center">{team.draws}</TableCell>
-                    <TableCell align="center">{team.losses}</TableCell>
-                    <TableCell align="center">
-                      {team.goals_for}:{team.goals_against}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      style={{
-                        fontWeight: "bold",
-                        color:
-                          team.goals_for - team.goals_against > 0
-                            ? "green"
-                            : team.goals_for - team.goals_against < 0
-                              ? "red"
-                              : "gray",
-                      }}
-                    >
-                      {team.goals_for - team.goals_against}
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      style={{ fontWeight: "bold", color: "primary" }}
-                    >
-                      {team.points}
-                    </TableCell>
-                  </>
-                )}
+                <TableCell align="center">{team.teams.excluded ? "-" : team.matches_played}</TableCell>
+                <TableCell align="center">{team.teams.excluded ? "-" : team.wins}</TableCell>
+                <TableCell align="center">{team.teams.excluded ? "-" : team.draws}</TableCell>
+                <TableCell align="center">{team.teams.excluded ? "-" : team.losses}</TableCell>
+                <TableCell align="center">
+                  {team.teams.excluded ? "-" : `${team.goals_for}:${team.goals_against}`}
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    fontWeight: "bold",
+                    color: team.teams.excluded
+                      ? "gray"
+                      : team.goals_for - team.goals_against > 0
+                      ? "green"
+                      : team.goals_for - team.goals_against < 0
+                      ? "red"
+                      : "gray",
+                  }}
+                >
+                  {team.teams.excluded ? "-" : team.goals_for - team.goals_against}
+                </TableCell>
+                <TableCell
+                  align="center"
+                  style={{
+                    fontWeight: "bold",
+                    color: team.teams.excluded ? "gray" : "primary",
+                  }}
+                >
+                  {team.teams.excluded ? "-" : team.points}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -303,5 +160,4 @@ const Classification = () => {
     </Box>
   );
 };
-
 export default Classification;
