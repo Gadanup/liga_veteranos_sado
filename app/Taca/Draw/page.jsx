@@ -4,6 +4,8 @@ import { supabase } from "../../../lib/supabase";
 import { Box, Typography, Avatar } from "@mui/material";
 import dayjs from "dayjs";
 import { Bracket } from "react-brackets";
+import { useRouter } from "next/navigation"; // Import useRouter
+
 
 const Cup = () => {
   const [matches, setMatches] = useState({
@@ -12,6 +14,8 @@ const Cup = () => {
     round2: [],
     final: [],
   });
+
+  const router = useRouter(); // Initialize useRouter
 
   const placeholderRounds = {
     round8: Array(8).fill({
@@ -160,11 +164,13 @@ const Cup = () => {
                 {
                   name: (
                     <Box
+                    onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
+                        cursor: "pointer"
                       }}
                     >
                       {match.sides[0].team.logo && (
@@ -192,11 +198,13 @@ const Cup = () => {
                 {
                   name: (
                     <Box
+                    onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
+                        cursor: "pointer"
                       }}
                     >
                       {match.sides[1].team.logo && (
@@ -234,11 +242,14 @@ const Cup = () => {
               teams: match.sides.map((side) => ({
                 name: (
                   <Box
+                  // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                  // onClick={() => router.push(`/Jogos/${match.id}`)}
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       width: "300px",
+                      // cursor: "pointer"
                     }}
                   >
                     {side.team.logo && (
@@ -273,11 +284,14 @@ const Cup = () => {
                 {
                   name: (
                     <Box
+                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                    // onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
+                        // cursor: "pointer"
                       }}
                     >
                       {match.sides[0].team.logo && (
@@ -305,11 +319,14 @@ const Cup = () => {
                 {
                   name: (
                     <Box
+                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                    // onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
+                        // cursor: "pointer"
                       }}
                     >
                       {match.sides[1].team.logo && (
@@ -347,11 +364,14 @@ const Cup = () => {
                 {
                   name: (
                     <Box
+                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                    // onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
+                        // cursor: "pointer"
                       }}
                     >
                       {match.sides[0].team.logo && (
@@ -379,11 +399,13 @@ const Cup = () => {
                 {
                   name: (
                     <Box
+                    // onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
+                        // cursor: "pointer"
                       }}
                     >
                       {match.sides[1].team.logo && (
