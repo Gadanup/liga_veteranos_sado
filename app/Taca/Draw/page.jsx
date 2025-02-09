@@ -62,6 +62,8 @@ const Cup = () => {
         id,
         home_goals,
         away_goals,
+        home_penalties,
+        away_penalties,
         match_date,
         match_time,
         home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
@@ -114,8 +116,8 @@ const Cup = () => {
             name: match.home_team ? match.home_team.short_name : "TBD",
             logo: match.home_team ? match.home_team.logo_url : null,
           },
-          score: match.home_goals,
-          winner: match.home_goals > match.away_goals,
+          score: `${match.home_goals} ${match.home_penalties ? ` (${match.home_penalties})` : ""}`,
+          winner: match.home_goals > match.away_goals || (match.home_goals === match.away_goals && match.home_penalties > match.away_penalties)
         },
         {
           team: {
@@ -128,8 +130,8 @@ const Cup = () => {
             logo: match.away_team ? match.away_team.logo_url : null,
           },
 
-          score: match.away_goals,
-          winner: match.away_goals > match.home_goals,
+          score: `${match.away_goals} ${match.away_penalties ? ` (${match.away_penalties})` : ""}`,
+          winner: match.away_goals > match.home_goals || (match.away_goals === match.home_goals && match.away_penalties > match.home_penalties)
         },
       ],
     }));

@@ -454,7 +454,7 @@ export default function Nav({ onDrawerToggle }) {
                 </ListItemButton>
               </ListItem>
             )}
-            {open && (
+            {/* {open && (
               <>
                 <ListItem disablePadding sx={{ display: "block" }}>
                   <ListItemButton
@@ -504,7 +504,7 @@ export default function Nav({ onDrawerToggle }) {
                   </ListItemButton>
                 </ListItem>
               </>
-            )}
+            )} */}
           </List>
           <Divider />
           {open && (
