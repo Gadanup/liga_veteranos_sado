@@ -72,6 +72,8 @@ const MatchPage = () => {
         round,
         home_goals,
         away_goals,
+        home_penalties,
+        away_penalties,
         match_date,
         match_time,
         match_sheet,
@@ -200,12 +202,27 @@ const MatchPage = () => {
   }, [matchDetails]);
 
   // Function to determine the winning team's name and score style
-  const getTeamStyles = (homeGoals, awayGoals, team) => {
+  // Function to determine the winning team's name and score style
+  const getTeamStyles = (
+    homeGoals,
+    awayGoals,
+    homePenalties,
+    awayPenalties,
+    competitionType,
+    team
+  ) => {
     if (homeGoals !== null && awayGoals !== null) {
       if (homeGoals > awayGoals && team === "home") {
         return { fontWeight: "bold", color: "green" }; // Home team wins
       } else if (awayGoals > homeGoals && team === "away") {
         return { fontWeight: "bold", color: "green" }; // Away team wins
+      } else if (homeGoals === awayGoals && competitionType === "Cup") {
+        // If goals are tied, check penalties for Cup matches
+        if (homePenalties > awayPenalties && team === "home") {
+          return { fontWeight: "bold", color: "green" }; // Home team wins via penalties
+        } else if (awayPenalties > homePenalties && team === "away") {
+          return { fontWeight: "bold", color: "green" }; // Away team wins via penalties
+        }
       }
     }
     return {}; // Default style
@@ -493,7 +510,9 @@ const MatchPage = () => {
 
     // Divider line below player table section
     const yOffset =
-      75 + Math.max(currentHomePlayers.length, currentAwayPlayers.length) * 4 + 5;
+      75 +
+      Math.max(currentHomePlayers.length, currentAwayPlayers.length) * 4 +
+      5;
     doc.line(10, yOffset - 2, 200, yOffset - 2);
 
     // Coaches and Delegates Section
@@ -633,6 +652,9 @@ const MatchPage = () => {
                   style={getTeamStyles(
                     matchDetails.home_goals,
                     matchDetails.away_goals,
+                    matchDetails.home_penalties,
+                    matchDetails.away_penalties,
+                    matchDetails.competition_type,
                     "home"
                   )}
                   sx={{ mt: 1 }}
@@ -640,6 +662,9 @@ const MatchPage = () => {
                   {matchDetails.home_goals !== null
                     ? matchDetails.home_goals
                     : "-"}
+                  {matchDetails.competition_type === "Cup" &&
+                    matchDetails.home_penalties !== null &&
+                    ` (${matchDetails.home_penalties})`}
                 </Typography>
               </Box>
 
@@ -667,6 +692,26 @@ const MatchPage = () => {
                 >
                   {matchDetails.match_time}
                 </Typography>
+
+                {/* Display "Depois de Grandes Penalidades" or "Depois de G.P" for Cup matches with penalties */}
+                {matchDetails.competition_type === "Cup" &&
+                  (matchDetails.home_penalties !== null ||
+                    matchDetails.away_penalties !== null) && (
+                    <Typography
+                      variant={isSmallScreen ? "body2" : "body1"} // Adjust font size based on screen size
+                      sx={{
+                        fontSize: isSmallScreen ? "0.9rem" : "1rem",
+                        fontWeight: "bold",
+                        fontStyle: "italic",
+                        marginTop: "0.5rem",
+                        textAlign: "center",
+                      }}
+                    >
+                      {isSmallScreen
+                        ? "Depois de G.P"
+                        : "Depois de Grandes Penalidades"}
+                    </Typography>
+                  )}
               </Box>
 
               {/* Away Team Logo, Name, and Score */}
@@ -696,6 +741,9 @@ const MatchPage = () => {
                   style={getTeamStyles(
                     matchDetails.home_goals,
                     matchDetails.away_goals,
+                    matchDetails.home_penalties,
+                    matchDetails.away_penalties,
+                    matchDetails.competition_type,
                     "away"
                   )}
                   sx={{ mt: 1 }}
@@ -703,6 +751,9 @@ const MatchPage = () => {
                   {matchDetails.away_goals !== null
                     ? matchDetails.away_goals
                     : "-"}
+                  {matchDetails.competition_type === "Cup" &&
+                    matchDetails.away_penalties !== null &&
+                    ` (${matchDetails.away_penalties})`}
                 </Typography>
               </Box>
             </Box>
