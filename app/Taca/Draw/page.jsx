@@ -116,8 +116,11 @@ const Cup = () => {
             name: match.home_team ? match.home_team.short_name : "TBD",
             logo: match.home_team ? match.home_team.logo_url : null,
           },
-          score: `${match.home_goals} ${match.home_penalties ? ` (${match.home_penalties})` : ""}`,
-          winner: match.home_goals > match.away_goals || (match.home_goals === match.away_goals && match.home_penalties > match.away_penalties)
+          score: match.home_goals !== null && match.home_goals !== undefined 
+            ? `${match.home_goals}${match.home_penalties ? ` (${match.home_penalties})` : ""}` 
+            : "---",
+          winner: match.home_goals > match.away_goals || 
+                  (match.home_goals === match.away_goals && match.home_penalties > match.away_penalties)
         },
         {
           team: {
@@ -129,13 +132,16 @@ const Cup = () => {
                   : "TBD",
             logo: match.away_team ? match.away_team.logo_url : null,
           },
-
-          score: `${match.away_goals} ${match.away_penalties ? ` (${match.away_penalties})` : ""}`,
-          winner: match.away_goals > match.home_goals || (match.away_goals === match.home_goals && match.away_penalties > match.home_penalties)
+          score: match.away_goals !== null && match.away_goals !== undefined 
+            ? `${match.away_goals}${match.away_penalties ? ` (${match.away_penalties})` : ""}` 
+            : "---",
+          winner: match.away_goals > match.home_goals || 
+                  (match.away_goals === match.home_goals && match.away_penalties > match.home_penalties)
         },
       ],
     }));
   };
+  
 
   const bracketData = {
     round8: formatMatches(matches.round8),
@@ -245,13 +251,13 @@ const Cup = () => {
                 name: (
                   <Box
                   // MUDAR QUANDO TIVER AS DUAS EQUIPAS
-                  // onClick={() => router.push(`/Jogos/${match.id}`)}
+                  onClick={() => router.push(`/Jogos/${match.id}`)}
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       width: "300px",
-                      // cursor: "pointer"
+                      cursor: "pointer"
                     }}
                   >
                     {side.team.logo && (
