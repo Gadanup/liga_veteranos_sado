@@ -20,7 +20,8 @@ const Goalscorers = () => {
     const { data: matches, error: matchesError } = await supabase
       .from("matches")
       .select("id")
-      .eq("competition_type", "League") // Filter for League competition
+      // .eq("competition_type", "League") // Filter for League competition
+      .in("competition_type", ["League", "Cup"])
       .eq("season", "2024"); // Filter for season 2024
 
     if (matchesError) {
