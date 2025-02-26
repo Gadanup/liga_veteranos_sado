@@ -176,15 +176,13 @@ const MatchPage = () => {
 
     const { data: playersData, error } = await supabase
       .from("players")
-      .select("id, name, joker, previousClub")
-      .or(
-        playerIds.map((id) => `id.eq.${id},previousClub.eq.${id}`).join(",") // Checks if id or previousClub matches any of the playerIds
-      );
+      .select("id, name, team_id, joker, previousClub") // Added team_id
+      .or(playerIds.map((id) => `id.eq.${id}`).join(",")); // Match only current id
 
     if (error) {
       console.error("Error fetching player details:", error);
     } else {
-      setPlayersData(playersData); // Set players data for goalscorers
+      setPlayersData(playersData);
     }
   };
 
@@ -280,72 +278,74 @@ const MatchPage = () => {
   // Function to get yellow and red cards for each team
   const getCards = (teamId) => {
     const isHomeTeam = teamId === matchDetails.home_team.id;
-
-    // Determine players for the team
     const teamPlayers = isHomeTeam ? homePlayers : awayPlayers;
 
-    // Create a map of player events
     const playerEvents = {};
 
-    // Filter and process card-related events
+    
+
     matchEvents
       .filter(
         (event) =>
-          (event.event_type === 2 || // Yellow card
-            event.event_type === 3 || // Red card
-            event.event_type === 5) && // Double yellow card
-          teamPlayers.some(
-            (p) =>
-              p.id === event.player_id || p.previousClub === event.player_id
-          )
+          event.event_type === 2 || // Yellow card
+          event.event_type === 3 || // Red card
+          event.event_type === 5 // Double yellow card
       )
       .forEach((event) => {
-        const player = teamPlayers.find(
-          (p) => p.id === event.player_id || p.previousClub === event.player_id
-        );
+        const player = playersData.find((p) => p.id === event.player_id);
+
         if (player) {
-          const playerId = player.id;
+          const currentTeamId = player.team_id; // Use team_id from playersData
 
-          // Initialize the player in the events map if not already added
-          if (!playerEvents[playerId]) {
-            playerEvents[playerId] = {
-              yellow: false,
-              red: false,
-              doubleYellow: false,
-            };
-          }
+          if (currentTeamId && currentTeamId === teamId) {
+            const playerId = player.id;
 
-          // Mark the card event type for the player
-          if (event.event_type === 2) {
-            playerEvents[playerId].yellow = true;
-          } else if (event.event_type === 3) {
-            playerEvents[playerId].red = true;
-          } else if (event.event_type === 5) {
-            playerEvents[playerId].doubleYellow = true;
+            if (!playerEvents[playerId]) {
+              playerEvents[playerId] = {
+                cards: [],
+              };
+            }
+
+            if (event.event_type === 2) {
+              playerEvents[playerId].cards.push("yellow");
+              console.log(
+                `Yellow card added for ${player.name} (teamId: ${currentTeamId})`
+              );
+            } else if (event.event_type === 3) {
+              playerEvents[playerId].cards.push("red");
+              console.log(
+                `Red card added for ${player.name} (teamId: ${currentTeamId})`
+              );
+            } else if (event.event_type === 5) {
+              playerEvents[playerId].cards.push("double-yellow");
+              console.log(
+                `Double-yellow card added for ${player.name} (teamId: ${currentTeamId})`
+              );
+            }
+          } else {
+            console.log(
+              `Player ${player.name} (teamId: ${currentTeamId}) skipped for team ${teamId}`
+            );
           }
+        } else {
+          console.log(
+            `Player not found in playersData for event player_id: ${event.player_id}`
+          );
         }
       });
 
-    // Generate the final list of card events
     const cardEvents = Object.keys(playerEvents)
       .map((playerId) => {
         const player = playersData.find((p) => p.id === parseInt(playerId));
         if (player) {
-          const { yellow, red, doubleYellow } = playerEvents[playerId];
           return {
             name: player.name,
-            cardType: doubleYellow
-              ? "double-yellow"
-              : red
-                ? "red"
-                : yellow
-                  ? "yellow"
-                  : null,
+            cards: playerEvents[playerId].cards,
           };
         }
         return null;
       })
-      .filter((event) => event && event.cardType); // Filter out players with no card type
+      .filter((event) => event && event.cards.length > 0);
 
     return cardEvents;
   };
@@ -797,32 +797,10 @@ const MatchPage = () => {
                       (cardEvent, index) => (
                         <Typography key={index} variant="body1">
                           {cardEvent.name}{" "}
-                          {cardEvent.cardType === "yellow" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "#ffcd00",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : cardEvent.cardType === "red" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "red",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : (
-                            // Double yellow (expulsion) display
-                            <>
+                          {cardEvent.cards.map((cardType, cardIndex) =>
+                            cardType === "yellow" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
@@ -830,21 +808,49 @@ const MatchPage = () => {
                                   backgroundColor: "#ffcd00",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
-                                  marginRight: "2px",
+                                  marginRight: "4px",
                                 }}
                               ></span>
+                            ) : cardType === "red" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
                                   height: "20px",
-                                  background:
-                                    "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                  backgroundColor: "red",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
+                                  marginRight: "4px",
                                 }}
                               ></span>
-                            </>
+                            ) : cardType === "double-yellow" ? (
+                              <span key={cardIndex}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    backgroundColor: "green",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "2px",
+                                  }}
+                                ></span>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    background:
+                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "4px",
+                                  }}
+                                ></span>
+                              </span>
+                            ) : null
                           )}
                         </Typography>
                       )
@@ -895,32 +901,10 @@ const MatchPage = () => {
                       (cardEvent, index) => (
                         <Typography key={index} variant="body1">
                           {cardEvent.name}{" "}
-                          {cardEvent.cardType === "yellow" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "#ffcd00",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : cardEvent.cardType === "red" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "red",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : (
-                            // Double yellow (expulsion) display
-                            <>
+                          {cardEvent.cards.map((cardType, cardIndex) =>
+                            cardType === "yellow" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
@@ -928,21 +912,49 @@ const MatchPage = () => {
                                   backgroundColor: "#ffcd00",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
-                                  marginRight: "2px",
+                                  marginRight: "4px",
                                 }}
                               ></span>
+                            ) : cardType === "red" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
                                   height: "20px",
-                                  background:
-                                    "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                  backgroundColor: "red",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
+                                  marginRight: "4px",
                                 }}
                               ></span>
-                            </>
+                            ) : cardType === "double-yellow" ? (
+                              <span key={cardIndex}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    backgroundColor: "#ffcd00",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "2px",
+                                  }}
+                                ></span>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    background:
+                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "4px",
+                                  }}
+                                ></span>
+                              </span>
+                            ) : null
                           )}
                         </Typography>
                       )
@@ -984,32 +996,10 @@ const MatchPage = () => {
                       (cardEvent, index) => (
                         <Typography key={index} variant="body1">
                           {cardEvent.name}{" "}
-                          {cardEvent.cardType === "yellow" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "#ffcd00",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : cardEvent.cardType === "red" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "red",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : (
-                            // Double yellow (expulsion) display
-                            <>
+                          {cardEvent.cards.map((cardType, cardIndex) =>
+                            cardType === "yellow" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
@@ -1017,21 +1007,49 @@ const MatchPage = () => {
                                   backgroundColor: "#ffcd00",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
-                                  marginRight: "2px",
+                                  marginRight: "4px",
                                 }}
                               ></span>
+                            ) : cardType === "red" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
                                   height: "20px",
-                                  background:
-                                    "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                  backgroundColor: "red",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
+                                  marginRight: "4px",
                                 }}
                               ></span>
-                            </>
+                            ) : cardType === "double-yellow" ? (
+                              <span key={cardIndex}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    backgroundColor: "#ffcd00",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "2px",
+                                  }}
+                                ></span>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    background:
+                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "4px",
+                                  }}
+                                ></span>
+                              </span>
+                            ) : null
                           )}
                         </Typography>
                       )
@@ -1059,32 +1077,10 @@ const MatchPage = () => {
                       (cardEvent, index) => (
                         <Typography key={index} variant="body1">
                           {cardEvent.name}{" "}
-                          {cardEvent.cardType === "yellow" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "#ffcd00",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : cardEvent.cardType === "red" ? (
-                            <span
-                              style={{
-                                display: "inline-block",
-                                width: "13px",
-                                height: "20px",
-                                backgroundColor: "red",
-                                borderRadius: "2px",
-                                verticalAlign: "middle",
-                              }}
-                            ></span>
-                          ) : (
-                            // Double yellow (expulsion) display
-                            <>
+                          {cardEvent.cards.map((cardType, cardIndex) =>
+                            cardType === "yellow" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
@@ -1092,21 +1088,49 @@ const MatchPage = () => {
                                   backgroundColor: "#ffcd00",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
-                                  marginRight: "2px",
+                                  marginRight: "4px",
                                 }}
                               ></span>
+                            ) : cardType === "red" ? (
                               <span
+                                key={cardIndex}
                                 style={{
                                   display: "inline-block",
                                   width: "13px",
                                   height: "20px",
-                                  background:
-                                    "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                  backgroundColor: "red",
                                   borderRadius: "2px",
                                   verticalAlign: "middle",
+                                  marginRight: "4px",
                                 }}
                               ></span>
-                            </>
+                            ) : cardType === "double-yellow" ? (
+                              <span key={cardIndex}>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    backgroundColor: "#ffcd00",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "2px",
+                                  }}
+                                ></span>
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "13px",
+                                    height: "20px",
+                                    background:
+                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
+                                    borderRadius: "2px",
+                                    verticalAlign: "middle",
+                                    marginRight: "4px",
+                                  }}
+                                ></span>
+                              </span>
+                            ) : null
                           )}
                         </Typography>
                       )
