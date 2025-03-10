@@ -278,77 +278,54 @@ const MatchPage = () => {
   // Function to get yellow and red cards for each team
   const getCards = (teamId) => {
     const isHomeTeam = teamId === matchDetails.home_team.id;
-    const teamPlayers = isHomeTeam ? homePlayers : awayPlayers;
-
     const playerEvents = {};
-
-    
-
+  
     matchEvents
       .filter(
         (event) =>
           event.event_type === 2 || // Yellow card
           event.event_type === 3 || // Red card
-          event.event_type === 5 // Double yellow card
+          event.event_type === 5    // Double yellow
       )
       .forEach((event) => {
         const player = playersData.find((p) => p.id === event.player_id);
-
-        if (player) {
-          const currentTeamId = player.team_id; // Use team_id from playersData
-
-          if (currentTeamId && currentTeamId === teamId) {
-            const playerId = player.id;
-
-            if (!playerEvents[playerId]) {
-              playerEvents[playerId] = {
-                cards: [],
-              };
-            }
-
-            if (event.event_type === 2) {
-              playerEvents[playerId].cards.push("yellow");
-              console.log(
-                `Yellow card added for ${player.name} (teamId: ${currentTeamId})`
-              );
-            } else if (event.event_type === 3) {
-              playerEvents[playerId].cards.push("red");
-              console.log(
-                `Red card added for ${player.name} (teamId: ${currentTeamId})`
-              );
-            } else if (event.event_type === 5) {
-              playerEvents[playerId].cards.push("double-yellow");
-              console.log(
-                `Double-yellow card added for ${player.name} (teamId: ${currentTeamId})`
-              );
-            }
-          } else {
-            console.log(
-              `Player ${player.name} (teamId: ${currentTeamId}) skipped for team ${teamId}`
-            );
+        if (!player) return;
+  
+        // Ensure this player's current team matches teamId:
+        if (player.team_id === teamId) {
+          if (!playerEvents[player.id]) {
+            playerEvents[player.id] = { cards: [] };
           }
-        } else {
-          console.log(
-            `Player not found in playersData for event player_id: ${event.player_id}`
-          );
+          if (event.event_type === 2) {
+            playerEvents[player.id].cards.push("yellow");
+          } else if (event.event_type === 3) {
+            playerEvents[player.id].cards.push("red");
+          } else if (event.event_type === 5) {
+            playerEvents[player.id].cards.push("double-yellow");
+          }
         }
       });
-
-    const cardEvents = Object.keys(playerEvents)
-      .map((playerId) => {
-        const player = playersData.find((p) => p.id === parseInt(playerId));
-        if (player) {
-          return {
-            name: player.name,
-            cards: playerEvents[playerId].cards,
-          };
-        }
-        return null;
-      })
-      .filter((event) => event && event.cards.length > 0);
-
-    return cardEvents;
+  
+    // Now remove "red" if "double-yellow" is present for the same player
+    Object.values(playerEvents).forEach((entry) => {
+      if (entry.cards.includes("double-yellow")) {
+        // Filter out "red"
+        entry.cards = entry.cards.filter((card) => card !== "red");
+      }
+    });
+  
+    // Build final array of { name, cards } for rendering
+    const cardEvents = Object.keys(playerEvents).map((playerId) => {
+      const player = playersData.find((p) => p.id === parseInt(playerId, 10));
+      return {
+        name: player?.name || "Unknown",
+        cards: playerEvents[playerId].cards,
+      };
+    });
+  
+    return cardEvents.filter((ce) => ce.cards.length > 0);
   };
+  
 
   // Check if matchDetails is available before setting competitionText
   const competitionText = matchDetails
