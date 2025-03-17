@@ -15,67 +15,89 @@ const Goalscorers = () => {
   // Fetch goalscorers based on competition type and season
   const fetchGoalscorers = async () => {
     setLoading(true);
-
+  
     // Fetch matches for League competition and season 2024
     const { data: matches, error: matchesError } = await supabase
       .from("matches")
       .select("id")
-      // .eq("competition_type", "League") // Filter for League competition
-      .in("competition_type", ["League", "Cup"])
-      .eq("season", "2024"); // Filter for season 2024
-
+      .in("competition_type", ["League", "Cup"]) // Filter by competition types
+      .eq("season", "2024"); // Filter by season
+  
     if (matchesError) {
       console.error("Error fetching matches:", matchesError);
       setLoading(false);
       return;
     }
-
-    // Fetch match events (goals)
+  
+    // Fetch match events (goals) in batches
     const matchIds = matches.map((match) => match.id);
-    const { data: matchEvents, error: eventsError } = await supabase
-      .from("match_events")
-      .select("player_id")
-      .in("match_id", matchIds) // Use the match IDs fetched
-      .eq("event_type", 1);
-
-    if (eventsError) {
-      console.error("Error fetching match events:", eventsError);
-      setLoading(false);
-      return;
-    }
-
+    const fetchAllMatchEvents = async () => {
+      let allEvents = [];
+      let from = 0;
+      const batchSize = 1000; // Supabase max limit per request
+      let hasMore = true;
+  
+      while (hasMore) {
+        const { data: matchEvents, error } = await supabase
+          .from("match_events")
+          .select("player_id")
+          .in("match_id", matchIds) // Use the match IDs fetched
+          .eq("event_type", 1)
+          .range(from, from + batchSize - 1); // Fetch 1000 records per batch
+  
+        if (error) {
+          console.error("Error fetching match events:", error);
+          break;
+        }
+  
+        allEvents = [...allEvents, ...matchEvents];
+  
+        // If the last batch was smaller than the limit, stop fetching
+        if (matchEvents.length < batchSize) {
+          hasMore = false;
+        } else {
+          from += batchSize; // Move to the next batch
+        }
+      }
+  
+      return allEvents;
+    };
+  
+    // Get all match events
+    const matchEvents = await fetchAllMatchEvents();
+  
     // Count goals for each player
     const goalsCount = matchEvents.reduce((acc, event) => {
       acc[event.player_id] = (acc[event.player_id] || 0) + 1;
       return acc;
     }, {});
-
+  
     // Fetch player details along with team_id
     const playerIds = Object.keys(goalsCount);
     const { data: players, error: playersError } = await supabase
       .from("players")
       .select("id, name, photo_url, team_id") // Fetch team_id as well
       .in("id", playerIds);
-
+  
     if (playersError) {
       console.error("Error fetching players:", playersError);
       setLoading(false);
       return;
     }
-
+  
     // Fetch team details using the team_id from the players
     const teamIds = players.map((player) => player.team_id);
     const { data: teams, error: teamsError } = await supabase
       .from("teams")
       .select("id, short_name, logo_url")
       .in("id", teamIds);
-
+  
     if (teamsError) {
       console.error("Error fetching teams:", teamsError);
       setLoading(false);
       return;
     }
-
+  
     // Combine goals count, player details, and team details
     const goalscorersData = players.map((player) => {
       const team = teams.find((team) => team.id === player.team_id);
@@ -86,14 +108,14 @@ const Goalscorers = () => {
         team_logo_url: team ? team.logo_url : null,
       };
     });
-
+  
     // Sort by goals in descending order
     const sortedGoalscorers = goalscorersData.sort((a, b) => b.goals - a.goals);
-
+  
     setGoalscorers(sortedGoalscorers);
     setLoading(false);
   };
-
+  
   // Group players by their goal count
   const groupByGoals = (players) => {
     const grouped = players.reduce((acc, player) => {
@@ -108,6 +130,7 @@ const Goalscorers = () => {
       players: grouped[goals],
     }));
   };
+  
 
   return (
     <Box sx={{ padding: "1.5rem 1rem", textAlign: "center" }}>
