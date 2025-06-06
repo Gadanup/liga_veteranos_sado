@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 import { Bracket } from "react-brackets";
 import { useRouter } from "next/navigation"; // Import useRouter
 
-
 const Cup = () => {
   const [matches, setMatches] = useState({
     round8: [],
@@ -116,11 +115,14 @@ const Cup = () => {
             name: match.home_team ? match.home_team.short_name : "TBD",
             logo: match.home_team ? match.home_team.logo_url : null,
           },
-          score: match.home_goals !== null && match.home_goals !== undefined 
-            ? `${match.home_goals}${match.home_penalties ? ` (${match.home_penalties})` : ""}` 
-            : "---",
-          winner: match.home_goals > match.away_goals || 
-                  (match.home_goals === match.away_goals && match.home_penalties > match.away_penalties)
+          score:
+            match.home_goals !== null && match.home_goals !== undefined
+              ? `${match.home_goals}${match.home_penalties ? ` (${match.home_penalties})` : ""}`
+              : "---",
+          winner:
+            match.home_goals > match.away_goals ||
+            (match.home_goals === match.away_goals &&
+              match.home_penalties > match.away_penalties),
         },
         {
           team: {
@@ -132,16 +134,18 @@ const Cup = () => {
                   : "TBD",
             logo: match.away_team ? match.away_team.logo_url : null,
           },
-          score: match.away_goals !== null && match.away_goals !== undefined 
-            ? `${match.away_goals}${match.away_penalties ? ` (${match.away_penalties})` : ""}` 
-            : "---",
-          winner: match.away_goals > match.home_goals || 
-                  (match.away_goals === match.home_goals && match.away_penalties > match.home_penalties)
+          score:
+            match.away_goals !== null && match.away_goals !== undefined
+              ? `${match.away_goals}${match.away_penalties ? ` (${match.away_penalties})` : ""}`
+              : "---",
+          winner:
+            match.away_goals > match.home_goals ||
+            (match.away_goals === match.home_goals &&
+              match.away_penalties > match.home_penalties),
         },
       ],
     }));
   };
-  
 
   const bracketData = {
     round8: formatMatches(matches.round8),
@@ -167,18 +171,18 @@ const Cup = () => {
             title: "Oitavos de Final",
             seeds: bracketData.round8.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               teams: [
                 {
                   name: (
                     <Box
-                    onClick={() => router.push(`/Jogos/${match.id}`)}
+                      onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
-                        cursor: "pointer"
+                        cursor: "pointer",
                       }}
                     >
                       {match.sides[0].team.logo && (
@@ -206,13 +210,13 @@ const Cup = () => {
                 {
                   name: (
                     <Box
-                    onClick={() => router.push(`/Jogos/${match.id}`)}
+                      onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
-                        cursor: "pointer"
+                        cursor: "pointer",
                       }}
                     >
                       {match.sides[1].team.logo && (
@@ -246,18 +250,18 @@ const Cup = () => {
             title: "Quartos de Final",
             seeds: bracketData.round4.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               teams: match.sides.map((side) => ({
                 name: (
                   <Box
-                  // MUDAR QUANDO TIVER AS DUAS EQUIPAS
-                  onClick={() => router.push(`/Jogos/${match.id}`)}
+                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                    onClick={() => router.push(`/Jogos/${match.id}`)}
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       width: "300px",
-                      cursor: "pointer"
+                      cursor: "pointer",
                     }}
                   >
                     {side.team.logo && (
@@ -286,20 +290,20 @@ const Cup = () => {
             title: "Semifinais",
             seeds: bracketData.round2.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               stadium: match.stadium,
               teams: [
                 {
                   name: (
                     <Box
-                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
-                    // onClick={() => router.push(`/Jogos/${match.id}`)}
+                      // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                      onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
-                        // cursor: "pointer"
+                        cursor: "pointer",
                       }}
                     >
                       {match.sides[0].team.logo && (
@@ -327,14 +331,14 @@ const Cup = () => {
                 {
                   name: (
                     <Box
-                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
-                    // onClick={() => router.push(`/Jogos/${match.id}`)}
+                      // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                      onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
-                        // cursor: "pointer"
+                        cursor: "pointer",
                       }}
                     >
                       {match.sides[1].team.logo && (
@@ -366,20 +370,20 @@ const Cup = () => {
             title: "Final",
             seeds: bracketData.final.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5)+" -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
+              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`, // Format date with stadium
               stadium: match.stadium,
               teams: [
                 {
                   name: (
                     <Box
-                    // MUDAR QUANDO TIVER AS DUAS EQUIPAS
-                    // onClick={() => router.push(`/Jogos/${match.id}`)}
+                      // MUDAR QUANDO TIVER AS DUAS EQUIPAS
+                      onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
-                        // cursor: "pointer"
+                        cursor: "pointer",
                       }}
                     >
                       {match.sides[0].team.logo && (
@@ -407,13 +411,13 @@ const Cup = () => {
                 {
                   name: (
                     <Box
-                    // onClick={() => router.push(`/Jogos/${match.id}`)}
+                      onClick={() => router.push(`/Jogos/${match.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         width: "300px",
-                        // cursor: "pointer"
+                        cursor: "pointer",
                       }}
                     >
                       {match.sides[1].team.logo && (
