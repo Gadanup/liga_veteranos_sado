@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import {
   Box,
@@ -10,197 +10,203 @@ import {
   CircularProgress,
   Alert,
   useMediaQuery,
+  Container,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Divider,
+  Fab,
+  Collapse,
+  IconButton,
 } from "@mui/material";
 import dayjs from "dayjs";
-import DownloadIcon from "@mui/icons-material/Download";
+import {
+  Download,
+  SportsSoccer,
+  EmojiEvents,
+  CalendarToday,
+  AccessTime,
+  Stadium,
+  ArrowBack,
+  Shield,
+  ExpandMore,
+  ExpandLess,
+} from "@mui/icons-material";
 import { useParams } from "next/navigation";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { theme } from "../../../styles/theme.js";
 
-// import 'jspdf-autotable';
-
-/**
- * MatchPage Component
- *
- * This component fetches and displays details of a specific football match,
- * including team logos, match result, date, time, stadium, and players.
- */
 const MatchPage = () => {
-  const [matchDetails, setMatchDetails] = useState(null); // Store match details
-  const [homePlayers, setHomePlayers] = useState([]); // Home team players
-  const [awayPlayers, setAwayPlayers] = useState([]); // Away team players
-  const [currentHomePlayers, setCurrentHomePlayers] = useState([]); // Home team players
-  const [currentAwayPlayers, setCurrentAwayPlayers] = useState([]); // Away team players
-  const [matchEvents, setMatchEvents] = useState([]); // Store match events
-  const [playersData, setPlayersData] = useState([]); // Store players data for goalscorers
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [matchDetails, setMatchDetails] = useState(null);
+  const [homePlayers, setHomePlayers] = useState([]);
+  const [awayPlayers, setAwayPlayers] = useState([]);
+  const [currentHomePlayers, setCurrentHomePlayers] = useState([]);
+  const [currentAwayPlayers, setCurrentAwayPlayers] = useState([]);
+  const [matchEvents, setMatchEvents] = useState([]);
+  const [playersData, setPlayersData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const params = useParams();
-  const { id } = params; // retrieve the id from the route params
-  const [suspendedPlayerIds, setSuspendedPlayerIds] = useState([]); // State to hold suspended player IDs
+  const { id } = params;
+  const [suspendedPlayerIds, setSuspendedPlayerIds] = useState([]);
+  const [homeSquadExpanded, setHomeSquadExpanded] = useState(false);
+  const [awaySquadExpanded, setAwaySquadExpanded] = useState(false);
+  const router = useRouter();
+
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
 
-  /**
-   * Fetches suspended players from the Supabase database.
-   * Looks for players with active = 'true'.
-   */
-  const fetchSuspendedPlayers = async () => {
-    const { data: suspendedPlayers, error } = await supabase
-      .from("suspensions")
-      .select("player_id")
-      .eq("active", true); // Only get players with active suspensions
-
-    if (error) {
-      console.error("Error fetching suspended players:", error);
-    } else {
-      setSuspendedPlayerIds(suspendedPlayers.map((record) => record.player_id)); // Store player IDs in state
-    }
-  };
-
-  /**
-   * Fetches match details and players from the Supabase database.
-   * Looks for matches with competition_type 'League' and the specified match id.
-   */
-  const fetchMatchDetails = async () => {
-    const { data: matchData, error } = await supabase
-      .from("matches")
-      .select(
-        `
-        id,
-        competition_type,
-        week,
-        round,
-        home_goals,
-        away_goals,
-        home_penalties,
-        away_penalties,
-        match_date,
-        match_time,
-        match_sheet,
-        home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
-        away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
-      `
-      )
-      .eq("id", id)
-      .single();
-
-    if (error) {
-      console.error("Error fetching match details:", error);
-    } else {
-      setMatchDetails(matchData); // Set match details state
-      fetchPlayers(matchData.home_team.id, matchData.away_team.id); // Fetch players based on team IDs
-      fetchMatchEvents(matchData.id); // Fetch match events based on match ID
-    }
-  };
-
-  /**
-   * Fetches players for both the home and away teams from the players table.
-   * Uses team_id to get the correct players for each team.
-   */
-  const fetchPlayers = async (homeTeamId, awayTeamId) => {
-    // Fetch players for both teams, considering previousClub
-    const { data: playersData, error } = await supabase
-      .from("players")
-      .select("id, name, photo_url, joker, team_id, previousClub");
-
-    if (error) {
-      console.error("Error fetching players:", error);
-      return;
-    }
-
-    // Filter players for home and away teams
-    const homePlayersData = playersData.filter(
-      (player) =>
-        player.team_id === homeTeamId || player.previousClub === homeTeamId
-    );
-    const awayPlayersData = playersData.filter(
-      (player) =>
-        player.team_id === awayTeamId || player.previousClub === awayTeamId
-    );
-
-    // Avoid duplicates by ensuring no player is counted in both teams
-    const homePlayerIds = homePlayersData.map((player) => player.id);
-    const filteredAwayPlayers = awayPlayersData.filter(
-      (player) => !homePlayerIds.includes(player.id)
-    );
-
-    setHomePlayers(homePlayersData);
-    setAwayPlayers(filteredAwayPlayers);
-  };
-
-  const fetchCurrentPlayers = async (homeTeamId, awayTeamId) => {
-    // Fetch players for both teams (ONLY current players)
-    const { data: playersData, error } = await supabase
-      .from("players")
-      .select("id, name, photo_url, joker, team_id");
-
-    if (error) {
-      console.error("Error fetching current players:", error);
-      return;
-    }
-
-    // Filter only current players for home and away teams
-    const currentHomePlayers = playersData.filter(
-      (player) => player.team_id === homeTeamId
-    );
-    const currentAwayPlayers = playersData.filter(
-      (player) => player.team_id === awayTeamId
-    );
-
-    setCurrentHomePlayers(currentHomePlayers); // State for current home team players
-    setCurrentAwayPlayers(currentAwayPlayers); // State for current away team players
-  };
-
-  /**
-   * Fetches match events from the match_events table based on match ID.
-   */
-  const fetchMatchEvents = async (matchId) => {
-    const { data: eventsData, error } = await supabase
-      .from("match_events")
-      .select("event_type, player_id")
-      .eq("match_id", matchId);
-
-    if (error) {
-      console.error("Error fetching match events:", error);
-    } else {
-      setMatchEvents(eventsData); // Set match events state
-      fetchPlayersData(eventsData); // Fetch players' names based on player IDs from match events
-    }
-  };
-
-  /**
-   * Fetches player details for goalscorers from the players table.
-   */
-  const fetchPlayersData = async (events) => {
-    const playerIds = events.map((event) => event.player_id);
-
-    const { data: playersData, error } = await supabase
-      .from("players")
-      .select("id, name, team_id, joker, previousClub") // Added team_id
-      .or(playerIds.map((id) => `id.eq.${id}`).join(",")); // Match only current id
-
-    if (error) {
-      console.error("Error fetching player details:", error);
-    } else {
-      setPlayersData(playersData);
-    }
-  };
+  // Remove individual fetch functions since we're handling everything in useEffect
 
   useEffect(() => {
     if (id) {
-      fetchMatchDetails(); // Fetch match details once id is available
-      fetchSuspendedPlayers(); // Fetch suspended players
-    }
-  }, [id]);
+      const loadMatchData = async () => {
+        setLoading(true);
+        try {
+          // Fetch match details first
+          const { data: matchData, error } = await supabase
+            .from("matches")
+            .select(
+              `
+              id,
+              competition_type,
+              week,
+              round,
+              home_goals,
+              away_goals,
+              home_penalties,
+              away_penalties,
+              match_date,
+              match_time,
+              match_sheet,
+              home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
+              away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
+            `
+            )
+            .eq("id", id)
+            .single();
 
-  useEffect(() => {
-    if (matchDetails?.home_team && matchDetails?.away_team) {
-      fetchCurrentPlayers(matchDetails.home_team.id, matchDetails.away_team.id); // Fetch current players for the rosters
-    }
-  }, [matchDetails]);
+          if (error) {
+            console.error("Error fetching match details:", error);
+            setError("Erro ao carregar detalhes do jogo");
+            return;
+          }
 
-  // Function to determine the winning team's name and score style
-  // Function to determine the winning team's name and score style
+          setMatchDetails(matchData);
+
+          // Fetch all related data in parallel
+          const [
+            playersResult,
+            eventsResult,
+            suspensionsResult,
+            currentPlayersResult,
+          ] = await Promise.allSettled([
+            // Fetch all players
+            supabase
+              .from("players")
+              .select("id, name, photo_url, joker, team_id, previousClub"),
+
+            // Fetch match events
+            supabase
+              .from("match_events")
+              .select("event_type, player_id")
+              .eq("match_id", matchData.id),
+
+            // Fetch suspensions
+            supabase.from("suspensions").select("player_id").eq("active", true),
+
+            // Fetch current players
+            supabase
+              .from("players")
+              .select("id, name, photo_url, joker, team_id"),
+          ]);
+
+          // Process players data
+          if (
+            playersResult.status === "fulfilled" &&
+            playersResult.value.data
+          ) {
+            const allPlayers = playersResult.value.data;
+
+            const homePlayersData = allPlayers.filter(
+              (player) =>
+                player.team_id === matchData.home_team.id ||
+                player.previousClub === matchData.home_team.id
+            );
+            const awayPlayersData = allPlayers.filter(
+              (player) =>
+                player.team_id === matchData.away_team.id ||
+                player.previousClub === matchData.away_team.id
+            );
+
+            const homePlayerIds = homePlayersData.map((player) => player.id);
+            const filteredAwayPlayers = awayPlayersData.filter(
+              (player) => !homePlayerIds.includes(player.id)
+            );
+
+            setHomePlayers(homePlayersData);
+            setAwayPlayers(filteredAwayPlayers);
+          }
+
+          // Process current players
+          if (
+            currentPlayersResult.status === "fulfilled" &&
+            currentPlayersResult.value.data
+          ) {
+            const allCurrentPlayers = currentPlayersResult.value.data;
+
+            const currentHomePlayers = allCurrentPlayers.filter(
+              (player) => player.team_id === matchData.home_team.id
+            );
+            const currentAwayPlayers = allCurrentPlayers.filter(
+              (player) => player.team_id === matchData.away_team.id
+            );
+
+            setCurrentHomePlayers(currentHomePlayers);
+            setCurrentAwayPlayers(currentAwayPlayers);
+          }
+
+          // Process match events
+          if (eventsResult.status === "fulfilled" && eventsResult.value.data) {
+            const events = eventsResult.value.data;
+            setMatchEvents(events);
+
+            // Fetch players data for events if there are any
+            if (events.length > 0) {
+              const playerIds = events.map((event) => event.player_id);
+              const { data: eventPlayersData } = await supabase
+                .from("players")
+                .select("id, name, team_id, joker, previousClub")
+                .in("id", playerIds);
+
+              if (eventPlayersData) {
+                setPlayersData(eventPlayersData);
+              }
+            }
+          }
+
+          // Process suspensions
+          if (
+            suspensionsResult.status === "fulfilled" &&
+            suspensionsResult.value.data
+          ) {
+            setSuspendedPlayerIds(
+              suspensionsResult.value.data.map((record) => record.player_id)
+            );
+          }
+        } catch (err) {
+          console.error("Error loading match data:", err);
+          setError("Erro inesperado ao carregar o jogo");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      loadMatchData();
+    }
+  }, [id]); // Only depend on id
+
   const getTeamStyles = (
     homeGoals,
     awayGoals,
@@ -211,29 +217,24 @@ const MatchPage = () => {
   ) => {
     if (homeGoals !== null && awayGoals !== null) {
       if (homeGoals > awayGoals && team === "home") {
-        return { fontWeight: "bold", color: "green" }; // Home team wins
+        return { fontWeight: "bold", color: theme.colors.accent[500] };
       } else if (awayGoals > homeGoals && team === "away") {
-        return { fontWeight: "bold", color: "green" }; // Away team wins
+        return { fontWeight: "bold", color: theme.colors.accent[500] };
       } else if (homeGoals === awayGoals && competitionType === "Cup") {
-        // If goals are tied, check penalties for Cup matches
         if (homePenalties > awayPenalties && team === "home") {
-          return { fontWeight: "bold", color: "green" }; // Home team wins via penalties
+          return { fontWeight: "bold", color: theme.colors.accent[500] };
         } else if (awayPenalties > homePenalties && team === "away") {
-          return { fontWeight: "bold", color: "green" }; // Away team wins via penalties
+          return { fontWeight: "bold", color: theme.colors.accent[500] };
         }
       }
     }
-    return {}; // Default style
+    return {};
   };
 
-  // Function to get goalscorers for each team, including own goals
   const getGoalscorers = (teamId) => {
     const isHomeTeam = teamId === matchDetails.home_team.id;
-
-    // Determine players for the team
     const teamPlayers = isHomeTeam ? homePlayers : awayPlayers;
 
-    // Regular goals
     const goalscorerCounts = matchEvents
       .filter((event) => event.event_type === 1)
       .reduce((acc, event) => {
@@ -246,7 +247,6 @@ const MatchPage = () => {
         return acc;
       }, {});
 
-    // Own goals
     const ownGoals = matchEvents
       .filter(
         (event) =>
@@ -264,7 +264,6 @@ const MatchPage = () => {
       )
       .map(() => "Auto-Golo");
 
-    // Combine regular goals and own goals
     const allGoals = [
       ...Object.entries(goalscorerCounts).map(
         ([name, count]) => `${name} (${count})`
@@ -275,23 +274,20 @@ const MatchPage = () => {
     return allGoals;
   };
 
-  // Function to get yellow and red cards for each team
   const getCards = (teamId) => {
-    const isHomeTeam = teamId === matchDetails.home_team.id;
     const playerEvents = {};
-  
+
     matchEvents
       .filter(
         (event) =>
           event.event_type === 2 || // Yellow card
           event.event_type === 3 || // Red card
-          event.event_type === 5    // Double yellow
+          event.event_type === 5 // Double yellow
       )
       .forEach((event) => {
         const player = playersData.find((p) => p.id === event.player_id);
         if (!player) return;
-  
-        // Ensure this player's current team matches teamId:
+
         if (player.team_id === teamId) {
           if (!playerEvents[player.id]) {
             playerEvents[player.id] = { cards: [] };
@@ -305,16 +301,13 @@ const MatchPage = () => {
           }
         }
       });
-  
-    // Now remove "red" if "double-yellow" is present for the same player
+
     Object.values(playerEvents).forEach((entry) => {
       if (entry.cards.includes("double-yellow")) {
-        // Filter out "red"
         entry.cards = entry.cards.filter((card) => card !== "red");
       }
     });
-  
-    // Build final array of { name, cards } for rendering
+
     const cardEvents = Object.keys(playerEvents).map((playerId) => {
       const player = playersData.find((p) => p.id === parseInt(playerId, 10));
       return {
@@ -322,12 +315,10 @@ const MatchPage = () => {
         cards: playerEvents[playerId].cards,
       };
     });
-  
+
     return cardEvents.filter((ce) => ce.cards.length > 0);
   };
-  
 
-  // Check if matchDetails is available before setting competitionText
   const competitionText = matchDetails
     ? matchDetails.competition_type === "League"
       ? `Jornada ${matchDetails.week}`
@@ -338,7 +329,6 @@ const MatchPage = () => {
           : ""
     : "";
 
-  // Check if matchDetails is available before setting competitionText
   const competitionType = matchDetails
     ? matchDetails.competition_type === "League"
       ? `Campeonato`
@@ -352,21 +342,18 @@ const MatchPage = () => {
   const generatePDF = async () => {
     const doc = new jsPDF();
 
-    // Add league logo
     const img = new Image();
     img.src = "/logo/logo.png";
-    doc.addImage(img, "PNG", 10, 10, 20, 20); // Adjusted size for better layout
+    doc.addImage(img, "PNG", 10, 10, 20, 20);
 
-    // Set document title and competition info
     doc.setFontSize(18);
-    doc.setTextColor(107, 75, 161); // Set color to #6B4BA1
+    doc.setTextColor(107, 75, 161);
     doc.text("LIGA DE FUTEBOL VETERANOS DO SADO", 50, 15);
-    // Reset text color to black for other sections if needed
     doc.setFontSize(15);
     doc.text("2024/25", 95, 22);
-    doc.setTextColor(0, 0, 0); // Black color for other text
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
-    // Check matchDetails before accessing match_date
+
     const matchDateText = matchDetails
       ? dayjs(matchDetails.match_date).format("DD/MM/YYYY")
       : "Date TBD";
@@ -375,10 +362,8 @@ const MatchPage = () => {
     doc.text(`${matchDateText}`, 95, 30);
     doc.text(`${competitionText}`, 170, 30);
 
-    // Divider line below title section
     doc.line(10, 32, 200, 32);
 
-    // Team Names with "A" and "B" labels and "VS" in the middle
     doc.setFontSize(16);
     doc.text("A", 10, 40);
     doc.text(`${matchDetails.home_team.short_name}`, 30, 40);
@@ -388,26 +373,22 @@ const MatchPage = () => {
     } else {
       doc.text(`${matchDetails.away_team.short_name}`, 140, 40);
     }
-    doc.text("B", 195, 40); // Shifted "B" further to the right
+    doc.text("B", 195, 40);
 
-    // Divider line below team names section
     doc.line(10, 43, 200, 43);
 
-    // Player Table Headers
-    doc.setFontSize(11); // Reduced font size for compact table
+    doc.setFontSize(11);
     doc.text("Nº", 11, 50);
     doc.text("NOMES DOS ATLETAS", 20, 50);
     doc.text("GOLOS", 67, 50);
     doc.text("DISCIPLINA", 95, 50);
     doc.text("GOLOS", 124, 50);
     doc.text("NOMES DOS ATLETAS", 145, 50);
-    doc.text("Nº", 192, 50); // Closer to the right side for better alignment
+    doc.text("Nº", 192, 50);
 
-    // Define initial y-coordinate for player rows
     let rowStartY = 53;
     let rowHeight = 5;
 
-    // Order home and away players alphabetically
     const sortedHomePlayers = [...currentHomePlayers].sort((a, b) =>
       a.name.localeCompare(b.name)
     );
@@ -415,92 +396,73 @@ const MatchPage = () => {
       a.name.localeCompare(b.name)
     );
 
-    // Calculate the y-coordinate for the end of the table based on the number of players
     const lastPlayerY =
       rowStartY +
       Math.max(sortedHomePlayers.length, sortedAwayPlayers.length) * rowHeight;
 
-    // Draw vertical lines for each column
-    const columnsX = [10, 19, 66, 87, 123, 144, 191, 200]; // X-coordinates for the column lines
+    const columnsX = [10, 19, 66, 87, 123, 144, 191, 200];
     columnsX.forEach((x) => {
-      doc.line(x, 46, x, lastPlayerY + 2); // Vertical lines from headers to the last row
+      doc.line(x, 46, x, lastPlayerY + 2);
     });
 
-    // Draw the vertical line to divide the "DISCIPLINA" column into two sections
-    const disciplinaX = 105; // X-coordinate for "DISCIPLINA" header
-    doc.line(disciplinaX, 51, disciplinaX, lastPlayerY + 2); // Vertical line below the header
+    const disciplinaX = 105;
+    doc.line(disciplinaX, 51, disciplinaX, lastPlayerY + 2);
 
-    // Draw horizontal lines for each row (including headers)
     for (let y = 46; y <= lastPlayerY; y += rowHeight) {
-      doc.line(10, y, 200, y); // Horizontal line spanning across all columns
+      doc.line(10, y, 200, y);
     }
 
-    // Draw player data within the grid
     sortedHomePlayers.forEach((player, index) => {
       let yPos = rowStartY + index * rowHeight;
       const playerName = player.joker ? player.name + " (JK)" : player.name;
 
-      // Player number
       doc.text(String(player.number || ""), 12, yPos);
-
-      // Player name
       doc.text(playerName, 20, yPos + 2);
 
-      // Golos column - Add "Castigado" in bold and red if the player is suspended
       if (suspendedPlayerIds.includes(player.id)) {
         doc.setFontSize(9);
-        doc.setTextColor(255, 0, 0); // Set color to red
-        doc.setFont("helvetica", "bold"); // Set font to bold
+        doc.setTextColor(255, 0, 0);
+        doc.setFont("helvetica", "bold");
         doc.text("CASTIGADO", 67, yPos + 2);
-        doc.setFont("helvetica", "normal"); // Reset font to normal
-        doc.setTextColor(0, 0, 0); // Reset color to black
-        doc.setFontSize(11); // Reset font size for player table
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
       }
     });
-    doc.setFontSize(11); // Reset font size for player table
 
     sortedAwayPlayers.forEach((player, index) => {
       let yPos = rowStartY + index * rowHeight;
       const playerName = player.joker ? player.name + " (JK)" : player.name;
 
-      // Player number on the right side
       doc.text(String(player.number || ""), 195, yPos);
-
-      // Player name on the right side
       doc.text(playerName, 145, yPos + 2);
 
-      // Golos column for away team - Add "Castigado" in bold and red if the player is suspended
       if (suspendedPlayerIds.includes(player.id)) {
         doc.setFontSize(9);
-        doc.setTextColor(255, 0, 0); // Set color to red
-        doc.setFont("helvetica", "bold"); // Set font to bold
+        doc.setTextColor(255, 0, 0);
+        doc.setFont("helvetica", "bold");
         doc.text("CASTIGADO", 124, yPos + 2);
-        doc.setFont("helvetica", "normal"); // Reset font to normal
-        doc.setTextColor(0, 0, 0); // Reset color to black
-        doc.setFontSize(11); // Reset font size for player table
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
       }
     });
-    doc.setFontSize(11); // Reset font size for player table
 
-    // Final horizontal line at the bottom of the table
-    doc.line(10, lastPlayerY + 2, 200, lastPlayerY + 2); // Bottom border of the table
+    doc.line(10, lastPlayerY + 2, 200, lastPlayerY + 2);
 
-    // Divider line below player table section
     const yOffset =
       75 +
       Math.max(currentHomePlayers.length, currentAwayPlayers.length) * 4 +
       5;
     doc.line(10, yOffset - 2, 200, yOffset - 2);
 
-    // Coaches and Delegates Section
     doc.setFontSize(10);
     doc.text("NOMES DOS TREINADORES E DELEGADOS", 10, yOffset + 3);
     doc.setFontSize(8);
-    // doc.line(10, 55, 200, 55);
     doc.text("TREINADOR -", 12, yOffset + 10);
     doc.text("DELEGADO -", 12, yOffset + 15);
-    doc.text("TREINADOR -", 120, yOffset + 10); // Right side for Team B
-    doc.text("DELEGADO -", 120, yOffset + 15); // Right side for Team B
+    doc.text("TREINADOR -", 120, yOffset + 10);
+    doc.text("DELEGADO -", 120, yOffset + 15);
 
     doc.line(10, yOffset + 7, 200, yOffset + 7);
     doc.line(10, yOffset + 12, 200, yOffset + 12);
@@ -511,804 +473,875 @@ const MatchPage = () => {
     doc.line(82, yOffset + 7, 82, yOffset + 17);
     doc.line(200, yOffset + 7, 200, yOffset + 17);
 
-    // Divider line below coaches and delegates section
     doc.line(10, yOffset + 20, 200, yOffset + 20);
 
-    // Observations Section
     doc.rect(10, yOffset + 22, 190, 15);
     doc.text("OBSERVAÇÕES:", 15, yOffset + 27);
 
-    // Divider line below observations section
     doc.line(10, yOffset + 39, 200, yOffset + 39);
 
-    // Goals Section as a two-row table with smaller boxes
     doc.setFontSize(10);
     doc.text("GOLOS -- Nº DO JOGADOR", 10, yOffset + 44);
 
-    // Row for Team A
     doc.text("A", 10, yOffset + 54);
     for (let i = 0; i < 23; i++) {
-      doc.rect(16 + i * 8, yOffset + 49, 8, 8); // Smaller boxes (8x8)
+      doc.rect(16 + i * 8, yOffset + 49, 8, 8);
     }
 
-    // Row for Team B
     doc.text("B", 10, yOffset + 64);
     for (let i = 0; i < 23; i++) {
-      doc.rect(16 + i * 8, yOffset + 59, 8, 8); // Smaller boxes (8x8)
+      doc.rect(16 + i * 8, yOffset + 59, 8, 8);
     }
 
-    // Divider line below goals section
     doc.line(10, yOffset + 69, 200, yOffset + 69);
 
-    // Final Result Section
     doc.text(`${matchDetails.home_team.short_name}`, 20, yOffset + 87);
-    doc.circle(70, yOffset + 87, 8); // Increased radius for home team goals (was 5)
+    doc.circle(70, yOffset + 87, 8);
     doc.setFontSize(12);
-    doc.text("RESULTADO FINAL", 86, yOffset + 91 - 16); // Added above VS
+    doc.text("RESULTADO FINAL", 86, yOffset + 91 - 16);
     doc.setFontSize(10);
     doc.text("VS", 100, yOffset + 87);
-    doc.circle(140, yOffset + 86, 8); // Increased radius for away team goals (was 5)
+    doc.circle(140, yOffset + 86, 8);
     doc.text(`${matchDetails.away_team.short_name}`, 160, yOffset + 87);
 
-    // Divider line below final result section
     doc.line(10, yOffset + 99, 200, yOffset + 99);
 
-    // Signature Section
     doc.text("DELEGADO", 10, yOffset + 107);
-    doc.line(10, yOffset + 114, 50, yOffset + 114); // Line for delegate signature
+    doc.line(10, yOffset + 114, 50, yOffset + 114);
     doc.text("ÁRBITRO", 85, yOffset + 107);
-    doc.line(85, yOffset + 114, 125, yOffset + 114); // Line for referee signature
+    doc.line(85, yOffset + 114, 125, yOffset + 114);
     doc.text("DELEGADO", 160, yOffset + 107);
-    doc.line(160, yOffset + 114, 200, yOffset + 114); // Line for delegate signature
+    doc.line(160, yOffset + 114, 200, yOffset + 114);
 
-    // Save the PDF
     doc.save(
       `fichajogo_${matchDetails.home_team.short_name}_vs_${matchDetails.away_team.short_name}.pdf`
     );
   };
 
+  const CardIcon = ({ cardType }) => {
+    const getCardStyle = (type) => {
+      switch (type) {
+        case "yellow":
+          return { backgroundColor: "#ffcd00", border: "1px solid #f59e0b" };
+        case "red":
+          return { backgroundColor: "#ef4444", border: "1px solid #dc2626" };
+        case "double-yellow":
+          return {
+            background: "linear-gradient(135deg, #ffcd00 50%, #ef4444 50%)",
+            border: "1px solid #dc2626",
+          };
+        default:
+          return {};
+      }
+    };
+
+    return (
+      <Box
+        component="span"
+        sx={{
+          display: "inline-block",
+          width: "13px",
+          height: "20px",
+          borderRadius: "2px",
+          verticalAlign: "middle",
+          marginRight: "4px",
+          ...getCardStyle(cardType),
+        }}
+      />
+    );
+  };
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        flexDirection="column"
+        gap={3}
+        sx={{ backgroundColor: theme.colors.background.secondary }}
+      >
+        <SportsSoccer
+          sx={{
+            fontSize: 60,
+            color: theme.colors.primary[600],
+            animation: "spin 2s linear infinite",
+            "@keyframes spin": {
+              "0%": { transform: "rotate(0deg)" },
+              "100%": { transform: "rotate(360deg)" },
+            },
+          }}
+        />
+        <Typography variant="h6" sx={{ color: theme.colors.text.secondary }}>
+          A carregar detalhes do jogo...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!matchDetails) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="body1" sx={{ color: theme.colors.text.secondary }}>
+          Carregar dados do Jogo
+        </Typography>
+      </Container>
+    );
+  }
+
   return (
     <Box
       sx={{
-        padding: isSmallScreen ? "2rem 1rem" : "4rem 2rem",
-        textAlign: "center",
+        minHeight: "100vh",
       }}
     >
-      {matchDetails ? (
-        <>
-          {/* Add the LIGA Typography here */}
-          <Typography variant="h4" sx={{ color: "#6B4BA1" }} gutterBottom>
-            {matchDetails.competition_type === "League"
-              ? `Jornada ${matchDetails.week}`
-              : matchDetails.competition_type === "Cup"
-                ? `Taça : Ronda ${matchDetails.round}`
-                : matchDetails.competition_type === "Supercup"
-                  ? "Supertaça"
-                  : ""}
-          </Typography>
-
-          <Box
-            sx={{
-              mt: isSmallScreen ? 1 : 5,
-              mb: isSmallScreen ? 1 : 5,
-            }}
-          >
-            {/* Match Layout */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 20px",
-              }}
-            >
-              {/* Home Team Logo, Name, and Score */}
-              <Box sx={{ textAlign: "center", mr: 4 }}>
-                <img
-                  src={matchDetails.home_team.logo_url}
-                  alt={matchDetails.home_team.short_name}
-                  style={{
-                    width: "225px",
-                    height: "225px",
-                    objectFit: "contain",
-                  }}
-                />
-                <Typography
-                  variant={isSmallScreen ? "h6" : "h4"}
-                  style={getTeamStyles(
-                    matchDetails.home_goals,
-                    matchDetails.away_goals,
-                    "home"
-                  )}
-                  sx={{ mt: 2, width: "auto" }}
-                >
-                  {matchDetails.home_team.short_name}
-                </Typography>
-                <Typography
-                  variant={isSmallScreen ? "h4" : "h2"}
-                  style={getTeamStyles(
-                    matchDetails.home_goals,
-                    matchDetails.away_goals,
-                    matchDetails.home_penalties,
-                    matchDetails.away_penalties,
-                    matchDetails.competition_type,
-                    "home"
-                  )}
-                  sx={{ mt: 1 }}
-                >
-                  {matchDetails.home_goals !== null
-                    ? matchDetails.home_goals
-                    : "-"}
-                  {matchDetails.competition_type === "Cup" &&
-                    matchDetails.home_penalties !== null &&
-                    ` (${matchDetails.home_penalties})`}
-                </Typography>
-              </Box>
-
-              {/* Date and Time Display */}
-              <Box
+      <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
+        {/* Header Section */}
+        <Card
+          sx={{
+            background: theme.colors.themed.purpleGradient,
+            color: "white",
+            mb: 4,
+            borderRadius: "20px",
+            overflow: "hidden",
+          }}
+        >
+          <CardContent sx={{ p: isMobile ? 3 : 4 }}>
+            <Box textAlign="center" mb={3}>
+              <Chip
+                icon={<EmojiEvents />}
+                label={
+                  matchDetails.competition_type === "League"
+                    ? `Jornada ${matchDetails.week}`
+                    : matchDetails.competition_type === "Cup"
+                      ? `Taça : Ronda ${matchDetails.round}`
+                      : matchDetails.competition_type === "Supercup"
+                        ? "Supertaça"
+                        : ""
+                }
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexDirection: "column",
-                  mx: isSmallScreen ? 0 : 4,
+                  backgroundColor: theme.colors.accent[500],
+                  color: theme.colors.neutral[900],
+                  fontWeight: "bold",
+                  fontSize: isMobile ? "14px" : "16px",
                 }}
-              >
-                <Typography
-                  variant={isSmallScreen ? "h6" : "h5"}
-                  sx={{
-                    marginBottom: "0.5rem",
-                    fontSize: isSmallScreen ? "1rem" : "1.5rem",
-                  }}
-                >
-                  {dayjs(matchDetails.match_date).format("DD/MM/YYYY")}
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{ fontSize: isSmallScreen ? "1rem" : "1.5rem" }}
-                >
-                  {matchDetails.match_time}
-                </Typography>
+              />
+            </Box>
 
-                {/* Display "Depois de Grandes Penalidades" or "Depois de G.P" for Cup matches with penalties */}
-                {matchDetails.competition_type === "Cup" &&
-                  (matchDetails.home_penalties !== null ||
-                    matchDetails.away_penalties !== null) && (
+            {/* Match Display */}
+            <Grid
+              container
+              spacing={2}
+              alignItems="center"
+              justifyContent="center"
+            >
+              {/* Home Team */}
+              <Grid item xs={12} sm={4} md={3}>
+                <Box textAlign="center">
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                  >
+                    <img
+                      src={matchDetails.home_team.logo_url}
+                      alt={matchDetails.home_team.short_name}
+                      style={{
+                        width: isMobile ? "120px" : "160px",
+                        height: isMobile ? "120px" : "160px",
+                        objectFit: "contain",
+                        marginBottom: "16px",
+                      }}
+                    />
                     <Typography
-                      variant={isSmallScreen ? "body2" : "body1"} // Adjust font size based on screen size
+                      variant={isMobile ? "h6" : "h5"}
                       sx={{
-                        fontSize: isSmallScreen ? "0.9rem" : "1rem",
                         fontWeight: "bold",
-                        fontStyle: "italic",
-                        marginTop: "0.5rem",
+                        mb: 1,
                         textAlign: "center",
+                        ...getTeamStyles(
+                          matchDetails.home_goals,
+                          matchDetails.away_goals,
+                          matchDetails.home_penalties,
+                          matchDetails.away_penalties,
+                          matchDetails.competition_type,
+                          "home"
+                        ),
                       }}
                     >
-                      {isSmallScreen
-                        ? "Depois de G.P"
-                        : "Depois de Grandes Penalidades"}
+                      {matchDetails.home_team.short_name}
                     </Typography>
-                  )}
-              </Box>
-
-              {/* Away Team Logo, Name, and Score */}
-              <Box sx={{ textAlign: "center", ml: 4 }}>
-                <img
-                  src={matchDetails.away_team.logo_url}
-                  alt={matchDetails.away_team.short_name}
-                  style={{
-                    width: "225px",
-                    height: "225px",
-                    objectFit: "contain",
-                  }}
-                />
-                <Typography
-                  variant={isSmallScreen ? "h6" : "h4"}
-                  style={getTeamStyles(
-                    matchDetails.home_goals,
-                    matchDetails.away_goals,
-                    "away"
-                  )}
-                  sx={{ mt: 2 }}
-                >
-                  {matchDetails.away_team.short_name}
-                </Typography>
-                <Typography
-                  variant={isSmallScreen ? "h4" : "h2"}
-                  style={getTeamStyles(
-                    matchDetails.home_goals,
-                    matchDetails.away_goals,
-                    matchDetails.home_penalties,
-                    matchDetails.away_penalties,
-                    matchDetails.competition_type,
-                    "away"
-                  )}
-                  sx={{ mt: 1 }}
-                >
-                  {matchDetails.away_goals !== null
-                    ? matchDetails.away_goals
-                    : "-"}
-                  {matchDetails.competition_type === "Cup" &&
-                    matchDetails.away_penalties !== null &&
-                    ` (${matchDetails.away_penalties})`}
-                </Typography>
-              </Box>
-            </Box>
-
-            {isSmallScreen ? (
-              // Code for small screens
-              <Box
-                sx={{
-                  mt: 3,
-                  display: "flex",
-                  flexDirection: "row", // Column for small screens
-                  justifyContent: isSmallScreen ? "space-between" : "center", // Adjust for spacing
-                }}
-              >
-                {/* Home Team: Goals and Discipline */}
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    mr: isSmallScreen ? 0 : 5,
-                    mb: isSmallScreen ? 3 : 0,
-                  }}
-                >
-                  <Typography variant="h6">Golos</Typography>
-                  {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
-                    getGoalscorers(matchDetails.home_team.id).map(
-                      (goalscorer, index) => (
-                        <Typography key={index} variant="body1">
-                          {goalscorer}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem marcadores</Typography>
-                  )}
-
-                  <Typography variant="h6" sx={{ mt: 2 }}>
-                    Disciplina
-                  </Typography>
-                  {getCards(matchDetails.home_team.id).length > 0 ? (
-                    getCards(matchDetails.home_team.id).map(
-                      (cardEvent, index) => (
-                        <Typography key={index} variant="body1">
-                          {cardEvent.name}{" "}
-                          {cardEvent.cards.map((cardType, cardIndex) =>
-                            cardType === "yellow" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "#ffcd00",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "red" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "red",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "double-yellow" ? (
-                              <span key={cardIndex}>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    backgroundColor: "green",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "2px",
-                                  }}
-                                ></span>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    background:
-                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "4px",
-                                  }}
-                                ></span>
-                              </span>
-                            ) : null
-                          )}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem cartões</Typography>
-                  )}
-                </Box>
-
-                {/* Vertical Line Divider */}
-                {!isSmallScreen && (
-                  <Box
+                  </Box>
+                  <Typography
+                    variant={isMobile ? "h4" : "h2"}
                     sx={{
-                      width: "2px",
-                      backgroundColor: "gray",
-                      height: "auto",
-                      mx: isSmallScreen ? 2 : 4,
+                      fontWeight: "bold",
+                      ...getTeamStyles(
+                        matchDetails.home_goals,
+                        matchDetails.away_goals,
+                        matchDetails.home_penalties,
+                        matchDetails.away_penalties,
+                        matchDetails.competition_type,
+                        "home"
+                      ),
                     }}
-                  />
-                )}
-
-                {/* Away Team: Discipline and Goals */}
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    ml: isSmallScreen ? 0 : 5,
-                    mb: isSmallScreen ? 3 : 0,
-                  }}
-                >
-                  <Typography variant="h6">Golos</Typography>
-                  {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
-                    getGoalscorers(matchDetails.away_team.id).map(
-                      (goalscorer, index) => (
-                        <Typography key={index} variant="body1">
-                          {goalscorer}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem marcadores</Typography>
-                  )}
-
-                  <Typography variant="h6" sx={{ mt: 2 }}>
-                    Disciplina
+                  >
+                    {matchDetails.home_goals !== null
+                      ? matchDetails.home_goals
+                      : "-"}
+                    {matchDetails.competition_type === "Cup" &&
+                      matchDetails.home_penalties !== null &&
+                      ` (${matchDetails.home_penalties})`}
                   </Typography>
-                  {getCards(matchDetails.away_team.id).length > 0 ? (
-                    getCards(matchDetails.away_team.id).map(
-                      (cardEvent, index) => (
-                        <Typography key={index} variant="body1">
-                          {cardEvent.name}{" "}
-                          {cardEvent.cards.map((cardType, cardIndex) =>
-                            cardType === "yellow" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "#ffcd00",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "red" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "red",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "double-yellow" ? (
-                              <span key={cardIndex}>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    backgroundColor: "#ffcd00",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "2px",
-                                  }}
-                                ></span>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    background:
-                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "4px",
-                                  }}
-                                ></span>
-                              </span>
-                            ) : null
-                          )}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem cartões</Typography>
-                  )}
                 </Box>
-              </Box>
-            ) : (
-              // Code for larger screens
+              </Grid>
+
+              {/* Date and Time */}
+              <Grid item xs={12} sm={4} md={6}>
+                <Box textAlign="center">
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={1}
+                    mb={2}
+                  >
+                    <CalendarToday sx={{ fontSize: 20 }} />
+                    <Typography variant={isMobile ? "h6" : "h5"}>
+                      {dayjs(matchDetails.match_date).format("DD/MM/YYYY")}
+                    </Typography>
+                  </Box>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    gap={1}
+                  >
+                    <AccessTime sx={{ fontSize: 20 }} />
+                    <Typography variant="h6">
+                      {matchDetails.match_time}
+                    </Typography>
+                  </Box>
+
+                  {matchDetails.competition_type === "Cup" &&
+                    (matchDetails.home_penalties !== null ||
+                      matchDetails.away_penalties !== null) && (
+                      <Typography
+                        variant={isMobile ? "body2" : "body1"}
+                        sx={{
+                          fontWeight: "bold",
+                          fontStyle: "italic",
+                          mt: 1,
+                          opacity: 0.9,
+                        }}
+                      >
+                        {isMobile
+                          ? "Depois de G.P"
+                          : "Depois de Grandes Penalidades"}
+                      </Typography>
+                    )}
+                </Box>
+              </Grid>
+
+              {/* Away Team */}
+              <Grid item xs={12} sm={4} md={3}>
+                <Box textAlign="center">
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                  >
+                    <img
+                      src={matchDetails.away_team.logo_url}
+                      alt={matchDetails.away_team.short_name}
+                      style={{
+                        width: isMobile ? "120px" : "160px",
+                        height: isMobile ? "120px" : "160px",
+                        objectFit: "contain",
+                        marginBottom: "16px",
+                      }}
+                    />
+                    <Typography
+                      variant={isMobile ? "h6" : "h5"}
+                      sx={{
+                        fontWeight: "bold",
+                        mb: 1,
+                        textAlign: "center",
+                        ...getTeamStyles(
+                          matchDetails.home_goals,
+                          matchDetails.away_goals,
+                          matchDetails.home_penalties,
+                          matchDetails.away_penalties,
+                          matchDetails.competition_type,
+                          "away"
+                        ),
+                      }}
+                    >
+                      {matchDetails.away_team.short_name}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant={isMobile ? "h4" : "h2"}
+                    sx={{
+                      fontWeight: "bold",
+                      ...getTeamStyles(
+                        matchDetails.home_goals,
+                        matchDetails.away_goals,
+                        matchDetails.home_penalties,
+                        matchDetails.away_penalties,
+                        matchDetails.competition_type,
+                        "away"
+                      ),
+                    }}
+                  >
+                    {matchDetails.away_goals !== null
+                      ? matchDetails.away_goals
+                      : "-"}
+                    {matchDetails.competition_type === "Cup" &&
+                      matchDetails.away_penalties !== null &&
+                      ` (${matchDetails.away_penalties})`}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+
+            {/* Stadium Info at bottom of header card */}
+            <Box
+              textAlign="center"
+              mt={3}
+              pt={2}
+              sx={{ borderTop: "1px solid rgba(255,255,255,0.2)" }}
+            >
               <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                gap={2}
+              >
+                <Stadium sx={{ color: "white", fontSize: 20 }} />
+                <Typography
+                  variant="body1"
+                  sx={{ color: "white", opacity: 0.9 }}
+                >
+                  {matchDetails.competition_type === "Supercup"
+                    ? "Estádio: Campo António Henrique de Matos"
+                    : matchDetails.home_team.stadium_name}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Download Match Sheet - moved below Stadium */}
+        <Card sx={{ mb: 4, borderRadius: "16px" }}>
+          <CardContent>
+            <Box textAlign="center" py={2}>
+              <Typography
+                variant="h6"
                 sx={{
-                  mt: 3,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "top",
+                  color: theme.colors.primary[600],
+                  mb: 3,
+                  fontWeight: "bold",
                 }}
               >
-                {/* Display Goalscorers for Home Team */}
-                <Box sx={{ textAlign: "center", mr: 5 }}>
-                  <Typography variant="h6">Golos</Typography>
-                  {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
-                    getGoalscorers(matchDetails.home_team.id).map(
-                      (goalscorer, index) => (
-                        <Typography key={index} variant="body1">
-                          {goalscorer}
-                        </Typography>
-                      )
+                Ficha de Jogo
+              </Typography>
+
+              <Box
+                onClick={() => {
+                  if (
+                    matchDetails &&
+                    dayjs().isAfter(
+                      dayjs(matchDetails.match_date).add(1, "day")
                     )
-                  ) : (
-                    <Typography variant="body2">Sem marcadores</Typography>
-                  )}
-                </Box>
-                <Box sx={{ textAlign: "center", mr: 5 }}>
-                  <Typography variant="h6">Disciplina</Typography>
-                  {getCards(matchDetails.home_team.id).length > 0 ? (
-                    getCards(matchDetails.home_team.id).map(
-                      (cardEvent, index) => (
-                        <Typography key={index} variant="body1">
-                          {cardEvent.name}{" "}
-                          {cardEvent.cards.map((cardType, cardIndex) =>
-                            cardType === "yellow" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "#ffcd00",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "red" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "red",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "double-yellow" ? (
-                              <span key={cardIndex}>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    backgroundColor: "#ffcd00",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "2px",
-                                  }}
-                                ></span>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    background:
-                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "4px",
-                                  }}
-                                ></span>
-                              </span>
-                            ) : null
-                          )}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem cartões</Typography>
-                  )}
-                </Box>
-
-                {/* Vertical Line Divider */}
-                <Box
-                  sx={{
-                    width: "2px",
-                    backgroundColor: "gray",
-                    height: "auto",
-                    mx: 2,
-                  }}
-                />
-
-                {/* Display Yellow/Red Cards for Away Team */}
-                <Box sx={{ textAlign: "center", ml: 5 }}>
-                  <Typography variant="h6">Disciplina</Typography>
-                  {getCards(matchDetails.away_team.id).length > 0 ? (
-                    getCards(matchDetails.away_team.id).map(
-                      (cardEvent, index) => (
-                        <Typography key={index} variant="body1">
-                          {cardEvent.name}{" "}
-                          {cardEvent.cards.map((cardType, cardIndex) =>
-                            cardType === "yellow" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "#ffcd00",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "red" ? (
-                              <span
-                                key={cardIndex}
-                                style={{
-                                  display: "inline-block",
-                                  width: "13px",
-                                  height: "20px",
-                                  backgroundColor: "red",
-                                  borderRadius: "2px",
-                                  verticalAlign: "middle",
-                                  marginRight: "4px",
-                                }}
-                              ></span>
-                            ) : cardType === "double-yellow" ? (
-                              <span key={cardIndex}>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    backgroundColor: "#ffcd00",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "2px",
-                                  }}
-                                ></span>
-                                <span
-                                  style={{
-                                    display: "inline-block",
-                                    width: "13px",
-                                    height: "20px",
-                                    background:
-                                      "linear-gradient(to bottom right, #ffcd00 50%, red 50%)",
-                                    borderRadius: "2px",
-                                    verticalAlign: "middle",
-                                    marginRight: "4px",
-                                  }}
-                                ></span>
-                              </span>
-                            ) : null
-                          )}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem cartões</Typography>
-                  )}
-                </Box>
-
-                {/* Display Goalscorers for Away Team */}
-                <Box sx={{ textAlign: "center", ml: 5 }}>
-                  <Typography variant="h6">Golos</Typography>
-                  {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
-                    getGoalscorers(matchDetails.away_team.id).map(
-                      (goalscorer, index) => (
-                        <Typography key={index} variant="body1">
-                          {goalscorer}
-                        </Typography>
-                      )
-                    )
-                  ) : (
-                    <Typography variant="body2">Sem marcadores</Typography>
-                  )}
-                </Box>
-              </Box>
-            )}
-          </Box>
-
-          {/* Stadium Name */}
-          <Typography variant="h5" sx={{ marginTop: "3rem" }}>
-            {matchDetails.competition_type === "Supercup"
-              ? "Estádio: Campo António Henrique de Matos"
-              : matchDetails.home_team.stadium_name}
-          </Typography>
-
-          <div>
-            {/* Hidden div to render PDF template */}
-            {/* <div
-                style={{
-                  position: "absolute",
-                  left: "-9999px",
-                  top: "-9999px",
+                  ) {
+                    window.open(matchDetails.match_sheet, "_blank");
+                  } else {
+                    generatePDF();
+                  }
+                }}
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 2,
+                  padding: "12px 24px",
+                  backgroundColor: theme.colors.primary[600],
+                  color: "white",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  transition: theme.transitions.normal,
+                  "&:hover": {
+                    backgroundColor: theme.colors.primary[700],
+                    transform: "translateY(-2px)",
+                    boxShadow: theme.shadows.lg,
+                  },
                 }}
               >
-                <PDFTemplate />
-              </div> */}
-            {/* Ficha de Jogo Link */}
-            <Box sx={{ marginTop: "3rem", cursor: "pointer" }}>
-              {matchDetails &&
-              dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day")) ? (
-                <Link
-                  href={matchDetails.match_sheet} // Use match_sheet if the match_date has passed
-                  target="_blank" // Open the link in a new window
-                  rel="noopener noreferrer"
-                  underline="none"
-                >
-                  <DownloadIcon sx={{ marginRight: 1, color: "#6B4BA1" }} />{" "}
-                  {/* Icon with right margin */}
-                  <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
-                    Ficha de Jogo Completa
-                  </Typography>
-                </Link>
-              ) : (
-                <Link
-                  onClick={generatePDF} // Generate PDF if the match_date has not passed
-                  rel="noopener noreferrer"
-                  underline="none"
-                >
-                  <DownloadIcon sx={{ marginRight: 1, color: "#6B4BA1" }} />{" "}
-                  {/* Icon with right margin */}
-                  <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
-                    Ficha de Jogo
-                  </Typography>
-                </Link>
-              )}
-            </Box>
-          </div>
-
-          {/* Players List for both teams */}
-          <Box
-            sx={{
-              mt: 5,
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-            }}
-          >
-            {/* Home Team Players (left side) */}
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                pr: 5,
-              }}
-            >
-              {" "}
-              {/* Add padding to the right for the gap */}
-              <Box sx={{ textAlign: "center", width: "100%" }}>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Jogadores {matchDetails.home_team.short_name}:
+                <Download sx={{ fontSize: 24 }} />
+                <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                  {matchDetails &&
+                  dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day"))
+                    ? "Ficha de Jogo Completa"
+                    : "Ficha de Jogo"}
                 </Typography>
+              </Box>
+
+              <Typography
+                variant="body2"
+                sx={{ color: theme.colors.text.secondary, mt: 2 }}
+              >
+                {matchDetails &&
+                dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day"))
+                  ? "Aceda à ficha de jogo oficial preenchida"
+                  : "Descarregue a ficha de jogo em formato PDF"}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Match Statistics */}
+        <Grid container spacing={3} mb={4}>
+          {/* Home Team Stats */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ height: "100%", borderRadius: "16px" }}>
+              <CardContent>
+                <Box textAlign="center" mb={3}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: theme.colors.primary[600],
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {matchDetails.home_team.short_name}
+                  </Typography>
+                </Box>
+
                 <Box
+                  display="flex"
+                  flexDirection={isMobile ? "column" : "row"}
+                  gap={isMobile ? 3 : 4}
+                >
+                  {/* Goals */}
+                  <Box flex={1}>
+                    <Box display="flex" alignItems="center" gap={1} mb={2}>
+                      <SportsSoccer sx={{ color: theme.colors.sports.goals }} />
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        Marcadores
+                      </Typography>
+                    </Box>
+                    {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
+                      getGoalscorers(matchDetails.home_team.id).map(
+                        (goalscorer, index) => (
+                          <Typography
+                            key={index}
+                            variant="body1"
+                            sx={{ mb: 0.5, pl: 4 }}
+                          >
+                            ⚽ {goalscorer}
+                          </Typography>
+                        )
+                      )
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ pl: 4, color: theme.colors.text.secondary }}
+                      >
+                        Sem marcadores
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {!isMobile && (
+                    <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+                  )}
+
+                  {/* Cards */}
+                  <Box flex={1}>
+                    <Box display="flex" alignItems="center" gap={1} mb={2}>
+                      <Shield sx={{ color: theme.colors.warning[500] }} />
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        Disciplina
+                      </Typography>
+                    </Box>
+                    {getCards(matchDetails.home_team.id).length > 0 ? (
+                      getCards(matchDetails.home_team.id).map(
+                        (cardEvent, index) => (
+                          <Box
+                            key={index}
+                            display="flex"
+                            alignItems="center"
+                            gap={1}
+                            mb={0.5}
+                            sx={{ pl: 4 }}
+                          >
+                            <Typography variant="body1">
+                              {cardEvent.name}
+                            </Typography>
+                            {cardEvent.cards.map((cardType, cardIndex) => (
+                              <CardIcon key={cardIndex} cardType={cardType} />
+                            ))}
+                          </Box>
+                        )
+                      )
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ pl: 4, color: theme.colors.text.secondary }}
+                      >
+                        Sem cartões
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Away Team Stats */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ height: "100%", borderRadius: "16px" }}>
+              <CardContent>
+                <Box textAlign="center" mb={3}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: theme.colors.primary[600],
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {matchDetails.away_team.short_name}
+                  </Typography>
+                </Box>
+
+                <Box
+                  display="flex"
+                  flexDirection={isMobile ? "column" : "row"}
+                  gap={isMobile ? 3 : 4}
+                >
+                  {/* Goals */}
+                  <Box flex={1}>
+                    <Box display="flex" alignItems="center" gap={1} mb={2}>
+                      <SportsSoccer sx={{ color: theme.colors.sports.goals }} />
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        Marcadores
+                      </Typography>
+                    </Box>
+                    {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
+                      getGoalscorers(matchDetails.away_team.id).map(
+                        (goalscorer, index) => (
+                          <Typography
+                            key={index}
+                            variant="body1"
+                            sx={{ mb: 0.5, pl: 4 }}
+                          >
+                            ⚽ {goalscorer}
+                          </Typography>
+                        )
+                      )
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ pl: 4, color: theme.colors.text.secondary }}
+                      >
+                        Sem marcadores
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {!isMobile && (
+                    <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+                  )}
+
+                  {/* Cards */}
+                  <Box flex={1}>
+                    <Box display="flex" alignItems="center" gap={1} mb={2}>
+                      <Shield sx={{ color: theme.colors.warning[500] }} />
+                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                        Disciplina
+                      </Typography>
+                    </Box>
+                    {getCards(matchDetails.away_team.id).length > 0 ? (
+                      getCards(matchDetails.away_team.id).map(
+                        (cardEvent, index) => (
+                          <Box
+                            key={index}
+                            display="flex"
+                            alignItems="center"
+                            gap={1}
+                            mb={0.5}
+                            sx={{ pl: 4 }}
+                          >
+                            <Typography variant="body1">
+                              {cardEvent.name}
+                            </Typography>
+                            {cardEvent.cards.map((cardType, cardIndex) => (
+                              <CardIcon key={cardIndex} cardType={cardType} />
+                            ))}
+                          </Box>
+                        )
+                      )
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ pl: 4, color: theme.colors.text.secondary }}
+                      >
+                        Sem cartões
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Team Squads */}
+        <Grid container spacing={3}>
+          {/* Home Team Squad */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ borderRadius: "16px", height: "100%" }}>
+              <CardContent>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  mb={isMobile ? 0 : 3}
+                  onClick={
+                    isMobile
+                      ? () => setHomeSquadExpanded(!homeSquadExpanded)
+                      : undefined
+                  }
                   sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: "1fr 1fr",
-                      lg: "1fr 1fr 1fr",
-                    }, // Responsive grid
-                    gap: 1,
+                    cursor: isMobile ? "pointer" : "default",
+                    "&:hover": isMobile
+                      ? {
+                          backgroundColor: theme.colors.background.tertiary,
+                          borderRadius: "8px",
+                        }
+                      : {},
+                    padding: isMobile ? "8px" : "0",
+                    marginX: isMobile ? "-8px" : "0",
+                    transition: theme.transitions.normal,
                   }}
                 >
-                  {currentHomePlayers
-                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
-                    .map((player) => (
-                      <Box
-                        key={player.name}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          margin: "5px 0",
-                          width: "100%",
-                        }}
-                      >
-                        <Avatar
-                          alt={player.name}
-                          src={player.photo_url}
-                          sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
-                        />
-                        <Typography variant="body1">{player.name}</Typography>
-                      </Box>
-                    ))}
+                  <Avatar
+                    src={matchDetails.home_team.logo_url}
+                    alt={matchDetails.home_team.short_name}
+                    sx={{ width: 40, height: 40 }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: theme.colors.primary[600],
+                      fontWeight: "bold",
+                      flex: 1,
+                    }}
+                  >
+                    Jogadores {matchDetails.home_team.short_name}
+                  </Typography>
+                  {isMobile && (
+                    <IconButton
+                      size="small"
+                      sx={{ color: theme.colors.primary[600] }}
+                    >
+                      {homeSquadExpanded ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
+                  )}
                 </Box>
-              </Box>
-            </Box>
 
-            {/* Vertical Line Divider */}
-            <Box
-              sx={{
-                width: "2px",
-                backgroundColor: "gray",
-                height: "auto",
-                mx: isSmallScreen ? 1 : 2,
-              }}
-            />
+                <Collapse
+                  in={!isMobile || homeSquadExpanded}
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <Grid container spacing={1}>
+                    {currentHomePlayers
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((player) => (
+                        <Grid item xs={12} sm={6} key={player.id}>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            gap={1}
+                            p={1}
+                            sx={{
+                              borderRadius: "8px",
+                              backgroundColor: suspendedPlayerIds.includes(
+                                player.id
+                              )
+                                ? theme.colors.error[50]
+                                : theme.colors.background.tertiary,
+                              border: suspendedPlayerIds.includes(player.id)
+                                ? `1px solid ${theme.colors.error[300]}`
+                                : "1px solid transparent",
+                            }}
+                          >
+                            <Avatar
+                              src={player.photo_url}
+                              alt={player.name}
+                              sx={{ width: 40, height: 40 }}
+                            />
+                            <Box flex={1} minWidth={0}>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: "medium",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  color: suspendedPlayerIds.includes(player.id)
+                                    ? theme.colors.error[700]
+                                    : theme.colors.text.primary,
+                                }}
+                              >
+                                {player.name}
+                                {player.joker && " (JK)"}
+                              </Typography>
+                              {suspendedPlayerIds.includes(player.id) && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: theme.colors.error[600],
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Suspenso
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </Grid>
+                      ))}
+                  </Grid>
+                </Collapse>
+              </CardContent>
+            </Card>
+          </Grid>
 
-            {/* Away Team Players (right side) */}
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                pl: 5,
-              }}
-            >
-              {" "}
-              {/* Add padding to the left for the gap */}
-              <Box sx={{ textAlign: "center", width: "100%" }}>
-                <Typography variant="h6" sx={{ mb: 3 }}>
-                  Jogadores {matchDetails.away_team.short_name}:
-                </Typography>
+          {/* Away Team Squad */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ borderRadius: "16px", height: "100%" }}>
+              <CardContent>
                 <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  mb={isMobile ? 2 : 3}
+                  onClick={
+                    isMobile
+                      ? () => setAwaySquadExpanded(!awaySquadExpanded)
+                      : undefined
+                  }
                   sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: "1fr 1fr",
-                      lg: "1fr 1fr 1fr",
-                    }, // Responsive grid
-                    gap: 1,
+                    cursor: isMobile ? "pointer" : "default",
+                    "&:hover": isMobile
+                      ? {
+                          backgroundColor: theme.colors.background.tertiary,
+                          borderRadius: "8px",
+                        }
+                      : {},
+                    padding: isMobile ? "8px" : "0",
+                    marginX: isMobile ? "-8px" : "0",
+                    transition: theme.transitions.normal,
                   }}
                 >
-                  {currentAwayPlayers
-                    .sort((a, b) => a.name.localeCompare(b.name)) // Sort by name in ascending order
-                    .map((player) => (
-                      <Box
-                        key={player.name}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          margin: "5px 0",
-                          width: "100%",
-                        }}
-                      >
-                        <Avatar
-                          alt={player.name}
-                          src={player.photo_url}
-                          sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
-                        />
-                        <Typography variant="body1">{player.name}</Typography>
-                      </Box>
-                    ))}
+                  <Avatar
+                    src={matchDetails.away_team.logo_url}
+                    alt={matchDetails.away_team.short_name}
+                    sx={{ width: 40, height: 40 }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: theme.colors.primary[600],
+                      fontWeight: "bold",
+                      flex: 1,
+                    }}
+                  >
+                    Jogadores {matchDetails.away_team.short_name}
+                  </Typography>
+                  {isMobile && (
+                    <IconButton
+                      size="small"
+                      sx={{ color: theme.colors.primary[600] }}
+                    >
+                      {awaySquadExpanded ? <ExpandLess /> : <ExpandMore />}
+                    </IconButton>
+                  )}
                 </Box>
-              </Box>
-            </Box>
-          </Box>
-        </>
-      ) : (
-        <Typography variant="body1">Carregar dados do Jogo</Typography>
-      )}
+
+                <Collapse
+                  in={!isMobile || awaySquadExpanded}
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <Grid container spacing={1}>
+                    {currentAwayPlayers
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((player) => (
+                        <Grid item xs={12} sm={6} key={player.id}>
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            gap={1}
+                            p={1}
+                            sx={{
+                              borderRadius: "8px",
+                              backgroundColor: suspendedPlayerIds.includes(
+                                player.id
+                              )
+                                ? theme.colors.error[50]
+                                : theme.colors.background.tertiary,
+                              border: suspendedPlayerIds.includes(player.id)
+                                ? `1px solid ${theme.colors.error[300]}`
+                                : "1px solid transparent",
+                            }}
+                          >
+                            <Avatar
+                              src={player.photo_url}
+                              alt={player.name}
+                              sx={{ width: 40, height: 40 }}
+                            />
+                            <Box flex={1} minWidth={0}>
+                              <Typography
+                                variant="body1"
+                                sx={{
+                                  fontWeight: "medium",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                  color: suspendedPlayerIds.includes(player.id)
+                                    ? theme.colors.error[700]
+                                    : theme.colors.text.primary,
+                                }}
+                              >
+                                {player.name}
+                                {player.joker && " (JK)"}
+                              </Typography>
+                              {suspendedPlayerIds.includes(player.id) && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: theme.colors.error[600],
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Suspenso
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </Grid>
+                      ))}
+                  </Grid>
+                </Collapse>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
     </Box>
   );
 };

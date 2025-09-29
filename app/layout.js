@@ -1,7 +1,8 @@
-'use client'
+"use client";
 import localFont from "next/font/local";
 import "./globals.css";
 import Nav from "./components/Nav";
+import { ThemeWrapper } from "./components/ThemeWrapper";
 import { useState, useEffect } from "react";
 
 const geistSans = localFont({
@@ -55,12 +56,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
       >
-        <Nav onDrawerToggle={handleDrawerToggle} />
-        <div
-          className="main-content"
-        >
-          {children}
-        </div>
+        <ThemeWrapper>
+          <Nav onDrawerToggle={handleDrawerToggle} />
+          <div className="main-content">{children}</div>
+        </ThemeWrapper>
       </body>
     </html>
   );
