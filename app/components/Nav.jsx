@@ -902,7 +902,8 @@ export default function Nav({ onDrawerToggle }) {
                       onClick={handleModalToggle}
                     >
                       <ListItemIcon sx={{ color: "white" }}>
-                        <SportsSoccerRoundedIcon /> {/* Melhores Marcadores Icon */}
+                        <SportsSoccerRoundedIcon />{" "}
+                        {/* Melhores Marcadores Icon */}
                       </ListItemIcon>
                       <ListItemText
                         primary="Melhores Marcadores"
@@ -945,7 +946,7 @@ export default function Nav({ onDrawerToggle }) {
                       <ListItemText primary="Taça" sx={{ color: "white" }} />
                     </ListItemButton>
                   </ListItem>
-                  <ListItem disablePadding>
+                  {/* <ListItem disablePadding>
                     <ListItemButton
                       component={Link}
                       href="/Taca/TopScorers"
@@ -959,7 +960,7 @@ export default function Nav({ onDrawerToggle }) {
                         sx={{ color: "white" }}
                       />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
                 </List>
                 <Divider sx={{ backgroundColor: "white", my: 2 }} />
 

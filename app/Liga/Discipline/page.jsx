@@ -3,6 +3,17 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import {
+  Box,
+  Typography,
+  Container,
+  Card,
+  CardContent,
+  Grid,
+  Avatar,
+  Chip,
+  Modal,
+  IconButton,
+  useMediaQuery,
   Table,
   TableBody,
   TableCell,
@@ -10,26 +21,42 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Typography,
-  Box,
   Select,
   MenuItem,
-  Modal,
-  Button,
+  FormControl,
+  InputLabel,
+  Divider,
 } from "@mui/material";
+import {
+  Close,
+  Warning,
+  Person,
+  SportsFootball,
+  Shield,
+  Gavel,
+  DateRange,
+  Info,
+  EmojiEvents,
+} from "@mui/icons-material";
+import { theme } from "../../../styles/theme.js"; // Adjust the import path
 
 const Discipline = () => {
   const [disciplineData, setDisciplineData] = useState([]);
   const [punishmentEvents, setPunishmentEvents] = useState([]);
   const [open, setOpen] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState("2024");
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isTablet = useMediaQuery("(max-width: 1024px)");
 
   const currentTeam = disciplineData.find(
     (team) => team.team_id === currentTeamId
   );
 
   const readDiscipline = async () => {
+    setLoading(true);
     const { data, error } = await supabase.from("discipline_standings").select(`
         team_id,
         teams!discipline_standings_team_id_fkey (short_name, logo_url),
@@ -43,6 +70,7 @@ const Discipline = () => {
 
     if (error) {
       console.error("Error fetching discipline data:", error);
+      setLoading(false);
       return;
     }
 
@@ -60,6 +88,7 @@ const Discipline = () => {
 
     if (suspensionsError) {
       console.error("Error fetching suspended players:", suspensionsError);
+      setLoading(false);
       return;
     }
 
@@ -79,6 +108,7 @@ const Discipline = () => {
 
     if (playersError) {
       console.error("Error fetching players:", playersError);
+      setLoading(false);
       return;
     }
 
@@ -86,10 +116,11 @@ const Discipline = () => {
     const { data: matchEvents, error: matchEventsError } = await supabase
       .from("match_events")
       .select(`player_id, event_type`)
-      .eq("event_type", 2); // 2 might represent "yellow card"
+      .eq("event_type", 2);
 
     if (matchEventsError) {
       console.error("Error fetching match events:", matchEventsError);
+      setLoading(false);
       return;
     }
 
@@ -100,10 +131,9 @@ const Discipline = () => {
       return acc;
     }, {});
 
-    // Identify players who are "at risk" (one card away from suspension)
+    // Identify players who are "at risk"
     const playersAtRisk = players.reduce((acc, player) => {
       const cards = yellowCardCounts[player.id] || 0;
-      // Example rule: if (cards + 1) % 3 === 0
       if ((cards + 1) % 3 === 0) {
         const teamId = player.team_id;
         if (!acc[teamId]) acc[teamId] = [];
@@ -115,7 +145,6 @@ const Discipline = () => {
     // Sort discipline data
     const sortedData = data
       .sort((a, b) => {
-        // excluded teams to the bottom
         if (a.excluded && !b.excluded) return 1;
         if (!a.excluded && b.excluded) return -1;
 
@@ -134,12 +163,10 @@ const Discipline = () => {
       }));
 
     setDisciplineData(sortedData);
+    setLoading(false);
   };
 
   const fetchPunishmentEvents = async (teamId) => {
-    // This is the critical part: ensure the .select(...) relationship paths
-    // match your foreign key columns exactly. The snippet below shows
-    // each relevant relationship. Adjust columns as needed.
     const { data, error } = await supabase
       .from("team_punishments")
       .select(
@@ -191,7 +218,6 @@ const Discipline = () => {
     }
   };
 
-  // Open modal for the clicked team
   const handleRowClick = async (teamId) => {
     setCurrentTeamId(teamId);
     await fetchPunishmentEvents(teamId);
@@ -200,261 +226,610 @@ const Discipline = () => {
 
   const handleClose = () => {
     setOpen(false);
-    setPunishmentEvents([]); // clear or keep
+    setPunishmentEvents([]);
   };
 
   useEffect(() => {
     readDiscipline();
-  }, []);
+  }, [selectedSeason]);
+
+  const getDisciplineColor = (position) => {
+    if (position <= 3) return theme.colors.sports.win;
+    if (position <= 6) return theme.colors.sports.draw;
+    return theme.colors.sports.loss;
+  };
+
+  const TeamCard = ({ team, position }) => {
+    const isExcluded = team.excluded;
+    const averagePoints =
+      team.matches_played > 0
+        ? (team.calculated_points / team.matches_played).toFixed(2)
+        : "0.00";
+
+    return (
+      <Card
+        onClick={() => handleRowClick(team.team_id)}
+        sx={{
+          background: isExcluded
+            ? `linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)`
+            : `linear-gradient(135deg, ${theme.colors.background.card} 0%, ${theme.colors.background.tertiary} 100%)`,
+          borderRadius: "16px",
+          border: `2px solid ${isExcluded ? theme.colors.sports.loss : theme.colors.border.purple}`,
+          boxShadow: theme.components.card.shadow,
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+          height: "100%",
+          position: "relative",
+          overflow: "hidden",
+          "&:hover": {
+            transform: "translateY(-3px)",
+            boxShadow: theme.components.card.hoverShadow,
+            borderColor: theme.colors.accent[500],
+            "&::before": {
+              opacity: 1,
+            },
+          },
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "4px",
+            background: theme.colors.themed.goldGradient,
+            opacity: 0,
+            transition: "opacity 0.3s ease",
+          },
+        }}
+      >
+        <CardContent sx={{ padding: isMobile ? 2 : 3 }}>
+          {/* Position Badge */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+              background: getDisciplineColor(position),
+              color: "white",
+              borderRadius: "50%",
+              width: 32,
+              height: 32,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: "bold",
+              fontSize: "14px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            }}
+          >
+            {position}º
+          </Box>
+
+          {/* Team Header */}
+          <Box display="flex" alignItems="center" gap={2} mb={2}>
+            <img
+              src={team.teams.logo_url}
+              alt={`${team.teams.short_name} logo`}
+              style={{
+                width: isMobile ? "40px" : "44px",
+                height: isMobile ? "40px" : "44px",
+                objectFit: "contain",
+                borderRadius: "50%",
+                border: `2px solid ${theme.colors.border.purple}`,
+              }}
+            />
+            <Box flex={1}>
+              <Typography
+                variant={isMobile ? "h6" : "h5"}
+                sx={{
+                  fontWeight: "bold",
+                  color: isExcluded
+                    ? theme.colors.sports.loss
+                    : theme.colors.text.primary,
+                  fontSize: isMobile ? "16px" : "18px",
+                  lineHeight: 1.2,
+                }}
+              >
+                {team.teams.short_name}
+              </Typography>
+              {isExcluded && (
+                <Chip
+                  icon={<Warning />}
+                  label="Excluída"
+                  size="small"
+                  sx={{
+                    backgroundColor: theme.colors.sports.loss,
+                    color: "white",
+                    fontSize: "11px",
+                    mt: 0.5,
+                    "& .MuiChip-icon": { color: "white", fontSize: "14px" },
+                  }}
+                />
+              )}
+            </Box>
+          </Box>
+
+          {/* Statistics Grid */}
+          <Grid container spacing={1} mb={2}>
+            <Grid item xs={6}>
+              <Box
+                sx={{
+                  background: theme.colors.background.secondary,
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.colors.text.secondary }}
+                >
+                  Jogos
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", color: theme.colors.text.primary }}
+                >
+                  {isExcluded ? "-" : team.matches_played}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={6}>
+              <Box
+                sx={{
+                  background: theme.colors.background.secondary,
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ color: theme.colors.text.secondary }}
+                >
+                  Pontos
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: "bold", color: theme.colors.text.primary }}
+                >
+                  {isExcluded ? "-" : team.calculated_points}
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+
+          {/* Cards Section */}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box
+                sx={{
+                  width: "16px",
+                  height: "22px",
+                  backgroundColor: "#ffcd00",
+                  borderRadius: "2px",
+                  border: "1px solid #000",
+                }}
+              />
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                {isExcluded ? "-" : team.yellow_cards}
+              </Typography>
+            </Box>
+
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box
+                sx={{
+                  width: "16px",
+                  height: "22px",
+                  backgroundColor: "#ef4444",
+                  borderRadius: "2px",
+                  border: "1px solid #000",
+                }}
+              />
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                {isExcluded ? "-" : team.red_cards}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                background: theme.colors.primary[600],
+                color: "white",
+                padding: "4px 12px",
+                borderRadius: "12px",
+                fontSize: "12px",
+                fontWeight: "bold",
+              }}
+            >
+              Média: {isExcluded ? "-" : averagePoints}
+            </Box>
+          </Box>
+
+          {/* Players Status */}
+          {(team.suspendedPlayers.length > 0 ||
+            team.atRiskPlayers.length > 0) && (
+            <Box>
+              {team.suspendedPlayers.length > 0 && (
+                <Box mb={1}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: theme.colors.sports.loss, fontWeight: "bold" }}
+                  >
+                    Suspensos:
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: theme.colors.sports.loss }}
+                  >
+                    {team.suspendedPlayers.join(", ")}
+                  </Typography>
+                </Box>
+              )}
+              {team.atRiskPlayers.length > 0 && (
+                <Box>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: theme.colors.sports.draw, fontWeight: "bold" }}
+                  >
+                    Em Risco:
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: theme.colors.sports.draw }}
+                  >
+                    {team.atRiskPlayers.join(", ")}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="80vh"
+        flexDirection="column"
+        gap={2}
+        sx={{ backgroundColor: theme.colors.background.secondary }}
+      >
+        <Shield
+          sx={{
+            fontSize: 60,
+            color: theme.colors.primary[600],
+            animation: "pulse 2s infinite",
+            "@keyframes pulse": {
+              "0%": { opacity: 1 },
+              "50%": { opacity: 0.5 },
+              "100%": { opacity: 1 },
+            },
+          }}
+        />
+        <Typography variant="h6" sx={{ color: theme.colors.text.secondary }}>
+          A carregar dados disciplinares...
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ padding: 2 }}>
-      {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" component="h2" sx={{ color: "#6B4BA1" }}>
-          DISCIPLINA
-        </Typography>
-        <Box>
-          <Typography
-            variant="body1"
-            component="label"
-            fontWeight="bold"
-            sx={{ color: "#6B4BA1" }}
-            mr={2}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        paddingY: 3,
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Header */}
+        <Box textAlign="center" mb={4}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={2}
+            mb={2}
           >
-            Temporada:
-          </Typography>
-          <Select
-            id="season"
-            defaultValue="2024"
-            sx={{ border: "1px solid", borderRadius: 1, padding: "4px 8px" }}
-          >
-            <MenuItem value="2024">2024/2025</MenuItem>
-          </Select>
+            <Shield sx={{ fontSize: 32, color: theme.colors.accent[500] }} />
+            <Typography
+              variant="h4"
+              sx={{
+                color: theme.colors.primary[600],
+                fontWeight: "bold",
+                fontSize: "32px",
+              }}
+            >
+              Disciplina
+            </Typography>
+          </Box>
+
+          {/* Yellow underline */}
+          <Box
+            sx={{
+              width: "60px",
+              height: "4px",
+              backgroundColor: theme.colors.accent[500],
+              margin: "0 auto 20px auto",
+              borderRadius: "2px",
+            }}
+          />
         </Box>
-      </Box>
 
-      <hr className="h-px border-0 bg-gray-300 my-6" />
+        {/* Season Selector */}
+        <Box
+          display="flex"
+          justifyContent={isMobile ? "center" : "flex-end"}
+          mb={4}
+        >
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel sx={{ color: theme.colors.text.primary }}>
+              Temporada
+            </InputLabel>
+            <Select
+              value={selectedSeason}
+              onChange={(e) => setSelectedSeason(e.target.value)}
+              label="Temporada"
+              sx={{
+                backgroundColor: theme.colors.background.card,
+                borderRadius: "12px",
+                "& .MuiOutlinedInput-root": {
+                  "&:hover fieldset": {
+                    borderColor: theme.colors.accent[500],
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: theme.colors.primary[600],
+                  },
+                },
+              }}
+            >
+              <MenuItem value="2024">2024/2025</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
-      {/* Main Discipline Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "rgba(165, 132, 224, 0.4)" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>POS</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>EQUIPA</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Em Risco</TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "red" }}>
-                Suspensos
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                J
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "13px",
-                    height: "20px",
-                    backgroundColor: "#ffcd00",
-                    borderRadius: "2px",
-                    verticalAlign: "middle",
-                  }}
-                ></span>
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: "13px",
-                    height: "20px",
-                    backgroundColor: "red",
-                    borderRadius: "2px",
-                    verticalAlign: "middle",
-                  }}
-                ></span>
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                Outros Castigos
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                Pontos
-              </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }} align="center">
-                Média
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {disciplineData.map((team, index) => {
-              const isExcluded = team.excluded;
-              const averagePoints =
-                team.matches_played > 0
-                  ? (team.calculated_points / team.matches_played).toFixed(2)
-                  : 0;
+        {/* Teams Grid */}
+        <Grid container spacing={3}>
+          {disciplineData.map((team, index) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={team.team_id}
+              sx={{
+                animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
+                "@keyframes fadeInUp": {
+                  "0%": {
+                    opacity: 0,
+                    transform: "translateY(20px)",
+                  },
+                  "100%": {
+                    opacity: 1,
+                    transform: "translateY(0)",
+                  },
+                },
+              }}
+            >
+              <TeamCard team={team} position={index + 1} />
+            </Grid>
+          ))}
+        </Grid>
 
-              return (
-                <TableRow
-                  key={team.team_id}
-                  onClick={() => handleRowClick(team.team_id)}
-                  sx={{
-                    backgroundColor: isExcluded ? "#ffe6e6" : "inherit",
-                    cursor: "pointer",
-                  }}
-                >
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    <Box display="flex" alignItems="center">
-                      <img
-                        src={team.teams.logo_url}
-                        alt={team.teams.short_name}
-                        style={{ width: 30, height: 30, marginRight: 8 }}
-                      />
-                      {team.teams.short_name}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <span style={{ color: "goldenrod", fontWeight: "bold" }}>
-                      {team.atRiskPlayers.join(", ")}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span style={{ color: "red", fontWeight: "bold" }}>
-                      {team.suspendedPlayers.join(", ")}
-                    </span>
-                  </TableCell>
-                  <TableCell align="center">
-                    {isExcluded ? "-" : team.matches_played}
-                  </TableCell>
-                  <TableCell align="center">
-                    {isExcluded ? "-" : team.yellow_cards}
-                  </TableCell>
-                  <TableCell align="center">
-                    {isExcluded ? "-" : team.red_cards}
-                  </TableCell>
-                  <TableCell align="center">
-                    {isExcluded ? "-" : team.other_punishments}
-                  </TableCell>
-                  <TableCell align="center">
-                    {isExcluded ? "-" : team.calculated_points}
-                  </TableCell>
-                  <TableCell align="center">
-                    {isExcluded ? "-" : averagePoints}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        {/* No data message */}
+        {disciplineData.length === 0 && (
+          <Box
+            textAlign="center"
+            py={8}
+            sx={{
+              backgroundColor: theme.colors.background.card,
+              borderRadius: "20px",
+              border: `2px solid ${theme.colors.border.purple}`,
+            }}
+          >
+            <Shield
+              sx={{ fontSize: 80, color: theme.colors.neutral[400], mb: 2 }}
+            />
+            <Typography
+              variant="h5"
+              sx={{ color: theme.colors.text.secondary, fontWeight: "medium" }}
+            >
+              Nenhum dado disciplinar encontrado
+            </Typography>
+          </Box>
+        )}
+      </Container>
 
-      {/* Popup (Modal) showing punishment events */}
+      {/* Punishment Details Modal */}
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{
-            p: 2,
-            bgcolor: "white",
-            borderRadius: 2,
-            maxWidth: 900,
-            margin: "auto",
-            mt: "10%",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: isMobile ? "95%" : "90%",
+            maxWidth: 1000,
+            maxHeight: "90vh",
+            backgroundColor: theme.colors.background.card,
+            borderRadius: "20px",
+            boxShadow: 24,
+            overflow: "hidden",
           }}
         >
-          <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
-            Castigos para a equipa{" "}
-            {currentTeam?.teams.short_name || currentTeamId}
-          </Typography>
+          {/* Modal Header */}
+          <Box
+            sx={{
+              background: theme.colors.themed.purpleGradient,
+              color: "white",
+              padding: 3,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Box display="flex" alignItems="center" gap={2}>
+              <Gavel sx={{ fontSize: 28 }} />
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                  Detalhes Disciplinares
+                </Typography>
+                <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                  {currentTeam?.teams.short_name}
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton onClick={handleClose} sx={{ color: "white" }}>
+              <Close />
+            </IconButton>
+          </Box>
 
-          <TableContainer>
-            <Table size="medium">
-              <TableHead>
-                <TableRow>
-                  {/* "Data" column */}
-                  <TableCell
-                    sx={{
-                      width: "10%",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Data
-                  </TableCell>
-
-                  {/* "Tipo de Castigo" column */}
-                  <TableCell
-                    sx={{
-                      width: "15%",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Tipo de Castigo
-                  </TableCell>
-
-                  {/* "Descrição" column (allow wrapping if you want) */}
-                  <TableCell
-                    sx={{
-                      width: "40%",
-                    }}
-                  >
-                    Descrição
-                  </TableCell>
-
-                  {/* "Jogador" column */}
-                  <TableCell
-                    sx={{
-                      width: "15%",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Jogador
-                  </TableCell>
-
-                  {/* "ID do Jogo" column */}
-                  <TableCell
-                    sx={{
-                      width: "10%",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    ID do Jogo
-                  </TableCell>
-
-                  {/* "Quantidade" column */}
-                  <TableCell
-                    sx={{
-                      width: "5%",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Quantidade
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {punishmentEvents.map((event) => (
-                  <TableRow key={event.team_punishment_id}>
-                    <TableCell>
-                      {event.event_date
-                        ? new Date(event.event_date).toLocaleDateString()
-                        : "-"}
-                    </TableCell>
-                    <TableCell sx={{ whiteSpace: "nowrap" }}>
-                      {event.punishment_type?.description || "-"}
-                    </TableCell>
-                    <TableCell>{event.description || "-"}</TableCell>
-                    <TableCell sx={{ whiteSpace: "nowrap" }}>
-                      {event.player?.name || "-"}
-                    </TableCell>
-                    <TableCell>{event.match_id || "-"}</TableCell>
-                    <TableCell>{event.quantity ?? "-"}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          <Button onClick={handleClose} sx={{ mt: 2 }} variant="contained">
-            Fechar
-          </Button>
+          {/* Modal Content */}
+          <Box
+            sx={{
+              padding: 3,
+              maxHeight: "calc(90vh - 120px)",
+              overflow: "auto",
+            }}
+          >
+            {punishmentEvents.length > 0 ? (
+              <TableContainer component={Paper} sx={{ borderRadius: "12px" }}>
+                <Table>
+                  <TableHead>
+                    <TableRow
+                      sx={{ backgroundColor: theme.colors.primary[50] }}
+                    >
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          color: theme.colors.primary[600],
+                        }}
+                      >
+                        <DateRange sx={{ verticalAlign: "middle", mr: 1 }} />
+                        Data
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          color: theme.colors.primary[600],
+                        }}
+                      >
+                        <Gavel sx={{ verticalAlign: "middle", mr: 1 }} />
+                        Tipo
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          color: theme.colors.primary[600],
+                        }}
+                      >
+                        <Info sx={{ verticalAlign: "middle", mr: 1 }} />
+                        Descrição
+                      </TableCell>
+                      {!isMobile && (
+                        <TableCell
+                          sx={{
+                            fontWeight: "bold",
+                            color: theme.colors.primary[600],
+                          }}
+                        >
+                          <Person sx={{ verticalAlign: "middle", mr: 1 }} />
+                          Jogador
+                        </TableCell>
+                      )}
+                      <TableCell
+                        sx={{
+                          fontWeight: "bold",
+                          color: theme.colors.primary[600],
+                        }}
+                        align="center"
+                      >
+                        Qtd
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {punishmentEvents.map((event) => (
+                      <TableRow
+                        key={event.team_punishment_id}
+                        sx={{
+                          "&:nth-of-type(odd)": {
+                            backgroundColor: theme.colors.background.secondary,
+                          },
+                          "&:hover": {
+                            backgroundColor: theme.colors.primary[50],
+                          },
+                        }}
+                      >
+                        <TableCell>
+                          {event.event_date
+                            ? new Date(event.event_date).toLocaleDateString(
+                                "pt-PT"
+                              )
+                            : "-"}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={event.punishment_type?.description || "-"}
+                            size="small"
+                            sx={{
+                              backgroundColor: theme.colors.sports.draw,
+                              color: "white",
+                              fontWeight: "bold",
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ maxWidth: isMobile ? 150 : 300 }}>
+                          {event.description || "-"}
+                        </TableCell>
+                        {!isMobile && (
+                          <TableCell>{event.player?.name || "-"}</TableCell>
+                        )}
+                        <TableCell align="center">
+                          <Chip
+                            label={event.quantity ?? "-"}
+                            size="small"
+                            sx={{
+                              backgroundColor: theme.colors.primary[600],
+                              color: "white",
+                              fontWeight: "bold",
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box textAlign="center" py={6}>
+                <Shield
+                  sx={{ fontSize: 60, color: theme.colors.neutral[400], mb: 2 }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{ color: theme.colors.text.secondary }}
+                >
+                  Nenhum evento disciplinar registado
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.colors.text.tertiary, mt: 1 }}
+                >
+                  Esta equipa não possui castigos registados
+                </Typography>
+              </Box>
+            )}
+          </Box>
         </Box>
       </Modal>
     </Box>

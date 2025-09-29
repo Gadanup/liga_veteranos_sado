@@ -1,67 +1,419 @@
-import React from 'react';
-import { Typography, Box } from '@mui/material';
+import React from "react";
+import {
+  Typography,
+  Box,
+  Container,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Divider,
+} from "@mui/material";
+import {
+  EmojiEvents,
+  SportsSoccer,
+  Timeline,
+  Assignment,
+  Info,
+  CheckCircle,
+  Casino,
+  Stadium,
+  Groups,
+  Schedule,
+} from "@mui/icons-material";
+import { theme } from "../../../styles/theme.js";
 
 export default function Sorteio() {
+  const championshipNotes = [
+    {
+      icon: <Groups />,
+      text: "Campeonato com 15 equipas participantes",
+    },
+    {
+      icon: <SportsSoccer />,
+      text: "Cada equipa joga contra todas as restantes duas vezes (uma casa e outra fora)",
+    },
+    {
+      icon: <Timeline />,
+      text: "Campeonato em formato liga regular",
+    },
+  ];
+
+  const drawMethodology = [
+    {
+      step: 1,
+      title: "Sorteio das Equipas do Pinhal Novo",
+      description: "Primeiro serão sorteadas equipas a jogar no Pinhal Novo",
+      detail:
+        "Estas equipas terão de ser sorteadas com a condicionante de serem alocadas aos lugares: 1, 2, 5, 7, 9, 11",
+      icon: <Stadium />,
+      color: theme.colors.primary[500],
+    },
+    {
+      step: 2,
+      title: "Sorteio da Equipa dos Amarelos",
+      description: "Segundo será sorteada a equipa dos amarelos",
+      detail:
+        "Com a condicionante de ser colocada num dos lugares: 3, 4, 6, 12",
+      icon: <Casino />,
+      color: theme.colors.accent[500],
+    },
+  ];
+
   return (
-    <Box 
-      sx={{ 
-        p: 4, 
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: theme.colors.background.secondary,
       }}
     >
-      {/* Header */}
-      <Typography 
-        variant="h4" 
-        sx={{ 
-          color: '#6B4BA1', 
-          mb: { xs: 2, md: 3 }, 
-          fontSize: { xs: '1.8rem', sm: '2.2rem' } 
-        }}
-      >
-        Sorteio do Campeonato
-      </Typography>
-
-      {/* Notes Section */}
-      <Box 
-        sx={{ 
-          mb: 4, 
-          width: '100%' 
-        }}
-      >
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            color: '#6B4BA1', 
-            fontSize: { xs: '1.2rem', sm: '1.5rem' }, 
-            mb: 2 
+      <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
+        {/* Header Section */}
+        <Card
+          sx={{
+            background: theme.colors.themed.purpleGradient,
+            color: "white",
+            mb: 4,
+            borderRadius: "20px",
+            overflow: "hidden",
           }}
         >
-          Notas
-        </Typography>
-        <Typography sx={{ mb: 1 }}>Campeonato com 15 equipas.</Typography>
-        <Typography sx={{ mb: 1 }}>Cada equipa joga contra todas as restantes duas vezes (uma casa e outra fora).</Typography>
-        <Typography>Campeonato em formato liga regular.</Typography>
-      </Box>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Box textAlign="center">
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                gap={2}
+                mb={3}
+              >
+                <EmojiEvents
+                  sx={{
+                    fontSize: { xs: 40, md: 50 },
+                    color: theme.colors.accent[500],
+                  }}
+                />
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: "bold",
+                    textAlign: "center",
+                    fontSize: { xs: "2rem", md: "3rem" },
+                  }}
+                >
+                  Sorteio do Campeonato
+                </Typography>
+              </Box>
 
-      {/* Methodology Section */}
-      <Box sx={{ width: '100%' }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            color: '#6B4BA1', 
-            fontSize: { xs: '1.2rem', sm: '1.5rem' }, 
-            mb: 2 
+              <Chip
+                icon={<Info />}
+                label="Liga Veteranos do Sado 2024/25"
+                sx={{
+                  backgroundColor: theme.colors.accent[500],
+                  color: theme.colors.neutral[900],
+                  fontWeight: "bold",
+                  fontSize: { xs: "14px", md: "16px" },
+                  py: 2,
+                }}
+              />
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Grid container spacing={4}>
+          {/* Championship Information Card */}
+          <Grid item xs={12} lg={6}>
+            <Card
+              sx={{
+                borderRadius: "16px",
+                height: "100%",
+                border: `2px solid ${theme.colors.primary[100]}`,
+                transition: theme.transitions.normal,
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: theme.shadows.lg,
+                  borderColor: theme.colors.primary[300],
+                },
+              }}
+            >
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Box display="flex" alignItems="center" gap={2} mb={3}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: "12px",
+                      backgroundColor: theme.colors.primary[50],
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Assignment
+                      sx={{
+                        fontSize: 32,
+                        color: theme.colors.primary[600],
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      color: theme.colors.primary[600],
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Informações do Campeonato
+                  </Typography>
+                </Box>
+
+                <List sx={{ py: 0 }}>
+                  {championshipNotes.map((note, index) => (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        px: 0,
+                        py: 2,
+                        borderRadius: "12px",
+                        mb: 1,
+                        backgroundColor:
+                          index % 2 === 0
+                            ? theme.colors.background.tertiary
+                            : "transparent",
+                        transition: theme.transitions.normal,
+                        "&:hover": {
+                          backgroundColor: theme.colors.primary[50],
+                          transform: "translateX(8px)",
+                        },
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 48,
+                          color: theme.colors.primary[600],
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            p: 1,
+                            borderRadius: "8px",
+                            backgroundColor: theme.colors.primary[100],
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {note.icon}
+                        </Box>
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={note.text}
+                        primaryTypographyProps={{
+                          variant: "body1",
+                          sx: {
+                            color: theme.colors.text.primary,
+                            fontWeight: "medium",
+                            lineHeight: 1.6,
+                          },
+                        }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Draw Methodology Card */}
+          <Grid item xs={12} lg={6}>
+            <Card
+              sx={{
+                borderRadius: "16px",
+                height: "100%",
+                border: `2px solid ${theme.colors.accent[100]}`,
+                transition: theme.transitions.normal,
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: theme.shadows.lg,
+                  borderColor: theme.colors.accent[300],
+                },
+              }}
+            >
+              <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                <Box display="flex" alignItems="center" gap={2} mb={3}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: "12px",
+                      backgroundColor: theme.colors.accent[50],
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Casino
+                      sx={{
+                        fontSize: 32,
+                        color: theme.colors.accent[600],
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      color: theme.colors.accent[600],
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Metodologia do Sorteio
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  {drawMethodology.map((methodology, index) => (
+                    <Paper
+                      key={index}
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        borderRadius: "16px",
+                        backgroundColor: theme.colors.background.tertiary,
+                        border: `2px solid ${methodology.color}20`,
+                        transition: theme.transitions.normal,
+                        "&:hover": {
+                          backgroundColor: `${methodology.color}10`,
+                          transform: "scale(1.02)",
+                          borderColor: `${methodology.color}40`,
+                        },
+                      }}
+                    >
+                      <Box
+                        display="flex"
+                        alignItems="flex-start"
+                        gap={2}
+                        mb={2}
+                      >
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            backgroundColor: methodology.color,
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontWeight: "bold",
+                            fontSize: "18px",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {methodology.step}
+                        </Box>
+                        <Box flex={1}>
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              color: methodology.color,
+                              fontWeight: "bold",
+                              mb: 1,
+                            }}
+                          >
+                            {methodology.title}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              color: theme.colors.text.primary,
+                              mb: 1,
+                              lineHeight: 1.6,
+                            }}
+                          >
+                            {methodology.description}
+                          </Typography>
+                          <Box
+                            sx={{
+                              p: 2,
+                              borderRadius: "8px",
+                              backgroundColor: `${methodology.color}15`,
+                              border: `1px solid ${methodology.color}30`,
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: theme.colors.text.secondary,
+                                fontStyle: "italic",
+                                lineHeight: 1.5,
+                              }}
+                            >
+                              {methodology.detail}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Additional Information Footer */}
+        <Card
+          sx={{
+            mt: 4,
+            borderRadius: "16px",
+            background: `linear-gradient(135deg, ${theme.colors.neutral[50]} 0%, ${theme.colors.primary[50]} 100%)`,
+            border: `1px solid ${theme.colors.primary[200]}`,
           }}
         >
-          Metodologia do Sorteio
-        </Typography>
-        <Typography sx={{ mb: 1 }}>Primeiro serão sorteadas equipas a jogar no Pinhal Novo.</Typography>
-        <Typography sx={{ mb: 1 }}>
-          Estas equipas terão de ser sorteadas com a condicionante de serem alocadas aos lugares: 1, 2, 5, 7, 9, 11.
-        </Typography>
-        <Typography>
-          Segundo será sorteada a equipa dos amarelos com a condicionante de ser colocada num dos lugares: 3, 4, 6, 12.
-        </Typography>
-      </Box>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap={2}
+              flexDirection={{ xs: "column", md: "row" }}
+            >
+              <Schedule
+                sx={{
+                  fontSize: 32,
+                  color: theme.colors.primary[600],
+                }}
+              />
+              <Box textAlign={{ xs: "center", md: "left" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: theme.colors.primary[600],
+                    fontWeight: "bold",
+                    mb: 1,
+                  }}
+                >
+                  Formato de Competição
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: theme.colors.text.secondary,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  O campeonato segue o formato de liga regular com todas as
+                  equipas a jogarem entre si numa base home-and-away, garantindo
+                  uma competição justa e equilibrada ao longo da temporada.
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
     </Box>
   );
 }

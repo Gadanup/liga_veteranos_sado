@@ -15,10 +15,28 @@ import {
   Tab,
   Tabs,
   Divider,
+  Card,
+  CardContent,
+  Grid,
+  Chip,
+  Container,
+  CircularProgress,
 } from "@mui/material";
 import Image from "next/image";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
+import {
+  Stadium,
+  CalendarToday,
+  Groups,
+  SportsSoccer,
+  EmojiEvents,
+  Person,
+  Schedule,
+  Info,
+  AccessTime,
+} from "@mui/icons-material";
+import { theme } from "../../../styles/theme.js";
 
 const TeamPage = ({ params }) => {
   const { teamname } = params;
@@ -27,10 +45,12 @@ const TeamPage = ({ params }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [teamFixtures, setTeamFixtures] = useState([]);
   const [nextGame, setNextGame] = useState(null);
-  const router = useRouter(); // Initialize the router
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTeamData = async () => {
+      setLoading(true);
       const { data: team, error } = await supabase
         .from("teams")
         .select("*")
@@ -84,6 +104,7 @@ const TeamPage = ({ params }) => {
           setNextGame(nextGame);
         }
       }
+      setLoading(false);
     };
 
     fetchTeamData();
@@ -93,11 +114,13 @@ const TeamPage = ({ params }) => {
     setTabIndex(newValue);
   };
 
-  const determineMatchResult = (home_goals, away_goals) => {
+  const determineMatchResult = (home_goals, away_goals, isHomeTeam) => {
+    if (home_goals === null || away_goals === null) return "pending";
+    
     if (home_goals > away_goals) {
-      return "home_win";
+      return isHomeTeam ? "win" : "loss";
     } else if (home_goals < away_goals) {
-      return "away_win";
+      return isHomeTeam ? "loss" : "win";
     } else {
       return "draw";
     }
@@ -109,8 +132,7 @@ const TeamPage = ({ params }) => {
       Cup: "Taça",
       League: "Liga",
     };
-
-    return translations[competitionType] || competitionType; // Fallback to original if not found
+    return translations[competitionType] || competitionType;
   };
 
   const renderCompetitionDetails = (match) => {
@@ -119,331 +141,701 @@ const TeamPage = ({ params }) => {
     if (match.competition_type === "Supercup") {
       return competitionType;
     } else if (match.competition_type === "Cup") {
-      return `${competitionType} - ${match.round}`;
+      return `${competitionType} - Ronda ${match.round}`;
     } else if (match.competition_type === "League") {
       return `Jornada ${match.week}`;
     } else {
-      return competitionType; // Fallback for any other types
+      return competitionType;
     }
   };
 
-  // Styling for avatar border with diagonal color split
-  const avatarBorderStyle = {
-    borderRadius: "50%",
-    padding: "2px", // Inner padding for the gradient border
-    background: `conic-gradient(
-    from 45deg,
-    ${teamData?.main_color || "#c0c0c0"} 0deg,
-    ${teamData?.main_color || "#c0c0c0"} 180deg,
-    ${teamData?.alternative_color || teamData?.main_color || "#c0c0c0"} 180deg,
-    ${teamData?.alternative_color || teamData?.main_color || "#c0c0c0"} 360deg
-  )`,
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Shadow effect
+  const getResultColor = (result) => {
+    switch (result) {
+      case "win": return theme.colors.success[600];
+      case "loss": return theme.colors.error[600];
+      case "draw": return theme.colors.warning[600];
+      default: return theme.colors.text.secondary;
+    }
   };
 
+  const getResultBadge = (result) => {
+    switch (result) {
+      case "win": return "V";
+      case "loss": return "D";
+      case "draw": return "E";
+      default: return "-";
+    }
+  };
+
+  const LoadingSkeleton = () => (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="50vh"
+      flexDirection="column"
+      gap={3}
+      sx={{ backgroundColor: theme.colors.background.secondary }}
+    >
+      <SportsSoccer
+        sx={{
+          fontSize: 60,
+          color: theme.colors.primary[600],
+          animation: "spin 2s linear infinite",
+          "@keyframes spin": {
+            "0%": { transform: "rotate(0deg)" },
+            "100%": { transform: "rotate(360deg)" },
+          },
+        }}
+      />
+      <Typography variant="h6" sx={{ color: theme.colors.text.secondary }}>
+        A carregar informações da equipa...
+      </Typography>
+    </Box>
+  );
+
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (!teamData) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h6" sx={{ color: theme.colors.text.secondary }}>
+          Equipa não encontrada
+        </Typography>
+      </Container>
+    );
+  }
+
   return (
-    <Box sx={{ p: 4 }}>
-      {teamData && (
-        <>
-          <Paper sx={{ p: 3, mb: 3 }}>
-            <Box display="flex" gap={3} justifyContent="space-between">
-              <Box display="flex" alignItems="center" gap={3}>
-                <Image
-                  src={teamData.logo_url}
-                  alt={`${teamData.name} Logo`}
-                  width={100}
-                  height={100}
-                />
-                <Box>
-                  <Typography variant="h4">{teamData.name}</Typography>
-                  <Typography variant="body1">
-                    Campo: {teamData.stadium_name}
-                  </Typography>
-                  <Typography variant="body2">
-                    Fundado: {new Date(teamData.founded).toLocaleDateString()}
-                  </Typography>
-                </Box>
-              </Box>
-              <Box>
-                <Image
-                  src={teamData.roster_url}
-                  alt={`${teamData.name} Roster`}
-                  width={300}
-                  height={300}
-                  sx={{ borderRadius: 1 }}
-                />
-              </Box>
-            </Box>
-            <Divider sx={{ my: 2 }} />
-            <Box display="flex" justifyContent="space-between">
-              <Box>
-                <Typography variant="body2">
-                  Equipamento Principal: {teamData.main_jersey}
-                </Typography>
-                <Typography variant="body2">
-                  Equipamento Secundário: {teamData.alternative_jersey}
-                </Typography>
-              </Box>
-              {nextGame && (
-                <Box>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: theme.colors.background.secondary,
+        padding: theme.spacing.lg,
+      }}
+    >
+      <Container maxWidth="lg">
+        {/* Team Header Card */}
+        <Card
+          sx={{
+            background: theme.colors.themed.purpleGradient,
+            color: "white",
+            mb: 4,
+            borderRadius: theme.borderRadius.xl,
+            overflow: "hidden",
+          }}
+        >
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Grid container spacing={3} alignItems="center">
+              {/* Team Logo and Info */}
+              <Grid item xs={12} md={8}>
+                <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
                   <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="flex-end"
+                    sx={{
+                      width: { xs: 80, md: 120 },
+                      height: { xs: 80, md: 120 },
+                      borderRadius: "50%",
+                      backgroundColor: "white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: `0 8px 32px ${theme.colors.neutral[900]}50`,
+                      border: `4px solid ${theme.colors.accent[500]}`,
+                      flexShrink: 0,
+                    }}
                   >
-                    <span style={{ fontWeight: "bold", marginRight: "10px" }}>
-                      {nextGame.home_team.short_name}
-                    </span>
-                    <img
-                      src={nextGame.home_team.logo_url}
-                      alt={nextGame.home_team.short_name}
-                      style={{ width: "30px", marginRight: "10px" }}
+                    <Image
+                      src={teamData.logo_url}
+                      alt={`${teamData.name} Logo`}
+                      width={80}
+                      height={80}
+                      style={{ objectFit: "contain" }}
                     />
-                    <Typography variant="body2" sx={{ marginRight: "10px" }}>
-                      VS
-                    </Typography>
-                    <img
-                      src={nextGame.away_team.logo_url}
-                      alt={nextGame.away_team.short_name}
-                      style={{ width: "30px", marginRight: "10px" }}
-                    />
-                    <span style={{ fontWeight: "bold" }}>
-                      {nextGame.away_team.short_name}
-                    </span>
                   </Box>
-                  <Box textAlign="center">
-                    <Typography variant="body2">
-                      {nextGame.match_date
-                        ? dayjs(nextGame.match_date).format("DD/MM/YYYY")
-                        : "Data a definir"}{" "}
-                      - {nextGame.home_team.stadium_name}
+                  
+                  <Box flex={1} minWidth={0}>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: theme.typography.fontWeight.bold,
+                        mb: 1,
+                        fontSize: { xs: "1.75rem", md: "2.125rem" },
+                      }}
+                    >
+                      {teamData.name}
                     </Typography>
+                    
+                    <Box display="flex" alignItems="center" gap={1} mb={1}>
+                      <Stadium sx={{ fontSize: 20 }} />
+                      <Typography variant="body1">
+                        {teamData.stadium_name}
+                      </Typography>
+                    </Box>
+                    
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <CalendarToday sx={{ fontSize: 20 }} />
+                      <Typography variant="body1">
+                        Fundado: {new Date(teamData.founded).toLocaleDateString()}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
-              )}
-            </Box>
-          </Paper>
+              </Grid>
 
-          <Tabs
-            value={tabIndex}
-            onChange={handleTabChange}
-            sx={{ marginBottom: 2 }}
-          >
-            <Tab label="Calendário" />
-            <Tab label="Plantel" />
-          </Tabs>
-
-          {tabIndex === 0 && (
-            <Box sx={{ marginTop: 2 }}>
-              <TableContainer>
-                <Table>
-                  <TableBody>
-                    {teamFixtures.map((match, index) => {
-                      const matchResult = determineMatchResult(
-                        match.home_goals,
-                        match.away_goals
-                      );
-                      return (
-                        <TableRow
-                          onClick={() => router.push(`/Jogos/${match.id}`)} // Navigate to Match day Page on click
-                          key={match.id}
-                          sx={{
-                            cursor: "pointer",
-                            borderBottom: "none",
-                            backgroundColor:
-                              index % 2 !== 0
-                                ? "rgba(165, 132, 224, 0.1)"
-                                : "inherit",
-                            "&:hover": {
-                              backgroundColor: "rgba(165, 132, 224, 0.2)",
-                            },
-                          }}
-                        >
-                          <TableCell>
-                            {match.match_date
-                              ? dayjs(match.match_date).format("DD/MM/YYYY")
-                              : "Data a definir"}
-                            {match.match_time && (
-                              <Typography variant="body2">
-                                {match.match_time}
-                              </Typography>
-                            )}
-                          </TableCell>
-
-                          <TableCell>
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="flex-end"
-                            >
-                              <span
-                                style={{
-                                  fontWeight:
-                                    matchResult === "home_win"
-                                      ? "bold"
-                                      : "normal",
-                                  color:
-                                    matchResult === "home_win"
-                                      ? "green"
-                                      : "inherit",
-                                }}
-                              >
-                                {match.home_team.short_name}
-                              </span>
-                              <img
-                                src={match.home_team.logo_url}
-                                alt={match.home_team.short_name}
-                                style={{ width: "30px", marginLeft: "10px" }}
-                              />
-                            </Box>
-                          </TableCell>
-                          <TableCell
-                            style={{
-                              borderBottom: "none",
-                              textAlign: "center",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {match.home_goals !== null &&
-                            match.away_goals !== null ? (
-                              <span
-                                style={{
-                                  color:
-                                    matchResult === "draw"
-                                      ? "gray"
-                                      : matchResult === "home_win"
-                                        ? "green"
-                                        : "red",
-                                }}
-                              >
-                                {match.home_goals} - {match.away_goals}
-                              </span>
-                            ) : (
-                              <Typography
-                                sx={{ fontWeight: "bold" }}
-                                color="textSecondary"
-                              >
-                                VS
-                              </Typography>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Box display="flex" alignItems="center">
-                              {match.away_team && match.away_team.logo_url && (
-                                <img
-                                  src={match.away_team.logo_url}
-                                  alt={match.away_team.short_name}
-                                  style={{ width: "30px", marginRight: "10px" }}
-                                />
-                              )}
-                              <span
-                                style={{
-                                  fontWeight:
-                                    matchResult === "away_win"
-                                      ? "bold"
-                                      : "normal",
-                                  color:
-                                    matchResult === "away_win"
-                                      ? "green"
-                                      : "inherit",
-                                }}
-                              >
-                                {match.away_team?.short_name}
-                              </span>
-                            </Box>
-                          </TableCell>
-
-                          <TableCell>{match.home_team.stadium_name}</TableCell>
-                          <TableCell>
-                            {renderCompetitionDetails(match)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
-          )}
-
-          {tabIndex === 1 && (
-            <Box>
-              {/* Treinador Section */}
-              <Box sx={{ marginBottom: 2 }}>
-                <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
-                  Treinador
-                </Typography>
+              {/* Team Roster Image */}
+              <Grid item xs={12} md={4}>
                 <Box
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginTop: 1,
-                    marginBottom: 2,
+                    position: "relative",
+                    borderRadius: theme.borderRadius.xl,
+                    overflow: "hidden",
+                    boxShadow: theme.shadows.xl,
                   }}
                 >
-                  <Box sx={{ ...avatarBorderStyle }}>
-                    <Avatar
-                      alt={teamData?.manager_name}
-                      src={teamData?.manager_photo_url}
+                  <Image
+                    src={teamData.roster_url}
+                    alt={`${teamData.name} Roster`}
+                    width={300}
+                    height={200}
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      objectFit: "cover",
+                    }}
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+
+        {/* Team Info Cards */}
+        <Grid container spacing={3} mb={4}>
+          {/* Jersey Info */}
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                borderRadius: theme.borderRadius.xl,
+                border: `2px solid ${theme.colors.primary[100]}`,
+                height: "100%",
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Box display="flex" alignItems="center" gap={2} mb={3}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: theme.borderRadius.lg,
+                      backgroundColor: theme.colors.primary[50],
+                    }}
+                  >
+                    <SportsSoccer
                       sx={{
-                        width: 70,
-                        height: 70,
-                        border: "1px solid transparent",
+                        fontSize: 28,
+                        color: theme.colors.primary[600],
                       }}
                     />
                   </Box>
-                  <Typography sx={{ marginLeft: 1 }} variant="body1">
-                    {teamData?.manager_name}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* Jogadores Section */}
-              <Typography variant="h6" sx={{ color: "#6B4BA1" }}>
-                Jogadores
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",
-                    sm: "1fr 1fr 1fr",
-                    lg: "1fr 1fr 1fr 1fr",
-                  },
-                  gap: 1,
-                }}
-              >
-                {players.map((player) => (
-                  <Box
-                    key={player.name}
+                  <Typography
+                    variant="h6"
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      margin: "5px 0",
-                      width: "100%",
+                      fontWeight: theme.typography.fontWeight.bold,
+                      color: theme.colors.primary[600],
                     }}
                   >
-                    <Box sx={{ ...avatarBorderStyle }}>
-                      <Avatar
-                        alt={player.name}
-                        src={player.photo_url}
-                        sx={{
-                          width: 70,
-                          height: 70,
-                          border: "1px solid transparent",
-                        }}
-                      />
-                    </Box>
-                    <Typography variant="body1" sx={{ marginLeft: 1 }}>
-                      {player.name}
-                    </Typography>
+                    Equipamentos
+                  </Typography>
+                </Box>
+                
+                <Box mb={2}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontWeight: theme.typography.fontWeight.semibold,
+                      mb: 1,
+                    }}
+                  >
+                    Principal
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+                    {teamData.main_jersey}
+                  </Typography>
+                </Box>
+                
+                <Box>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontWeight: theme.typography.fontWeight.semibold,
+                      mb: 1,
+                    }}
+                  >
+                    Alternativo
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+                    {teamData.alternative_jersey}
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Next Game */}
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                borderRadius: theme.borderRadius.xl,
+                border: `2px solid ${theme.colors.accent[100]}`,
+                height: "100%",
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
+                <Box display="flex" alignItems="center" gap={2} mb={3}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: theme.borderRadius.lg,
+                      backgroundColor: theme.colors.accent[50],
+                    }}
+                  >
+                    <Schedule
+                      sx={{
+                        fontSize: 28,
+                        color: theme.colors.accent[600],
+                      }}
+                    />
                   </Box>
-                ))}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: theme.typography.fontWeight.bold,
+                      color: theme.colors.accent[600],
+                    }}
+                  >
+                    Próximo Jogo
+                  </Typography>
+                </Box>
+
+                {nextGame ? (
+                  <Box>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      gap={2}
+                      mb={2}
+                    >
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                          src={nextGame.home_team.logo_url}
+                          alt={nextGame.home_team.short_name}
+                          style={{ width: "32px", height: "32px", objectFit: "contain" }}
+                        />
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: theme.typography.fontWeight.semibold }}
+                        >
+                          {nextGame.home_team.short_name}
+                        </Typography>
+                      </Box>
+                      
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          color: theme.colors.text.secondary,
+                          fontWeight: theme.typography.fontWeight.bold,
+                        }}
+                      >
+                        VS
+                      </Typography>
+                      
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <img
+                          src={nextGame.away_team.logo_url}
+                          alt={nextGame.away_team.short_name}
+                          style={{ width: "32px", height: "32px", objectFit: "contain" }}
+                        />
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: theme.typography.fontWeight.semibold }}
+                        >
+                          {nextGame.away_team.short_name}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Box textAlign="center">
+                      <Typography
+                        variant="body2"
+                        sx={{ color: theme.colors.text.secondary }}
+                      >
+                        {nextGame.match_date
+                          ? dayjs(nextGame.match_date).format("DD/MM/YYYY")
+                          : "Data a definir"}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: theme.colors.text.secondary }}
+                      >
+                        {nextGame.home_team.stadium_name}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: theme.colors.text.secondary,
+                      textAlign: "center",
+                      py: 2,
+                    }}
+                  >
+                    Nenhum jogo agendado
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Tabs Section */}
+        <Card
+          sx={{
+            borderRadius: theme.borderRadius.xl,
+            overflow: "hidden",
+            border: `2px solid ${theme.colors.border.primary}`,
+          }}
+        >
+          <Box
+            sx={{
+              borderBottom: `1px solid ${theme.colors.border.primary}`,
+              backgroundColor: theme.colors.background.tertiary,
+            }}
+          >
+            <Tabs
+              value={tabIndex}
+              onChange={handleTabChange}
+              sx={{
+                "& .MuiTab-root": {
+                  fontWeight: theme.typography.fontWeight.semibold,
+                  fontSize: theme.typography.fontSize.base,
+                  color: theme.colors.text.secondary,
+                  "&.Mui-selected": {
+                    color: theme.colors.primary[600],
+                  },
+                },
+                "& .MuiTabs-indicator": {
+                  backgroundColor: theme.colors.primary[600],
+                  height: 3,
+                },
+              }}
+            >
+              <Tab
+                icon={<CalendarToday />}
+                iconPosition="start"
+                label="Calendário"
+              />
+              <Tab
+                icon={<Groups />}
+                iconPosition="start"
+                label="Plantel"
+              />
+            </Tabs>
+          </Box>
+
+          <CardContent sx={{ p: 0 }}>
+            {/* Calendar Tab */}
+            {tabIndex === 0 && (
+              <Box>
+                <TableContainer>
+                  <Table>
+                    <TableBody>
+                      {teamFixtures.map((match, index) => {
+                        const isHomeTeam = match.home_team.short_name === teamData.short_name;
+                        const result = determineMatchResult(
+                          match.home_goals,
+                          match.away_goals,
+                          isHomeTeam
+                        );
+                        
+                        return (
+                          <TableRow
+                            onClick={() => router.push(`/Jogos/${match.id}`)}
+                            key={match.id}
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: index % 2 === 0
+                                ? theme.colors.background.card
+                                : theme.colors.background.tertiary,
+                              "&:hover": {
+                                backgroundColor: theme.colors.primary[50],
+                              },
+                              transition: theme.transitions.normal,
+                            }}
+                          >
+                            {/* Date & Time */}
+                            <TableCell sx={{ py: 2 }}>
+                              <Box>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ fontWeight: theme.typography.fontWeight.semibold }}
+                                >
+                                  {match.match_date
+                                    ? dayjs(match.match_date).format("DD/MM/YYYY")
+                                    : "Data a definir"}
+                                </Typography>
+                                {match.match_time && (
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: theme.colors.text.secondary }}
+                                  >
+                                    {match.match_time}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </TableCell>
+
+                            {/* Home Team */}
+                            <TableCell sx={{ py: 2 }}>
+                              <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: isHomeTeam && result === "win"
+                                      ? theme.typography.fontWeight.bold
+                                      : theme.typography.fontWeight.medium,
+                                  }}
+                                >
+                                  {match.home_team.short_name}
+                                </Typography>
+                                <img
+                                  src={match.home_team.logo_url}
+                                  alt={match.home_team.short_name}
+                                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                                />
+                              </Box>
+                            </TableCell>
+
+                            {/* Score */}
+                            <TableCell sx={{ py: 2, textAlign: "center" }}>
+                              {match.home_goals !== null && match.away_goals !== null ? (
+                                <Box display="flex" alignItems="center" gap={1} justifyContent="center">
+                                  <Chip
+                                    label={getResultBadge(result)}
+                                    size="small"
+                                    sx={{
+                                      backgroundColor: getResultColor(result),
+                                      color: "white",
+                                      fontWeight: theme.typography.fontWeight.bold,
+                                      minWidth: "24px",
+                                    }}
+                                  />
+                                  <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: theme.typography.fontWeight.bold }}
+                                  >
+                                    {match.home_goals} - {match.away_goals}
+                                  </Typography>
+                                </Box>
+                              ) : (
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: theme.typography.fontWeight.bold,
+                                    color: theme.colors.text.secondary,
+                                  }}
+                                >
+                                  VS
+                                </Typography>
+                              )}
+                            </TableCell>
+
+                            {/* Away Team */}
+                            <TableCell sx={{ py: 2 }}>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <img
+                                  src={match.away_team.logo_url}
+                                  alt={match.away_team.short_name}
+                                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  sx={{
+                                    fontWeight: !isHomeTeam && result === "win"
+                                      ? theme.typography.fontWeight.bold
+                                      : theme.typography.fontWeight.medium,
+                                  }}
+                                >
+                                  {match.away_team.short_name}
+                                </Typography>
+                              </Box>
+                            </TableCell>
+
+                            {/* Stadium */}
+                            <TableCell sx={{ py: 2, display: { xs: "none", md: "table-cell" } }}>
+                              <Typography
+                                variant="body2"
+                                sx={{ color: theme.colors.text.secondary }}
+                              >
+                                {match.home_team.stadium_name}
+                              </Typography>
+                            </TableCell>
+
+                            {/* Competition */}
+                            <TableCell sx={{ py: 2, display: { xs: "none", sm: "table-cell" } }}>
+                              <Chip
+                                label={renderCompetitionDetails(match)}
+                                size="small"
+                                sx={{
+                                  backgroundColor: theme.colors.secondary[100],
+                                  color: theme.colors.secondary[700],
+                                  fontSize: "0.75rem",
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Box>
-            </Box>
-          )}
-        </>
-      )}
+            )}
+
+            {/* Squad Tab */}
+            {tabIndex === 1 && (
+              <Box sx={{ p: { xs: 3, md: 4 } }}>
+                {/* Manager Section */}
+                {teamData.manager_name && (
+                  <Box mb={4}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: theme.colors.primary[600],
+                        fontWeight: theme.typography.fontWeight.bold,
+                        mb: 3,
+                      }}
+                    >
+                      Treinador
+                    </Typography>
+                    
+                    <Card
+                      sx={{
+                        borderRadius: theme.borderRadius.lg,
+                        border: `2px solid ${theme.colors.accent[200]}`,
+                        backgroundColor: theme.colors.accent[50],
+                      }}
+                    >
+                      <CardContent sx={{ p: 3 }}>
+                        <Box display="flex" alignItems="center" gap={3}>
+                          <Avatar
+                            alt={teamData.manager_name}
+                            src={teamData.manager_photo_url}
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              border: `3px solid ${theme.colors.accent[500]}`,
+                              boxShadow: theme.shadows.md,
+                            }}
+                          />
+                          <Box>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: theme.typography.fontWeight.bold,
+                                color: theme.colors.text.primary,
+                              }}
+                            >
+                              {teamData.manager_name}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: theme.colors.text.secondary }}
+                            >
+                              Treinador Principal
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Box>
+                )}
+
+                {/* Players Section */}
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: theme.colors.primary[600],
+                    fontWeight: theme.typography.fontWeight.bold,
+                    mb: 3,
+                  }}
+                >
+                  Jogadores ({players.length})
+                </Typography>
+                
+                <Grid container spacing={2}>
+                  {players.map((player) => (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={player.id}>
+                      <Card
+                        sx={{
+                          borderRadius: theme.borderRadius.lg,
+                          border: `1px solid ${theme.colors.border.primary}`,
+                          transition: theme.transitions.normal,
+                          "&:hover": {
+                            transform: "translateY(-2px)",
+                            boxShadow: theme.shadows.md,
+                            borderColor: theme.colors.primary[300],
+                          },
+                        }}
+                      >
+                        <CardContent sx={{ p: 2, textAlign: "center" }}>
+                          <Avatar
+                            alt={player.name}
+                            src={player.photo_url}
+                            sx={{
+                              width: 60,
+                              height: 60,
+                              margin: "0 auto",
+                              mb: 2,
+                              border: `2px solid ${theme.colors.primary[200]}`,
+                            }}
+                          />
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              fontWeight: theme.typography.fontWeight.semibold,
+                              color: theme.colors.text.primary,
+                              fontSize: "0.9rem",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {player.name}
+                            {player.joker && (
+                              <Chip
+                                label="JK"
+                                size="small"
+                                sx={{
+                                  ml: 1,
+                                  backgroundColor: theme.colors.accent[500],
+                                  color: "white",
+                                  fontSize: "0.7rem",
+                                  height: "20px",
+                                }}
+                              />
+                            )}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
+      </Container>
     </Box>
   );
 };
