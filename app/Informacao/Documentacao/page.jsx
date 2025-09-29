@@ -441,6 +441,7 @@ export default function Documentacao() {
                       <Paper
                         elevation={0}
                         sx={{
+                          textDecoration: "none",
                           borderRadius: theme.borderRadius.xl,
                           backgroundColor: theme.colors.background.tertiary,
                           border: `2px solid transparent`,
@@ -458,7 +459,6 @@ export default function Documentacao() {
                         href={doc.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        sx={{ textDecoration: "none" }}
                         onMouseEnter={() => setHoveredDocument(doc.id)}
                         onMouseLeave={() => setHoveredDocument(null)}
                       >
