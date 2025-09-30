@@ -27,37 +27,70 @@ import {
   Person,
   Groups,
 } from "@mui/icons-material";
-import { theme } from "../../../styles/theme.js"; // Adjust the import path
+import { theme } from "../../../styles/theme.js";
 
 const Goalscorers = () => {
   const [goalscorers, setGoalscorers] = useState([]);
   const [filteredGoalscorers, setFilteredGoalscorers] = useState([]);
+  const [seasons, setSeasons] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [teamFilter, setTeamFilter] = useState("");
   const [teams, setTeams] = useState([]);
-  const [viewMode, setViewMode] = useState("podium"); // 'podium' or 'list'
+  const [viewMode, setViewMode] = useState("podium");
 
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isTablet = useMediaQuery("(max-width: 1024px)");
 
+  // Fetch available seasons
+  const fetchSeasons = async () => {
+    const { data, error } = await supabase
+      .from("seasons")
+      .select("id, description, is_current")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching seasons:", error);
+    } else {
+      setSeasons(data);
+      // Set the current season as default
+      const currentSeason = data.find((s) => s.is_current);
+      if (currentSeason) {
+        setSelectedSeason(currentSeason.id);
+      } else if (data.length > 0) {
+        setSelectedSeason(data[0].id);
+      }
+    }
+  };
+
+  // Initial load
   useEffect(() => {
-    fetchGoalscorers();
+    fetchSeasons();
   }, []);
+
+  // Load goalscorers when season changes
+  useEffect(() => {
+    if (selectedSeason) {
+      fetchGoalscorers(selectedSeason);
+    }
+  }, [selectedSeason]);
 
   useEffect(() => {
     filterGoalscorers();
   }, [searchTerm, teamFilter, goalscorers]);
 
-  const fetchGoalscorers = async () => {
+  const fetchGoalscorers = async (seasonId) => {
+    if (!seasonId) return;
+
     setLoading(true);
 
-    // Fetch matches for League competition and season 2024
+    // Fetch matches for selected season
     const { data: matches, error: matchesError } = await supabase
       .from("matches")
       .select("id")
       .in("competition_type", ["League", "Cup"])
-      .eq("season", "2024");
+      .eq("season", seasonId);
 
     if (matchesError) {
       console.error("Error fetching matches:", matchesError);
@@ -108,6 +141,15 @@ const Goalscorers = () => {
 
     // Fetch player details along with team_id
     const playerIds = Object.keys(goalsCount);
+
+    if (playerIds.length === 0) {
+      setGoalscorers([]);
+      setFilteredGoalscorers([]);
+      setTeams([]);
+      setLoading(false);
+      return;
+    }
+
     const { data: players, error: playersError } = await supabase
       .from("players")
       .select("id, name, photo_url, team_id")
@@ -214,6 +256,7 @@ const Goalscorers = () => {
           "&::before": {
             content: '""',
             position: "absolute",
+            transition: "all 0.3s ease",
             top: 0,
             left: 0,
             right: 0,
@@ -335,7 +378,7 @@ const Goalscorers = () => {
           border: `2px solid ${theme.colors.border.purple}`,
           boxShadow: theme.components.card.shadow,
           transition: "all 0.3s ease",
-          height: "120px", // Fixed height for consistency
+          height: "120px",
           display: "flex",
           flexDirection: "column",
           "&:hover": {
@@ -362,11 +405,11 @@ const Goalscorers = () => {
             height: "100%",
             display: "flex",
             alignItems: "center",
-            "&:last-child": { paddingBottom: "16px" }, // Override MUI default
+            "&:last-child": { paddingBottom: "16px" },
           }}
         >
           <Box display="flex" alignItems="center" gap={2} width="100%">
-            {/* Ranking - Always use original rank */}
+            {/* Ranking */}
             <Typography
               variant="h6"
               sx={{
@@ -393,8 +436,6 @@ const Goalscorers = () => {
 
             {/* Player Info */}
             <Box flex={1} minWidth={0}>
-              {" "}
-              {/* minWidth: 0 allows text truncation */}
               <Typography
                 variant="body1"
                 sx={{
@@ -461,7 +502,7 @@ const Goalscorers = () => {
     );
   };
 
-  // Memoized filter section to prevent unnecessary re-renders
+  // Memoized filter section
   const FilterSection = React.useMemo(
     () => (
       <Box
@@ -609,7 +650,7 @@ const Goalscorers = () => {
     ]
   );
 
-  if (loading) {
+  if (loading && seasons.length === 0) {
     return (
       <Box
         display="flex"
@@ -638,6 +679,8 @@ const Goalscorers = () => {
     );
   }
 
+  const currentSeasonData = seasons.find((s) => s.id === selectedSeason);
+
   return (
     <Box
       sx={{
@@ -646,92 +689,134 @@ const Goalscorers = () => {
       }}
     >
       <Container maxWidth="lg">
-        {/* Header */}
-        <Box textAlign="center" mb={4}>
+        {/* Header with Title and Season Selector */}
+        <Box
+          display="flex"
+          flexDirection={isMobile ? "column" : "row"}
+          justifyContent="space-between"
+          alignItems={isMobile ? "center" : "flex-start"}
+          gap={2}
+          mb={4}
+        >
+          {/* Title Section */}
+          <Box flex={1} textAlign={isMobile ? "center" : "left"}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent={isMobile ? "center" : "flex-start"}
+              gap={2}
+              mb={1}
+            >
+              <EmojiEvents
+                sx={{ fontSize: 32, color: theme.colors.accent[500] }}
+              />
+              <Typography
+                variant="h4"
+                sx={{
+                  color: theme.colors.primary[600],
+                  fontWeight: "bold",
+                  fontSize: "32px",
+                }}
+              >
+                Marcadores
+              </Typography>
+            </Box>
+
+            {/* Yellow underline */}
+            <Box
+              sx={{
+                width: "60px",
+                height: "4px",
+                backgroundColor: theme.colors.accent[500],
+                margin: isMobile ? "0 auto" : "0",
+                borderRadius: "2px",
+              }}
+            />
+          </Box>
+
+          {/* Season Selector */}
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="center"
-            gap={2}
-            mb={2}
+            gap={1}
+            sx={{
+              backgroundColor: theme.colors.background.card,
+              padding: "8px 16px",
+              borderRadius: "12px",
+              boxShadow: theme.components.card.shadow,
+              border: `2px solid ${theme.colors.primary[200]}`,
+              minWidth: isMobile ? "auto" : "200px",
+            }}
           >
-            <EmojiEvents
-              sx={{ fontSize: 32, color: theme.colors.accent[500] }}
-            />
             <Typography
-              variant="h4"
+              variant="body2"
               sx={{
-                color: theme.colors.primary[600],
-                fontWeight: "bold",
-                fontSize: "32px",
+                fontSize: "14px",
+                fontWeight: "medium",
+                color: theme.colors.text.secondary,
+                whiteSpace: "nowrap",
               }}
             >
-              Marcadores
+              Época:
             </Typography>
+            <select
+              value={selectedSeason || ""}
+              onChange={(e) => setSelectedSeason(Number(e.target.value))}
+              style={{
+                padding: "4px 12px",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: theme.colors.primary[700],
+                backgroundColor: "transparent",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                outline: "none",
+                fontFamily: "inherit",
+              }}
+            >
+              {seasons.map((season) => (
+                <option key={season.id} value={season.id}>
+                  {season.description}
+                </option>
+              ))}
+            </select>
           </Box>
-
-          {/* Yellow underline */}
-          <Box
-            sx={{
-              width: "60px",
-              height: "4px",
-              backgroundColor: theme.colors.accent[500],
-              margin: "0 auto 20px auto",
-              borderRadius: "2px",
-            }}
-          />
         </Box>
 
         {/* Filter Section */}
         {FilterSection}
 
-        {/* Content */}
-        {/* Only show podium if we have the actual top 3 players and no filters are applied */}
-        {viewMode === "podium" &&
-        filteredGoalscorers.length >= 3 &&
-        !searchTerm.trim() &&
-        !teamFilter ? (
-          <>
-            {/* Top 3 Podium */}
-            <Grid container spacing={3} mb={6}>
-              {/* 1st Place */}
-              <Grid item xs={12} md={4}>
-                <PodiumCard player={filteredGoalscorers[0]} position={0} />
-              </Grid>
-              {/* 2nd Place */}
-              <Grid item xs={12} md={4}>
-                <PodiumCard player={filteredGoalscorers[1]} position={1} />
-              </Grid>
-              {/* 3rd Place */}
-              <Grid item xs={12} md={4}>
-                <PodiumCard player={filteredGoalscorers[2]} position={2} />
-              </Grid>
-            </Grid>
-
-            {/* Rest of the players */}
-            {filteredGoalscorers.length > 3 && (
-              <Grid container spacing={2}>
-                {filteredGoalscorers.slice(3).map((player, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={player.id}>
-                    <PlayerCard player={player} index={index} />
-                  </Grid>
-                ))}
-              </Grid>
-            )}
-          </>
-        ) : (
-          /* List View or Filtered Results */
-          <Grid container spacing={2}>
-            {filteredGoalscorers.map((player, index) => (
-              <Grid item xs={12} sm={6} md={4} key={player.id}>
-                <PlayerCard player={player} index={index} />
-              </Grid>
-            ))}
-          </Grid>
-        )}
-
-        {/* No results message */}
-        {filteredGoalscorers.length === 0 && (
+        {/* Loading or Content */}
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="40vh"
+            flexDirection="column"
+            gap={2}
+          >
+            <SportsSoccer
+              sx={{
+                fontSize: 60,
+                color: theme.colors.primary[600],
+                animation: "spin 2s linear infinite",
+                "@keyframes spin": {
+                  "0%": { transform: "rotate(0deg)" },
+                  "100%": { transform: "rotate(360deg)" },
+                },
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{ color: theme.colors.text.secondary }}
+            >
+              A carregar marcadores...
+            </Typography>
+          </Box>
+        ) : filteredGoalscorers.length === 0 ? (
+          /* No results message */
           <Box
             textAlign="center"
             py={8}
@@ -748,15 +833,62 @@ const Goalscorers = () => {
               variant="h5"
               sx={{ color: theme.colors.text.secondary, fontWeight: "medium" }}
             >
-              Nenhum jogador encontrado
+              {searchTerm || teamFilter
+                ? "Nenhum jogador encontrado"
+                : `Ainda não há marcadores para a época ${currentSeasonData?.description}`}
             </Typography>
             <Typography
               variant="body1"
               sx={{ color: theme.colors.text.tertiary, mt: 1 }}
             >
-              Tente ajustar os filtros de pesquisa
+              {searchTerm || teamFilter
+                ? "Tente ajustar os filtros de pesquisa"
+                : "Os golos aparecerão aqui assim que os jogos forem disputados"}
             </Typography>
           </Box>
+        ) : (
+          /* Content */
+          <>
+            {viewMode === "podium" &&
+            filteredGoalscorers.length >= 3 &&
+            !searchTerm.trim() &&
+            !teamFilter ? (
+              <>
+                {/* Top 3 Podium */}
+                <Grid container spacing={3} mb={6}>
+                  <Grid item xs={12} md={4}>
+                    <PodiumCard player={filteredGoalscorers[0]} position={0} />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <PodiumCard player={filteredGoalscorers[1]} position={1} />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <PodiumCard player={filteredGoalscorers[2]} position={2} />
+                  </Grid>
+                </Grid>
+
+                {/* Rest of the players */}
+                {filteredGoalscorers.length > 3 && (
+                  <Grid container spacing={2}>
+                    {filteredGoalscorers.slice(3).map((player, index) => (
+                      <Grid item xs={12} sm={6} md={4} key={player.id}>
+                        <PlayerCard player={player} index={index} />
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </>
+            ) : (
+              /* List View or Filtered Results */
+              <Grid container spacing={2}>
+                {filteredGoalscorers.map((player, index) => (
+                  <Grid item xs={12} sm={6} md={4} key={player.id}>
+                    <PlayerCard player={player} index={index} />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </>
         )}
       </Container>
     </Box>

@@ -21,10 +21,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Divider,
 } from "@mui/material";
 import {
@@ -38,14 +34,15 @@ import {
   Info,
   EmojiEvents,
 } from "@mui/icons-material";
-import { theme } from "../../../styles/theme.js"; // Adjust the import path
+import { theme } from "../../../styles/theme.js";
 
 const Discipline = () => {
   const [disciplineData, setDisciplineData] = useState([]);
   const [punishmentEvents, setPunishmentEvents] = useState([]);
+  const [seasons, setSeasons] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(null);
   const [open, setOpen] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState(null);
-  const [selectedSeason, setSelectedSeason] = useState("2024");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -55,9 +52,35 @@ const Discipline = () => {
     (team) => team.team_id === currentTeamId
   );
 
-  const readDiscipline = async () => {
+  // Fetch available seasons
+  const fetchSeasons = async () => {
+    const { data, error } = await supabase
+      .from("seasons")
+      .select("id, description, is_current")
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching seasons:", error);
+    } else {
+      setSeasons(data);
+      // Set the current season as default
+      const currentSeason = data.find((s) => s.is_current);
+      if (currentSeason) {
+        setSelectedSeason(currentSeason.id);
+      } else if (data.length > 0) {
+        setSelectedSeason(data[0].id);
+      }
+    }
+  };
+
+  const readDiscipline = async (seasonId) => {
+    if (!seasonId) return;
+
     setLoading(true);
-    const { data, error } = await supabase.from("discipline_standings").select(`
+    const { data, error } = await supabase
+      .from("discipline_standings")
+      .select(
+        `
         team_id,
         teams!discipline_standings_team_id_fkey (short_name, logo_url),
         matches_played,
@@ -65,8 +88,11 @@ const Discipline = () => {
         red_cards,
         calculated_points,
         other_punishments,
-        excluded
-      `);
+        excluded,
+        season
+      `
+      )
+      .eq("season", seasonId);
 
     if (error) {
       console.error("Error fetching discipline data:", error);
@@ -74,17 +100,19 @@ const Discipline = () => {
       return;
     }
 
-    // Fetch active suspensions
+    // Fetch active suspensions for the selected season
     const { data: suspensions, error: suspensionsError } = await supabase
       .from("suspensions")
       .select(
         `
         player_id,
         players (name, team_id),
-        active
+        active,
+        season
       `
       )
-      .eq("active", true);
+      .eq("active", true)
+      .eq("season", seasonId);
 
     if (suspensionsError) {
       console.error("Error fetching suspended players:", suspensionsError);
@@ -112,11 +140,25 @@ const Discipline = () => {
       return;
     }
 
-    // Fetch match events (to count yellow cards)
+    // Fetch match events for the selected season (to count yellow cards)
+    const { data: matches, error: matchesError } = await supabase
+      .from("matches")
+      .select("id")
+      .eq("season", seasonId);
+
+    if (matchesError) {
+      console.error("Error fetching matches:", matchesError);
+      setLoading(false);
+      return;
+    }
+
+    const matchIds = matches.map((m) => m.id);
+
     const { data: matchEvents, error: matchEventsError } = await supabase
       .from("match_events")
-      .select(`player_id, event_type`)
-      .eq("event_type", 2);
+      .select(`player_id, event_type, match_id`)
+      .eq("event_type", 2)
+      .in("match_id", matchIds);
 
     if (matchEventsError) {
       console.error("Error fetching match events:", matchEventsError);
@@ -208,7 +250,8 @@ const Discipline = () => {
         )
       `
       )
-      .eq("team_id", teamId);
+      .eq("team_id", teamId)
+      .eq("season", selectedSeason);
 
     if (error) {
       console.error("Error fetching punishment events:", error);
@@ -229,8 +272,16 @@ const Discipline = () => {
     setPunishmentEvents([]);
   };
 
+  // Initial load
   useEffect(() => {
-    readDiscipline();
+    fetchSeasons();
+  }, []);
+
+  // Load discipline data when season changes
+  useEffect(() => {
+    if (selectedSeason) {
+      readDiscipline(selectedSeason);
+    }
   }, [selectedSeason]);
 
   const getDisciplineColor = (position) => {
@@ -493,7 +544,7 @@ const Discipline = () => {
     );
   };
 
-  if (loading) {
+  if (loading && seasons.length === 0) {
     return (
       <Box
         display="flex"
@@ -523,6 +574,8 @@ const Discipline = () => {
     );
   }
 
+  const currentSeasonData = seasons.find((s) => s.id === selectedSeason);
+
   return (
     <Box
       sx={{
@@ -531,102 +584,129 @@ const Discipline = () => {
       }}
     >
       <Container maxWidth="lg">
-        {/* Header */}
-        <Box textAlign="center" mb={4}>
+        {/* Header with Title and Season Selector */}
+        <Box
+          display="flex"
+          flexDirection={isMobile ? "column" : "row"}
+          justifyContent="space-between"
+          alignItems={isMobile ? "center" : "flex-start"}
+          gap={2}
+          mb={4}
+        >
+          {/* Title Section */}
+          <Box flex={1} textAlign={isMobile ? "center" : "left"}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent={isMobile ? "center" : "flex-start"}
+              gap={2}
+              mb={1}
+            >
+              <Shield sx={{ fontSize: 32, color: theme.colors.accent[500] }} />
+              <Typography
+                variant="h4"
+                sx={{
+                  color: theme.colors.primary[600],
+                  fontWeight: "bold",
+                  fontSize: "32px",
+                }}
+              >
+                Disciplina
+              </Typography>
+            </Box>
+
+            {/* Yellow underline */}
+            <Box
+              sx={{
+                width: "60px",
+                height: "4px",
+                backgroundColor: theme.colors.accent[500],
+                margin: isMobile ? "0 auto" : "0",
+                borderRadius: "2px",
+              }}
+            />
+          </Box>
+
+          {/* Season Selector */}
           <Box
             display="flex"
             alignItems="center"
-            justifyContent="center"
-            gap={2}
-            mb={2}
+            gap={1}
+            sx={{
+              backgroundColor: theme.colors.background.card,
+              padding: "8px 16px",
+              borderRadius: "12px",
+              boxShadow: theme.components.card.shadow,
+              border: `2px solid ${theme.colors.primary[200]}`,
+              minWidth: isMobile ? "auto" : "200px",
+            }}
           >
-            <Shield sx={{ fontSize: 32, color: theme.colors.accent[500] }} />
             <Typography
-              variant="h4"
+              variant="body2"
               sx={{
-                color: theme.colors.primary[600],
-                fontWeight: "bold",
-                fontSize: "32px",
+                fontSize: "14px",
+                fontWeight: "medium",
+                color: theme.colors.text.secondary,
+                whiteSpace: "nowrap",
               }}
             >
-              Disciplina
+              Época:
+            </Typography>
+            <select
+              value={selectedSeason || ""}
+              onChange={(e) => setSelectedSeason(Number(e.target.value))}
+              style={{
+                padding: "4px 12px",
+                fontSize: "16px",
+                fontWeight: "600",
+                color: theme.colors.primary[700],
+                backgroundColor: "transparent",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                outline: "none",
+                fontFamily: "inherit",
+              }}
+            >
+              {seasons.map((season) => (
+                <option key={season.id} value={season.id}>
+                  {season.description}
+                </option>
+              ))}
+            </select>
+          </Box>
+        </Box>
+
+        {/* Loading or No Data */}
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="40vh"
+            flexDirection="column"
+            gap={2}
+          >
+            <Shield
+              sx={{
+                fontSize: 60,
+                color: theme.colors.primary[600],
+                animation: "pulse 2s infinite",
+                "@keyframes pulse": {
+                  "0%": { opacity: 1 },
+                  "50%": { opacity: 0.5 },
+                  "100%": { opacity: 1 },
+                },
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{ color: theme.colors.text.secondary }}
+            >
+              A carregar dados disciplinares...
             </Typography>
           </Box>
-
-          {/* Yellow underline */}
-          <Box
-            sx={{
-              width: "60px",
-              height: "4px",
-              backgroundColor: theme.colors.accent[500],
-              margin: "0 auto 20px auto",
-              borderRadius: "2px",
-            }}
-          />
-        </Box>
-
-        {/* Season Selector */}
-        <Box
-          display="flex"
-          justifyContent={isMobile ? "center" : "flex-end"}
-          mb={4}
-        >
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel sx={{ color: theme.colors.text.primary }}>
-              Temporada
-            </InputLabel>
-            <Select
-              value={selectedSeason}
-              onChange={(e) => setSelectedSeason(e.target.value)}
-              label="Temporada"
-              sx={{
-                backgroundColor: theme.colors.background.card,
-                borderRadius: "12px",
-                "& .MuiOutlinedInput-root": {
-                  "&:hover fieldset": {
-                    borderColor: theme.colors.accent[500],
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: theme.colors.primary[600],
-                  },
-                },
-              }}
-            >
-              <MenuItem value="2024">2024/2025</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
-        {/* Teams Grid */}
-        <Grid container spacing={3}>
-          {disciplineData.map((team, index) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              key={team.team_id}
-              sx={{
-                animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
-                "@keyframes fadeInUp": {
-                  "0%": {
-                    opacity: 0,
-                    transform: "translateY(20px)",
-                  },
-                  "100%": {
-                    opacity: 1,
-                    transform: "translateY(0)",
-                  },
-                },
-              }}
-            >
-              <TeamCard team={team} position={index + 1} />
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* No data message */}
-        {disciplineData.length === 0 && (
+        ) : disciplineData.length === 0 ? (
           <Box
             textAlign="center"
             py={8}
@@ -643,9 +723,38 @@ const Discipline = () => {
               variant="h5"
               sx={{ color: theme.colors.text.secondary, fontWeight: "medium" }}
             >
-              Nenhum dado disciplinar encontrado
+              Ainda não há dados disciplinares para a época{" "}
+              {currentSeasonData?.description}
             </Typography>
           </Box>
+        ) : (
+          /* Teams Grid */
+          <Grid container spacing={3}>
+            {disciplineData.map((team, index) => (
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={4}
+                key={team.team_id}
+                sx={{
+                  animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
+                  "@keyframes fadeInUp": {
+                    "0%": {
+                      opacity: 0,
+                      transform: "translateY(20px)",
+                    },
+                    "100%": {
+                      opacity: 1,
+                      transform: "translateY(0)",
+                    },
+                  },
+                }}
+              >
+                <TeamCard team={team} position={index + 1} />
+              </Grid>
+            ))}
+          </Grid>
         )}
       </Container>
 
