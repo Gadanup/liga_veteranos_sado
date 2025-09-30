@@ -1,6 +1,11 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
+import { useIsAdmin } from "../hooks/useIsAdmin";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
@@ -97,6 +102,13 @@ export default function Nav({ onDrawerToggle }) {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [modalOpen, setModalOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState(null);
+  const router = useRouter();
+  const { isAdmin, loading, user, logout } = useIsAdmin(false);
+
+  const handleLogout = () => {
+    logout();
+    setModalOpen(false);
+  };
 
   const handleDrawerToggle = () => {
     setOpen(!open);
@@ -145,14 +157,29 @@ export default function Nav({ onDrawerToggle }) {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ backgroundColor: "#6B4BA1" }}>
-        <Toolbar>
+      <AppBar
+        position="fixed"
+        sx={{
+          background:
+            "linear-gradient(135deg, #6B4BA1 0%, #8B5FBF 50%, #6B4BA1 100%)",
+          boxShadow: "0 4px 20px rgba(107, 75, 161, 0.3)",
+        }}
+      >
+        <Toolbar sx={{ justifyContent: "space-between", py: 1 }}>
+          {/* Left: Menu Button */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={isMobile ? handleModalToggle : handleDrawerToggle}
-            sx={{ marginRight: 5 }}
+            sx={{
+              mr: 2,
+              "&:hover": {
+                backgroundColor: "rgba(255,255,255,0.1)",
+                transform: "scale(1.05)",
+              },
+              transition: "all 0.2s",
+            }}
           >
             {isMobile ? (
               <MenuIcon />
@@ -162,28 +189,171 @@ export default function Nav({ onDrawerToggle }) {
               <MenuIcon />
             )}
           </IconButton>
-          <div
-            style={{
+
+          {/* Center: Logo and Title */}
+          <Box
+            sx={{
+              marginLeft: isMobile ? 0 : 20,
               display: "flex",
               alignItems: "center",
-              flexGrow: 1,
+              gap: 1.5,
+              flex: 1,
               justifyContent: "center",
+              maxWidth: isMobile ? "none" : "600px",
             }}
           >
-            <img
-              src="/logo/logo.png"
-              alt="Logo"
-              style={{ marginRight: "10px", height: "40px" }}
-            />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              className="text-secondary"
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: "12px",
+                padding: "6px",
+                background: "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(10px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+              }}
             >
-              Liga Veteranos do Sado
-            </Typography>
-          </div>
+              <img
+                src="/logo/logo.png"
+                alt="Logo"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            </Box>
+            {!isMobile && (
+              <Typography
+                variant="h6"
+                noWrap
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: "0.5px",
+                  fontSize: "1.1rem",
+                  textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                }}
+              >
+                Liga Veteranos do Sado
+              </Typography>
+            )}
+          </Box>
+
+          {/* Right: Admin Section */}
+          {!isMobile && !loading && (
+            <Box display="flex" alignItems="center" gap={1.5}>
+              {user && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    pr: 1.5,
+                    borderRight: "1px solid rgba(255,255,255,0.3)",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      background:
+                        "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 2px 8px rgba(255, 215, 0, 0.4)",
+                    }}
+                  >
+                    <PersonIcon sx={{ fontSize: 18, color: "#6B4BA1" }} />
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "rgba(255,255,255,0.8)",
+                        fontSize: "10px",
+                        display: "block",
+                        lineHeight: 1,
+                        mb: 0.3,
+                      }}
+                    >
+                      Administrador
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "white",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        lineHeight: 1,
+                        maxWidth: "150px",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {user.email}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+              {!isAdmin ? (
+                <Button
+                  startIcon={<LoginIcon />}
+                  onClick={() => router.push("/admin/login")}
+                  sx={{
+                    color: "white",
+                    textTransform: "none",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    px: 2,
+                    py: 0.75,
+                    background: "rgba(255,255,255,0.15)",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    "&:hover": {
+                      background: "rgba(255,255,255,0.25)",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                    },
+                    transition: "all 0.2s",
+                  }}
+                  size="small"
+                >
+                  Login
+                </Button>
+              ) : (
+                <Button
+                  startIcon={<LogoutIcon />}
+                  onClick={logout}
+                  sx={{
+                    color: "white",
+                    textTransform: "none",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    px: 2,
+                    py: 0.75,
+                    background: "rgba(239, 68, 68, 0.2)",
+                    border: "1px solid rgba(239, 68, 68, 0.4)",
+                    "&:hover": {
+                      background: "rgba(239, 68, 68, 0.3)",
+                      transform: "translateY(-1px)",
+                      boxShadow: "0 4px 12px rgba(239, 68, 68, 0.3)",
+                    },
+                    transition: "all 0.2s",
+                  }}
+                  size="small"
+                >
+                  Logout
+                </Button>
+              )}
+            </Box>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -1077,6 +1247,66 @@ export default function Nav({ onDrawerToggle }) {
                       />
                     </ListItemButton>
                   </ListItem>
+                  <Divider sx={{ backgroundColor: "white", my: 2 }} />
+
+                  {/* Mobile Login/Logout Section */}
+                  {!loading && (
+                    <>
+                      <Typography
+                        variant="h6"
+                        align="center"
+                        sx={{ color: "white", mt: 2 }}
+                      >
+                        Admin
+                      </Typography>
+                      <List sx={{}}>
+                        {!isAdmin ? (
+                          <ListItem disablePadding>
+                            <ListItemButton
+                              onClick={() => {
+                                handleModalToggle();
+                                router.push("/admin/login");
+                              }}
+                            >
+                              <ListItemIcon sx={{ color: "white" }}>
+                                <LoginIcon />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary="Login Admin"
+                                sx={{ color: "white" }}
+                              />
+                            </ListItemButton>
+                          </ListItem>
+                        ) : (
+                          <>
+                            <ListItem sx={{ color: "white", py: 1 }}>
+                              <ListItemIcon sx={{ color: "white" }}>
+                                <PersonIcon />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={user?.email}
+                                secondary="Administrador"
+                                secondaryTypographyProps={{
+                                  sx: { color: "#FFD700" },
+                                }}
+                              />
+                            </ListItem>
+                            <ListItem disablePadding>
+                              <ListItemButton onClick={handleLogout}>
+                                <ListItemIcon sx={{ color: "white" }}>
+                                  <LogoutIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary="Logout"
+                                  sx={{ color: "white" }}
+                                />
+                              </ListItemButton>
+                            </ListItem>
+                          </>
+                        )}
+                      </List>
+                    </>
+                  )}
                 </List>
               </List>
             </Box>

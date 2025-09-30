@@ -132,11 +132,19 @@ export default function Documentacao() {
 
   const quickActions = [
     {
-      title: "Download Todos",
-      description: "Baixar todos os documentos essenciais",
+      title: "Ficha de Inscrição 2025/2026",
+      description: "Download do formulário de inscrição",
       icon: <GetApp />,
       color: theme.colors.primary[500],
-      action: () => console.log("Download all"),
+      action: () => {
+        // Create a temporary anchor element to trigger download
+        const link = document.createElement("a");
+        link.href = "/fichas/FICHA_INSCRIÇÃO_2025-2026.pdf"; // Replace with your actual PDF filename
+        link.download = "Ficha_Inscricao_2025_2026.pdf"; // The name it will be saved as
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      },
     },
     {
       title: "Regulamento Rápido",
