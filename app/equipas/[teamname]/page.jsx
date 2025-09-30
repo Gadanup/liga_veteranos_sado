@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Stadium,
   CalendarToday,
@@ -40,21 +40,40 @@ import { theme } from "../../../styles/theme.js";
 
 const TeamPage = ({ params }) => {
   const { teamname } = params;
+  const searchParams = useSearchParams();
   const [teamData, setTeamData] = useState(null);
   const [players, setPlayers] = useState([]);
   const [tabIndex, setTabIndex] = useState(0);
   const [teamFixtures, setTeamFixtures] = useState([]);
   const [nextGame, setNextGame] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedSeason, setSelectedSeason] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
     const fetchTeamData = async () => {
       setLoading(true);
+
+      // Get season from URL or default to current season
+      let targetSeason = searchParams.get("season");
+
+      if (!targetSeason) {
+        const { data: currentSeasonData } = await supabase
+          .from("seasons")
+          .select("id")
+          .eq("is_current", true)
+          .single();
+
+        targetSeason = currentSeasonData?.id;
+      }
+
+      setSelectedSeason(targetSeason);
+
       const { data: team, error } = await supabase
         .from("teams")
         .select("*")
         .eq("short_name", decodeURIComponent(teamname))
+        .eq("season", targetSeason)
         .single();
 
       if (error) {
@@ -90,6 +109,7 @@ const TeamPage = ({ params }) => {
             away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
           `
           )
+          .eq("season", targetSeason)
           .or(`home_team_id.eq.${team.id},away_team_id.eq.${team.id}`)
           .order("match_date", { ascending: true });
 
@@ -116,7 +136,7 @@ const TeamPage = ({ params }) => {
 
   const determineMatchResult = (home_goals, away_goals, isHomeTeam) => {
     if (home_goals === null || away_goals === null) return "pending";
-    
+
     if (home_goals > away_goals) {
       return isHomeTeam ? "win" : "loss";
     } else if (home_goals < away_goals) {
@@ -151,19 +171,27 @@ const TeamPage = ({ params }) => {
 
   const getResultColor = (result) => {
     switch (result) {
-      case "win": return theme.colors.success[600];
-      case "loss": return theme.colors.error[600];
-      case "draw": return theme.colors.warning[600];
-      default: return theme.colors.text.secondary;
+      case "win":
+        return theme.colors.success[600];
+      case "loss":
+        return theme.colors.error[600];
+      case "draw":
+        return theme.colors.warning[600];
+      default:
+        return theme.colors.text.secondary;
     }
   };
 
   const getResultBadge = (result) => {
     switch (result) {
-      case "win": return "V";
-      case "loss": return "D";
-      case "draw": return "E";
-      default: return "-";
+      case "win":
+        return "V";
+      case "loss":
+        return "D";
+      case "draw":
+        return "E";
+      default:
+        return "-";
     }
   };
 
@@ -212,7 +240,6 @@ const TeamPage = ({ params }) => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: theme.colors.background.secondary,
         padding: theme.spacing.lg,
       }}
     >
@@ -254,7 +281,7 @@ const TeamPage = ({ params }) => {
                       style={{ objectFit: "contain" }}
                     />
                   </Box>
-                  
+
                   <Box flex={1} minWidth={0}>
                     <Typography
                       variant="h4"
@@ -266,18 +293,31 @@ const TeamPage = ({ params }) => {
                     >
                       {teamData.name}
                     </Typography>
-                    
+                    {/* Season Chip */}
+                    <Chip
+                      icon={<CalendarToday sx={{ fontSize: 14 }} />}
+                      label={`Época ${teamData.season || selectedSeason}`}
+                      sx={{
+                        backgroundColor: theme.colors.accent[500],
+                        color: theme.colors.neutral[900],
+                        fontWeight: theme.typography.fontWeight.bold,
+                        fontSize: "0.875rem",
+                        height: "32px",
+                      }}
+                    />
+
                     <Box display="flex" alignItems="center" gap={1} mb={1}>
                       <Stadium sx={{ fontSize: 20 }} />
                       <Typography variant="body1">
                         {teamData.stadium_name}
                       </Typography>
                     </Box>
-                    
+
                     <Box display="flex" alignItems="center" gap={1}>
                       <CalendarToday sx={{ fontSize: 20 }} />
                       <Typography variant="body1">
-                        Fundado: {new Date(teamData.founded).toLocaleDateString()}
+                        Fundado:{" "}
+                        {new Date(teamData.founded).toLocaleDateString()}
                       </Typography>
                     </Box>
                   </Box>
@@ -348,7 +388,7 @@ const TeamPage = ({ params }) => {
                     Equipamentos
                   </Typography>
                 </Box>
-                
+
                 <Box mb={2}>
                   <Typography
                     variant="body1"
@@ -359,11 +399,14 @@ const TeamPage = ({ params }) => {
                   >
                     Principal
                   </Typography>
-                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: theme.colors.text.secondary }}
+                  >
                     {teamData.main_jersey}
                   </Typography>
                 </Box>
-                
+
                 <Box>
                   <Typography
                     variant="body1"
@@ -374,7 +417,10 @@ const TeamPage = ({ params }) => {
                   >
                     Alternativo
                   </Typography>
-                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: theme.colors.text.secondary }}
+                  >
                     {teamData.alternative_jersey}
                   </Typography>
                 </Box>
@@ -431,16 +477,22 @@ const TeamPage = ({ params }) => {
                         <img
                           src={nextGame.home_team.logo_url}
                           alt={nextGame.home_team.short_name}
-                          style={{ width: "32px", height: "32px", objectFit: "contain" }}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            objectFit: "contain",
+                          }}
                         />
                         <Typography
                           variant="body1"
-                          sx={{ fontWeight: theme.typography.fontWeight.semibold }}
+                          sx={{
+                            fontWeight: theme.typography.fontWeight.semibold,
+                          }}
                         >
                           {nextGame.home_team.short_name}
                         </Typography>
                       </Box>
-                      
+
                       <Typography
                         variant="body1"
                         sx={{
@@ -450,22 +502,28 @@ const TeamPage = ({ params }) => {
                       >
                         VS
                       </Typography>
-                      
+
                       <Box display="flex" alignItems="center" gap={1}>
                         <img
                           src={nextGame.away_team.logo_url}
                           alt={nextGame.away_team.short_name}
-                          style={{ width: "32px", height: "32px", objectFit: "contain" }}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            objectFit: "contain",
+                          }}
                         />
                         <Typography
                           variant="body1"
-                          sx={{ fontWeight: theme.typography.fontWeight.semibold }}
+                          sx={{
+                            fontWeight: theme.typography.fontWeight.semibold,
+                          }}
                         >
                           {nextGame.away_team.short_name}
                         </Typography>
                       </Box>
                     </Box>
-                    
+
                     <Box textAlign="center">
                       <Typography
                         variant="body2"
@@ -537,11 +595,7 @@ const TeamPage = ({ params }) => {
                 iconPosition="start"
                 label="Calendário"
               />
-              <Tab
-                icon={<Groups />}
-                iconPosition="start"
-                label="Plantel"
-              />
+              <Tab icon={<Groups />} iconPosition="start" label="Plantel" />
             </Tabs>
           </Box>
 
@@ -553,22 +607,24 @@ const TeamPage = ({ params }) => {
                   <Table>
                     <TableBody>
                       {teamFixtures.map((match, index) => {
-                        const isHomeTeam = match.home_team.short_name === teamData.short_name;
+                        const isHomeTeam =
+                          match.home_team.short_name === teamData.short_name;
                         const result = determineMatchResult(
                           match.home_goals,
                           match.away_goals,
                           isHomeTeam
                         );
-                        
+
                         return (
                           <TableRow
                             onClick={() => router.push(`/Jogos/${match.id}`)}
                             key={match.id}
                             sx={{
                               cursor: "pointer",
-                              backgroundColor: index % 2 === 0
-                                ? theme.colors.background.card
-                                : theme.colors.background.tertiary,
+                              backgroundColor:
+                                index % 2 === 0
+                                  ? theme.colors.background.card
+                                  : theme.colors.background.tertiary,
                               "&:hover": {
                                 backgroundColor: theme.colors.primary[50],
                               },
@@ -580,10 +636,15 @@ const TeamPage = ({ params }) => {
                               <Box>
                                 <Typography
                                   variant="body2"
-                                  sx={{ fontWeight: theme.typography.fontWeight.semibold }}
+                                  sx={{
+                                    fontWeight:
+                                      theme.typography.fontWeight.semibold,
+                                  }}
                                 >
                                   {match.match_date
-                                    ? dayjs(match.match_date).format("DD/MM/YYYY")
+                                    ? dayjs(match.match_date).format(
+                                        "DD/MM/YYYY"
+                                      )
                                     : "Data a definir"}
                                 </Typography>
                                 {match.match_time && (
@@ -599,13 +660,19 @@ const TeamPage = ({ params }) => {
 
                             {/* Home Team */}
                             <TableCell sx={{ py: 2 }}>
-                              <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="flex-end"
+                                gap={1}
+                              >
                                 <Typography
                                   variant="body2"
                                   sx={{
-                                    fontWeight: isHomeTeam && result === "win"
-                                      ? theme.typography.fontWeight.bold
-                                      : theme.typography.fontWeight.medium,
+                                    fontWeight:
+                                      isHomeTeam && result === "win"
+                                        ? theme.typography.fontWeight.bold
+                                        : theme.typography.fontWeight.medium,
                                   }}
                                 >
                                   {match.home_team.short_name}
@@ -613,28 +680,42 @@ const TeamPage = ({ params }) => {
                                 <img
                                   src={match.home_team.logo_url}
                                   alt={match.home_team.short_name}
-                                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                                  style={{
+                                    width: "24px",
+                                    height: "24px",
+                                    objectFit: "contain",
+                                  }}
                                 />
                               </Box>
                             </TableCell>
 
                             {/* Score */}
                             <TableCell sx={{ py: 2, textAlign: "center" }}>
-                              {match.home_goals !== null && match.away_goals !== null ? (
-                                <Box display="flex" alignItems="center" gap={1} justifyContent="center">
+                              {match.home_goals !== null &&
+                              match.away_goals !== null ? (
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
+                                  gap={1}
+                                  justifyContent="center"
+                                >
                                   <Chip
                                     label={getResultBadge(result)}
                                     size="small"
                                     sx={{
                                       backgroundColor: getResultColor(result),
                                       color: "white",
-                                      fontWeight: theme.typography.fontWeight.bold,
+                                      fontWeight:
+                                        theme.typography.fontWeight.bold,
                                       minWidth: "24px",
                                     }}
                                   />
                                   <Typography
                                     variant="body2"
-                                    sx={{ fontWeight: theme.typography.fontWeight.bold }}
+                                    sx={{
+                                      fontWeight:
+                                        theme.typography.fontWeight.bold,
+                                    }}
                                   >
                                     {match.home_goals} - {match.away_goals}
                                   </Typography>
@@ -643,7 +724,8 @@ const TeamPage = ({ params }) => {
                                 <Typography
                                   variant="body2"
                                   sx={{
-                                    fontWeight: theme.typography.fontWeight.bold,
+                                    fontWeight:
+                                      theme.typography.fontWeight.bold,
                                     color: theme.colors.text.secondary,
                                   }}
                                 >
@@ -658,14 +740,19 @@ const TeamPage = ({ params }) => {
                                 <img
                                   src={match.away_team.logo_url}
                                   alt={match.away_team.short_name}
-                                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                                  style={{
+                                    width: "24px",
+                                    height: "24px",
+                                    objectFit: "contain",
+                                  }}
                                 />
                                 <Typography
                                   variant="body2"
                                   sx={{
-                                    fontWeight: !isHomeTeam && result === "win"
-                                      ? theme.typography.fontWeight.bold
-                                      : theme.typography.fontWeight.medium,
+                                    fontWeight:
+                                      !isHomeTeam && result === "win"
+                                        ? theme.typography.fontWeight.bold
+                                        : theme.typography.fontWeight.medium,
                                   }}
                                 >
                                   {match.away_team.short_name}
@@ -674,7 +761,12 @@ const TeamPage = ({ params }) => {
                             </TableCell>
 
                             {/* Stadium */}
-                            <TableCell sx={{ py: 2, display: { xs: "none", md: "table-cell" } }}>
+                            <TableCell
+                              sx={{
+                                py: 2,
+                                display: { xs: "none", md: "table-cell" },
+                              }}
+                            >
                               <Typography
                                 variant="body2"
                                 sx={{ color: theme.colors.text.secondary }}
@@ -684,7 +776,12 @@ const TeamPage = ({ params }) => {
                             </TableCell>
 
                             {/* Competition */}
-                            <TableCell sx={{ py: 2, display: { xs: "none", sm: "table-cell" } }}>
+                            <TableCell
+                              sx={{
+                                py: 2,
+                                display: { xs: "none", sm: "table-cell" },
+                              }}
+                            >
                               <Chip
                                 label={renderCompetitionDetails(match)}
                                 size="small"
@@ -720,7 +817,7 @@ const TeamPage = ({ params }) => {
                     >
                       Treinador
                     </Typography>
-                    
+
                     <Card
                       sx={{
                         borderRadius: theme.borderRadius.lg,
@@ -774,7 +871,7 @@ const TeamPage = ({ params }) => {
                 >
                   Jogadores ({players.length})
                 </Typography>
-                
+
                 <Grid container spacing={2}>
                   {players.map((player) => (
                     <Grid item xs={12} sm={6} md={4} lg={3} key={player.id}>

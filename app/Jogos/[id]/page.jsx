@@ -52,15 +52,38 @@ const MatchPage = () => {
   const [suspendedPlayerIds, setSuspendedPlayerIds] = useState([]);
   const [homeSquadExpanded, setHomeSquadExpanded] = useState(false);
   const [awaySquadExpanded, setAwaySquadExpanded] = useState(false);
+  const [seasons, setSeasons] = useState([]);
+  const [selectedSeason, setSelectedSeason] = useState(null);
+  const [supercupMatches, setSupercupMatches] = useState([]);
   const router = useRouter();
 
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isSmallScreen = useMediaQuery("(max-width: 600px)");
 
-  // Remove individual fetch functions since we're handling everything in useEffect
+  // Fetch seasons
+  const fetchSeasons = async () => {
+    const { data, error } = await supabase
+      .from("seasons")
+      .select("id, description, is_current")
+      .order("id", { ascending: false });
+
+    if (!error && data) {
+      setSeasons(data);
+      const currentSeason = data.find((s) => s.is_current);
+      if (currentSeason) {
+        setSelectedSeason(currentSeason.id);
+      } else if (data.length > 0) {
+        setSelectedSeason(data[0].id);
+      }
+    }
+  };
 
   useEffect(() => {
-    if (id) {
+    fetchSeasons();
+  }, []);
+
+  useEffect(() => {
+    if (id && selectedSeason) {
       const loadMatchData = async () => {
         setLoading(true);
         try {
@@ -80,6 +103,7 @@ const MatchPage = () => {
               match_date,
               match_time,
               match_sheet,
+              season,
               home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
               away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
             `
@@ -94,6 +118,27 @@ const MatchPage = () => {
           }
 
           setMatchDetails(matchData);
+
+          // If it's a Supercup match, fetch all Supercup matches for season selector
+          if (matchData.competition_type === "Supercup") {
+            const { data: supercupData } = await supabase
+              .from("matches")
+              .select(
+                `
+                id,
+                season,
+                match_date,
+                home_team:teams!matches_home_team_id_fkey (short_name),
+                away_team:teams!matches_away_team_id_fkey (short_name)
+              `
+              )
+              .eq("competition_type", "Supercup")
+              .order("season", { ascending: false });
+
+            if (supercupData) {
+              setSupercupMatches(supercupData);
+            }
+          }
 
           // Fetch all related data in parallel
           const [
@@ -116,10 +161,11 @@ const MatchPage = () => {
             // Fetch suspensions
             supabase.from("suspensions").select("player_id").eq("active", true),
 
-            // Fetch current players
+            // Fetch current players for this season
             supabase
               .from("players")
-              .select("id, name, photo_url, joker, team_id"),
+              .select("id, name, photo_url, joker, team_id")
+              .in("team_id", [matchData.home_team.id, matchData.away_team.id]),
           ]);
 
           // Process players data
@@ -205,7 +251,15 @@ const MatchPage = () => {
 
       loadMatchData();
     }
-  }, [id]); // Only depend on id
+  }, [id, selectedSeason]);
+
+  // Handle season change for Supercup
+  const handleSeasonChange = (newSeasonId) => {
+    const match = supercupMatches.find((m) => m.season === newSeasonId);
+    if (match) {
+      router.push(`/Jogos/${match.id}`);
+    }
+  };
 
   const getTeamStyles = (
     homeGoals,
@@ -590,6 +644,7 @@ const MatchPage = () => {
     );
   }
 
+  const isSupercup = matchDetails.competition_type === "Supercup";
   return (
     <Box
       sx={{
@@ -597,6 +652,59 @@ const MatchPage = () => {
       }}
     >
       <Container maxWidth="lg" sx={{ py: isMobile ? 2 : 4 }}>
+        {isSupercup && supercupMatches.length > 1 && (
+          <Box display="flex" justifyContent="flex-end" mb={3}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: theme.spacing.sm,
+                backgroundColor: theme.colors.background.card,
+                padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
+                borderRadius: theme.borderRadius.xl,
+                boxShadow: theme.shadows.md,
+                border: `2px solid ${theme.colors.primary[200]}`,
+                minWidth: isMobile ? "auto" : "200px",
+              }}
+            >
+              <label
+                htmlFor="season-select"
+                style={{
+                  fontSize: theme.typography.fontSize.sm,
+                  fontWeight: theme.typography.fontWeight.medium,
+                  color: theme.colors.text.secondary,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Época:
+              </label>
+              <select
+                id="season-select"
+                value={matchDetails.season || ""}
+                onChange={(e) => handleSeasonChange(Number(e.target.value))}
+                style={{
+                  padding: `${theme.spacing.xs} ${theme.spacing.md}`,
+                  fontSize: theme.typography.fontSize.base,
+                  fontWeight: theme.typography.fontWeight.semibold,
+                  color: theme.colors.primary[700],
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderRadius: theme.borderRadius.md,
+                  cursor: "pointer",
+                  outline: "none",
+                  transition: theme.transitions.normal,
+                  fontFamily: theme.typography.fontFamily.primary,
+                }}
+              >
+                {seasons.map((season) => (
+                  <option key={season.id} value={season.id}>
+                    {season.description}
+                  </option>
+                ))}
+              </select>
+            </Box>
+          </Box>
+        )}
         {/* Header Section */}
         <Card
           sx={{

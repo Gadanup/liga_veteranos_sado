@@ -61,6 +61,7 @@ const EditMatchDialog = ({ open, onClose, onSuccess, match }) => {
     const { data, error } = await supabase
       .from("teams")
       .select("id, short_name, logo_url")
+      .eq("season", match.season) // Use the match's season
       .order("short_name");
 
     if (!error) {
@@ -307,7 +308,7 @@ const EditMatchDialog = ({ open, onClose, onSuccess, match }) => {
             >
               <MenuItem value="League">Liga</MenuItem>
               <MenuItem value="Cup">Taça</MenuItem>
-              <MenuItem value="SuperCup">Supertaça</MenuItem>
+              <MenuItem value="Supercup">Supertaça</MenuItem>
             </TextField>
           </Grid>
 

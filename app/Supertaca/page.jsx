@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { Box, Typography, Link, Avatar } from "@mui/material";
 import dayjs from "dayjs";
-import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from "@mui/icons-material/Download";
 
 /**
  * MatchPage Component
@@ -25,7 +25,8 @@ const Supercup = () => {
   const fetchMatchDetails = async () => {
     const { data: matchData, error } = await supabase
       .from("matches")
-      .select(`
+      .select(
+        `
         id,
         home_goals,
         away_goals,
@@ -33,7 +34,8 @@ const Supercup = () => {
         match_time,
         home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url),
         away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
-      `)
+      `
+      )
       .eq("competition_type", "Supercup")
       .eq("season", "2024")
       .single(); // Fetch only one match
@@ -91,7 +93,7 @@ const Supercup = () => {
    * Fetches player details for goalscorers from the players table.
    */
   const fetchPlayersData = async (events) => {
-    const playerIds = events.map(event => event.player_id);
+    const playerIds = events.map((event) => event.player_id);
 
     const { data: playersData, error } = await supabase
       .from("players")
@@ -123,26 +125,32 @@ const Supercup = () => {
 
   // Function to get goalscorers for each team
   const getGoalscorers = (teamId) => {
-    const playerIds = teamId === matchDetails.home_team.id
-      ? homePlayers.map(player => player.id)
-      : awayPlayers.map(player => player.id);
+    const playerIds =
+      teamId === matchDetails.home_team.id
+        ? homePlayers.map((player) => player.id)
+        : awayPlayers.map((player) => player.id);
 
     const goalscorerCounts = matchEvents
-      .filter(event => event.event_type === 'GOAL' && playerIds.includes(event.player_id))
+      .filter(
+        (event) =>
+          event.event_type === "GOAL" && playerIds.includes(event.player_id)
+      )
       .reduce((acc, event) => {
-        const player = playersData.find(p => p.id === event.player_id);
+        const player = playersData.find((p) => p.id === event.player_id);
         if (player) {
           acc[player.name] = (acc[player.name] || 0) + 1; // Count goals per player
         }
         return acc;
       }, {});
 
-    return Object.entries(goalscorerCounts).map(([name, count]) => `${name} (${count})`);
+    return Object.entries(goalscorerCounts).map(
+      ([name, count]) => `${name} (${count})`
+    );
   };
 
   return (
     <Box sx={{ padding: "4rem 2rem", textAlign: "center" }}>
-      <Typography variant="h4" sx={{ color: '#6B4BA1' }} gutterBottom>
+      <Typography variant="h4" sx={{ color: "#6B4BA1" }} gutterBottom>
         SUPERTAÇA
       </Typography>
 
@@ -165,33 +173,48 @@ const Supercup = () => {
                 style={{
                   width: "225px",
                   height: "225px",
-                  objectFit: "contain"
+                  objectFit: "contain",
                 }}
               />
               <Typography
                 variant="h6"
-                style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "home")}
+                style={getTeamStyles(
+                  matchDetails.home_goals,
+                  matchDetails.away_goals,
+                  "home"
+                )}
                 sx={{ mt: 2 }}
               >
                 {matchDetails.home_team.short_name}
               </Typography>
               <Typography
                 variant="h2"
-                style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "home")}
+                style={getTeamStyles(
+                  matchDetails.home_goals,
+                  matchDetails.away_goals,
+                  "home"
+                )}
                 sx={{ mt: 1 }}
               >
-                {matchDetails.home_goals !== null ? matchDetails.home_goals : "-"}
+                {matchDetails.home_goals !== null
+                  ? matchDetails.home_goals
+                  : "-"}
               </Typography>
             </Box>
 
             {/* Date and Time Display */}
-            <Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", mx: 4 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "column",
+                mx: 4,
+              }}
+            >
               <Typography variant="h5" sx={{ marginBottom: "0.5rem" }}>
                 {dayjs(matchDetails.match_date).format("DD/MM/YYYY")}
               </Typography>
-              <Typography variant="h5">
-                {matchDetails.match_time}
-              </Typography>
+              <Typography variant="h5">{matchDetails.match_time}</Typography>
             </Box>
 
             {/* Away Team Logo, Name and Score */}
@@ -202,53 +225,85 @@ const Supercup = () => {
                 style={{
                   width: "225px",
                   height: "225px",
-                  objectFit: "contain"
+                  objectFit: "contain",
                 }}
               />
               <Typography
                 variant="h6"
-                style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "away")}
+                style={getTeamStyles(
+                  matchDetails.home_goals,
+                  matchDetails.away_goals,
+                  "away"
+                )}
                 sx={{ mt: 2 }}
               >
                 {matchDetails.away_team.short_name}
               </Typography>
               <Typography
                 variant="h2"
-                style={getTeamStyles(matchDetails.home_goals, matchDetails.away_goals, "away")}
+                style={getTeamStyles(
+                  matchDetails.home_goals,
+                  matchDetails.away_goals,
+                  "away"
+                )}
                 sx={{ mt: 1 }}
               >
-                {matchDetails.away_goals !== null ? matchDetails.away_goals : "-"}
+                {matchDetails.away_goals !== null
+                  ? matchDetails.away_goals
+                  : "-"}
               </Typography>
             </Box>
           </Box>
 
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center', alignItems: 'top' }}>
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "top",
+            }}
+          >
             {/* Display Goalscorers for Home Team */}
             <Box sx={{ textAlign: "center", mr: 5 }}>
-              <Typography variant="h6">Marcadores {matchDetails.home_team.short_name}:</Typography>
+              <Typography variant="h6">
+                Marcadores {matchDetails.home_team.short_name}:
+              </Typography>
               {getGoalscorers(matchDetails.home_team.id).length > 0 ? (
-                getGoalscorers(matchDetails.home_team.id).map((goalscorer, index) => (
-                  <Typography key={index} variant="body1">
-                    {goalscorer}
-                  </Typography>
-                ))
+                getGoalscorers(matchDetails.home_team.id).map(
+                  (goalscorer, index) => (
+                    <Typography key={index} variant="body1">
+                      {goalscorer}
+                    </Typography>
+                  )
+                )
               ) : (
                 <Typography variant="body2">Sem marcadores</Typography>
               )}
             </Box>
 
             {/* Vertical Line Divider */}
-            <Box sx={{ width: '2px', backgroundColor: 'gray', height: 'auto', mx: 2 }} />
+            <Box
+              sx={{
+                width: "2px",
+                backgroundColor: "gray",
+                height: "auto",
+                mx: 2,
+              }}
+            />
 
             {/* Display Goalscorers for Away Team */}
             <Box sx={{ textAlign: "center", ml: 5 }}>
-              <Typography variant="h6">Marcadores {matchDetails.away_team.short_name}:</Typography>
+              <Typography variant="h6">
+                Marcadores {matchDetails.away_team.short_name}:
+              </Typography>
               {getGoalscorers(matchDetails.away_team.id).length > 0 ? (
-                getGoalscorers(matchDetails.away_team.id).map((goalscorer, index) => (
-                  <Typography key={index} variant="body1">
-                    {goalscorer}
-                  </Typography>
-                ))
+                getGoalscorers(matchDetails.away_team.id).map(
+                  (goalscorer, index) => (
+                    <Typography key={index} variant="body1">
+                      {goalscorer}
+                    </Typography>
+                  )
+                )
               ) : (
                 <Typography variant="body2">Sem marcadores</Typography>
               )}
@@ -268,36 +323,52 @@ const Supercup = () => {
               rel="noopener noreferrer"
               underline="none"
             >
-              <DownloadIcon sx={{ marginRight: 1 }} /> {/* Icon with right margin */}
-              <Typography variant="h6" sx={{ color: '#1976d2' }}>
+              <DownloadIcon sx={{ marginRight: 1 }} />{" "}
+              {/* Icon with right margin */}
+              <Typography variant="h6" sx={{ color: "#1976d2" }}>
                 Ficha de Jogo
               </Typography>
             </Link>
           </Box>
 
           {/* Players List for both teams */}
-          <Box sx={{ mt: 5, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              mt: 5,
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+            }}
+          >
             {/* Home Team Players (left side) */}
-            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', pr: 5 }}> {/* Add padding to the right for the gap */}
-              <Box sx={{ textAlign: 'center', width: '100%' }}>
+            <Box
+              sx={{ flex: 1, display: "flex", justifyContent: "center", pr: 5 }}
+            >
+              {" "}
+              {/* Add padding to the right for the gap */}
+              <Box sx={{ textAlign: "center", width: "100%" }}>
                 <Typography variant="h6" sx={{ mb: 3 }}>
                   Jogadores {matchDetails.home_team.short_name}:
                 </Typography>
                 <Box
                   sx={{
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: '1fr 1fr 1fr' }, // Responsive grid
-                    gap: 1
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "1fr 1fr",
+                      lg: "1fr 1fr 1fr",
+                    }, // Responsive grid
+                    gap: 1,
                   }}
                 >
                   {homePlayers.map((player) => (
                     <Box
                       key={player.name}
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        margin: '5px 0',
-                        width: '100%'
+                        display: "flex",
+                        alignItems: "center",
+                        margin: "5px 0",
+                        width: "100%",
                       }}
                     >
                       <Avatar
@@ -305,9 +376,7 @@ const Supercup = () => {
                         src={player.photo_url}
                         sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
                       />
-                      <Typography variant="body1">
-                        {player.name}
-                      </Typography>
+                      <Typography variant="body1">{player.name}</Typography>
                     </Box>
                   ))}
                 </Box>
@@ -315,29 +384,44 @@ const Supercup = () => {
             </Box>
 
             {/* Vertical Line Divider */}
-            <Box sx={{ width: '2px', backgroundColor: 'gray', height: 'auto', mx: 2 }} />
+            <Box
+              sx={{
+                width: "2px",
+                backgroundColor: "gray",
+                height: "auto",
+                mx: 2,
+              }}
+            />
 
             {/* Away Team Players (right side) */}
-            <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', pl: 5 }}> {/* Add padding to the left for the gap */}
-              <Box sx={{ textAlign: 'center', width: '100%' }}>
+            <Box
+              sx={{ flex: 1, display: "flex", justifyContent: "center", pl: 5 }}
+            >
+              {" "}
+              {/* Add padding to the left for the gap */}
+              <Box sx={{ textAlign: "center", width: "100%" }}>
                 <Typography variant="h6" sx={{ mb: 3 }}>
                   Jogadores {matchDetails.away_team.short_name}:
                 </Typography>
                 <Box
                   sx={{
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: '1fr 1fr 1fr' }, // Responsive grid
-                    gap: 1
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "1fr",
+                      sm: "1fr 1fr",
+                      lg: "1fr 1fr 1fr",
+                    }, // Responsive grid
+                    gap: 1,
                   }}
                 >
                   {awayPlayers.map((player) => (
                     <Box
                       key={player.name}
                       sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        margin: '5px 0',
-                        width: '100%'
+                        display: "flex",
+                        alignItems: "center",
+                        margin: "5px 0",
+                        width: "100%",
                       }}
                     >
                       <Avatar
@@ -345,16 +429,13 @@ const Supercup = () => {
                         src={player.photo_url}
                         sx={{ width: 50, height: 50, marginRight: 1 }} // Avatar size
                       />
-                      <Typography variant="body1">
-                        {player.name}
-                      </Typography>
+                      <Typography variant="body1">{player.name}</Typography>
                     </Box>
                   ))}
                 </Box>
               </Box>
             </Box>
           </Box>
-
         </Box>
       ) : (
         <Typography variant="body1">Carregar dados da Supertaça...</Typography>

@@ -139,7 +139,7 @@ export default function Documentacao() {
       action: () => {
         // Create a temporary anchor element to trigger download
         const link = document.createElement("a");
-        link.href = "/fichas/FICHA_INSCRIÇÃO_2025-2026.pdf"; // Replace with your actual PDF filename
+        link.href = "/docs/FICHA_INSCRIÇÃO_2025-2026.pdf"; // Replace with your actual PDF filename
         link.download = "Ficha_Inscricao_2025_2026.pdf"; // The name it will be saved as
         document.body.appendChild(link);
         link.click();
@@ -147,12 +147,28 @@ export default function Documentacao() {
       },
     },
     {
-      title: "Regulamento Rápido",
-      description: "Ver resumo do regulamento",
-      icon: <MenuIcon />,
-      color: theme.colors.accent[600],
-      action: () => setExpandedCard(expandedCard === "rules" ? null : "rules"),
+      title: "Calendário 2025/2026",
+      description: "Download do calendário",
+      icon: <GetApp />,
+      color: theme.colors.primary[500],
+      action: () => {
+        // Create a temporary anchor element to trigger download
+        const link = document.createElement("a");
+        link.href = "/docs/CALENDARIO_2025-2026.xlsx";
+        link.download = "Calendario_2025_2026.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      },
     },
+
+    // {
+    //   title: "Regulamento Rápido",
+    //   description: "Ver resumo do regulamento",
+    //   icon: <MenuIcon />,
+    //   color: theme.colors.accent[600],
+    //   action: () => setExpandedCard(expandedCard === "rules" ? null : "rules"),
+    // },
   ];
 
   const getPriorityColor = (priority) => {
@@ -185,7 +201,6 @@ export default function Documentacao() {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: theme.colors.background.secondary,
         pb: 4,
       }}
     >
