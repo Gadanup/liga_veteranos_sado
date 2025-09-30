@@ -694,7 +694,7 @@ export default function Nav({ onDrawerToggle }) {
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
-                  href="/Jogos/233"
+                  href="/Jogos/256"
                   onClick={() => handleListItemClick("Supertaça")}
                   sx={{
                     minHeight: 48,
@@ -891,7 +891,7 @@ export default function Nav({ onDrawerToggle }) {
                 </ListItemButton>
               </ListItem>
             )}
-            {shouldDisplayItem("Convivio 23/24") && (
+            {/* {shouldDisplayItem("Convivio 23/24") && (
               <ListItem disablePadding sx={{ display: "block" }}>
                 <ListItemButton
                   component={Link}
@@ -935,7 +935,7 @@ export default function Nav({ onDrawerToggle }) {
                   />
                 </ListItemButton>
               </ListItem>
-            )}
+            )} */}
           </List>
           <Divider />
           {open && (
@@ -1209,21 +1209,21 @@ export default function Nav({ onDrawerToggle }) {
                       <ListItemText primary="Equipas" sx={{ color: "white" }} />
                     </ListItemButton>
                   </ListItem>
-                  <ListItem disablePadding>
+                  {/* <ListItem disablePadding>
                     <ListItemButton
                       component={Link}
                       href="/Galeria/Convivio2324"
                       onClick={handleModalToggle}
                     >
                       <ListItemIcon sx={{ color: "white" }}>
-                        <CollectionsRoundedIcon /> {/* Convívio 23/24 Icon */}
+                        <CollectionsRoundedIcon />
                       </ListItemIcon>
                       <ListItemText
                         primary="Convívio 23/24"
                         sx={{ color: "white" }}
                       />
                     </ListItemButton>
-                  </ListItem>
+                  </ListItem> */}
                 </List>
                 <Divider sx={{ backgroundColor: "white", my: 2 }} />
 

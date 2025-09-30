@@ -440,7 +440,9 @@ const Classification = () => {
                   <div
                     key={team.team_id}
                     onClick={() =>
-                      router.push(`/equipas/${team.teams.short_name}`)
+                      router.push(
+                        `/equipas/${team.teams.short_name}?season=${selectedSeason}`
+                      )
                     }
                     style={{
                       display: "grid",

@@ -51,6 +51,7 @@ const CreateMatchDialog = ({ open, onClose, onSuccess, selectedSeason }) => {
     const { data, error } = await supabase
       .from("teams")
       .select("id, short_name, logo_url")
+      .eq("season", selectedSeason) // Filter by season
       .order("short_name");
 
     if (!error) {
@@ -306,7 +307,7 @@ const CreateMatchDialog = ({ open, onClose, onSuccess, selectedSeason }) => {
             >
               <MenuItem value="League">Liga</MenuItem>
               <MenuItem value="Cup">Taça</MenuItem>
-              <MenuItem value="SuperCup">Supertaça</MenuItem>
+              <MenuItem value="Supercup">Supertaça</MenuItem>
             </TextField>
           </Grid>
 

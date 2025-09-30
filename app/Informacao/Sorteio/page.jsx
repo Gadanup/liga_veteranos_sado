@@ -25,6 +25,8 @@ import {
   Stadium,
   Groups,
   Schedule,
+  MilitaryTech,
+  SwapHoriz,
 } from "@mui/icons-material";
 import { theme } from "../../../styles/theme.js";
 
@@ -32,7 +34,7 @@ export default function Sorteio() {
   const championshipNotes = [
     {
       icon: <Groups />,
-      text: "Campeonato com 15 equipas participantes",
+      text: "Campeonato com 13 equipas participantes",
     },
     {
       icon: <SportsSoccer />,
@@ -65,11 +67,33 @@ export default function Sorteio() {
     },
   ];
 
+  const cupRules = [
+    {
+      icon: <Groups />,
+      text: "Apenas três equipas a jogar em simultâneo, por fase, no Pinhal Novo",
+    },
+    {
+      icon: <SwapHoriz />,
+      text: "Equipas vão sendo sorteadas e colocadas sequencialmente nos lugares (1,2,3,4, etc)",
+    },
+    {
+      icon: <Stadium />,
+      text: "Caso o sorteio dite mais de 3 equipas com campo no PN, a jogar em simultâneo, será alterado o visitado (visitante passa para visitado)",
+    },
+    {
+      icon: <CheckCircle />,
+      text: "15ª posição fará com que essa equipa fiquem isenta na primeira fase",
+    },
+    {
+      icon: <MilitaryTech />,
+      text: "Poderão também ser feitas alterações às localizações dos jogos dos quartos de final (devido à condicionante do campo)",
+    },
+  ];
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: theme.colors.background.secondary,
       }}
     >
       <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
@@ -106,13 +130,13 @@ export default function Sorteio() {
                     fontSize: { xs: "2rem", md: "3rem" },
                   }}
                 >
-                  Sorteio do Campeonato
+                  Sorteio das Competições
                 </Typography>
               </Box>
 
               <Chip
                 icon={<Info />}
-                label="Liga Veteranos do Sado 2024/25"
+                label="Liga Veteranos do Sado 2025/2026"
                 sx={{
                   backgroundColor: theme.colors.accent[500],
                   color: theme.colors.neutral[900],
@@ -125,7 +149,23 @@ export default function Sorteio() {
           </CardContent>
         </Card>
 
-        <Grid container spacing={4}>
+        {/* Liga Section */}
+        <Typography
+          variant="h4"
+          sx={{
+            color: theme.colors.primary[600],
+            fontWeight: "bold",
+            mb: 3,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Timeline sx={{ fontSize: 32 }} />
+          Campeonato (Liga)
+        </Typography>
+
+        <Grid container spacing={4} sx={{ mb: 6 }}>
           {/* Championship Information Card */}
           <Grid item xs={12} lg={6}>
             <Card
@@ -363,6 +403,122 @@ export default function Sorteio() {
             </Card>
           </Grid>
         </Grid>
+
+        <Divider sx={{ my: 6 }} />
+
+        {/* Taça Section */}
+        <Typography
+          variant="h4"
+          sx={{
+            color: theme.colors.secondary[600],
+            fontWeight: "bold",
+            mb: 3,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <MilitaryTech sx={{ fontSize: 32 }} />
+          Taça
+        </Typography>
+
+        <Card
+          sx={{
+            borderRadius: "16px",
+            border: `2px solid ${theme.colors.secondary[100]}`,
+            transition: theme.transitions.normal,
+            "&:hover": {
+              transform: "translateY(-4px)",
+              boxShadow: theme.shadows.lg,
+              borderColor: theme.colors.secondary[300],
+            },
+          }}
+        >
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Box display="flex" alignItems="center" gap={2} mb={3}>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: "12px",
+                  backgroundColor: theme.colors.secondary[50],
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <EmojiEvents
+                  sx={{
+                    fontSize: 32,
+                    color: theme.colors.secondary[600],
+                  }}
+                />
+              </Box>
+              <Typography
+                variant="h5"
+                sx={{
+                  color: theme.colors.secondary[600],
+                  fontWeight: "bold",
+                }}
+              >
+                Regras do Sorteio da Taça
+              </Typography>
+            </Box>
+
+            <List sx={{ py: 0 }}>
+              {cupRules.map((rule, index) => (
+                <ListItem
+                  key={index}
+                  sx={{
+                    px: 0,
+                    py: 2,
+                    borderRadius: "12px",
+                    mb: 1,
+                    backgroundColor:
+                      index % 2 === 0
+                        ? theme.colors.background.tertiary
+                        : "transparent",
+                    transition: theme.transitions.normal,
+                    "&:hover": {
+                      backgroundColor: theme.colors.secondary[50],
+                      transform: "translateX(8px)",
+                    },
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 48,
+                      color: theme.colors.secondary[600],
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        p: 1,
+                        borderRadius: "8px",
+                        backgroundColor: theme.colors.secondary[100],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {rule.icon}
+                    </Box>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={rule.text}
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      sx: {
+                        color: theme.colors.text.primary,
+                        fontWeight: "medium",
+                        lineHeight: 1.6,
+                      },
+                    }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </CardContent>
+        </Card>
 
         {/* Additional Information Footer */}
         <Card
