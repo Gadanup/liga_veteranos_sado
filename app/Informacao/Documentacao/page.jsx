@@ -314,6 +314,53 @@ export default function Documentacao() {
             </CardContent>
           </Card>
         </Fade>
+        {/* Footer Info */}
+        <Fade in={true} timeout={2200}>
+          <Box
+            sx={{
+              p: 3,
+              mb: 4,
+              textAlign: "center",
+              backgroundColor: theme.colors.background.tertiary,
+              borderRadius: theme.borderRadius.xl,
+              border: `1px solid ${theme.colors.border.primary}`,
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                color: theme.colors.text.tertiary,
+                mb: 2,
+                display: "block",
+              }}
+            >
+              Todos os documentos são propriedade da organização da liga
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: theme.colors.text.secondary,
+                mt: 2,
+              }}
+            >
+              Contacto da Direção:{" "}
+              <Link
+                href="mailto:ligadeveteranosdosado@outlook.pt"
+                sx={{
+                  color: theme.colors.primary[600],
+                  fontWeight: theme.typography.fontWeight.semibold,
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "underline",
+                    color: theme.colors.primary[700],
+                  },
+                }}
+              >
+                ligadeveteranosdosado@outlook.pt
+              </Link>
+            </Typography>
+          </Box>
+        </Fade>
 
         {/* Quick Actions */}
         <Fade in={true} timeout={1000}>
@@ -977,11 +1024,17 @@ export default function Documentacao() {
                       <Box
                         key={ballNum}
                         sx={{
+                          width: 85,
+                          height: 85,
                           borderRadius: theme.borderRadius.lg,
                           overflow: "hidden",
                           border: `2px solid ${theme.colors.success[200]}`,
                           transition: theme.transitions.normal,
                           backgroundColor: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
                           "&:hover": {
                             transform: "scale(1.05) rotate(5deg)",
                             borderColor: theme.colors.success[400],
@@ -996,7 +1049,8 @@ export default function Documentacao() {
                           height={85}
                           style={{
                             objectFit: "contain",
-                            display: "block",
+                            maxWidth: "100%",
+                            maxHeight: "100%",
                           }}
                         />
                       </Box>
@@ -1007,38 +1061,6 @@ export default function Documentacao() {
             </Fade>
           </Grid>
         </Grid>
-
-        {/* Footer Info */}
-        <Fade in={true} timeout={2200}>
-          <Box
-            sx={{
-              mt: 4,
-              p: 3,
-              textAlign: "center",
-              backgroundColor: theme.colors.background.tertiary,
-              borderRadius: theme.borderRadius.xl,
-              border: `1px solid ${theme.colors.border.primary}`,
-            }}
-          >
-            <Typography
-              variant="body2"
-              sx={{
-                color: theme.colors.text.secondary,
-                mb: 1,
-              }}
-            >
-              Última atualização: 29 de Setembro de 2025
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                color: theme.colors.text.tertiary,
-              }}
-            >
-              Todos os documentos são propriedade da organização da liga
-            </Typography>
-          </Box>
-        </Fade>
       </Container>
     </Box>
   );
