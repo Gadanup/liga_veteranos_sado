@@ -1,36 +1,174 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ⚽ Liga de Futebol Veteranos do Sado
 
-## Getting Started
+> The official digital platform for the Veteranos do Sado Football League
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📖 About
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This web application serves as the complete hub for **Liga de Futebol Veteranos do Sado**, a Portuguese veterans football league. Whether you're a fan, player, or team member, this platform provides everything you need to stay connected with the league.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## 🏠 Main Sections
 
-## Learn More
+### 🏆 Liga (League)
 
-To learn more about Next.js, take a look at the following resources:
+The heart of the application, containing all league-related information:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### 📊 Classificação (Standings)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Live league table updated in real-time.
 
-## Deploy on Vercel
+**What you'll see:**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Team rankings with points and statistics
+- Matches played, wins, draws, losses
+- Goals scored and conceded
+- Color-coded positions (🥇 Champion, 🥈 Podium, 🏅 Top 6)
+- Click any team to view their complete profile
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+#### 📅 Calendário (Calendar)
+
+Browse all league matches organized by matchweek.
+
+**Features:**
+
+- View matches by week with dates, times, and venues
+- Filter by season to explore historical data
+- Desktop: See all weeks at once
+- Mobile: Navigate with arrow buttons
+- Click any match for detailed information
+
+#### ⚽ Melhores Marcadores (Top Goalscorers)
+
+Track the league's top scorers.
+
+**Features:**
+
+- **Podium View**: Celebrate the top 3 scorers
+- **List View**: See all goalscorers
+- Search by player name
+- Filter by team
+- Season-by-season comparison
+
+#### 🟨 Disciplina (Discipline)
+
+Monitor disciplinary records across the league.
+
+**Displays:**
+
+- Team yellow and red card statistics
+- Currently suspended players
+- Players at risk of suspension (on 2 yellow cards)
+- Average disciplinary points per match
+- Detailed punishment history per team
+
+---
+
+### 🏆 Taça (Cup)
+
+#### 🎯 Sorteio (Tournament Bracket)
+
+Follow the knockout cup competition.
+
+**Features:**
+
+- Interactive tournament bracket visualization
+- All rounds: Round of 16 → Quarter-finals → Semi-finals → Final
+- Desktop: Full bracket view
+- Mobile: Accordion format for easy navigation
+- Winner highlighting
+- Penalty shootout scores included
+
+---
+
+## 📄 Detail Pages
+
+### 🎮 Match Details
+
+Click any match to access comprehensive information:
+
+- ✅ Final score and match status
+- 🏟️ Stadium, date, and time
+- ⚽ Complete list of goalscorers
+- 🟨🟥 Yellow and red cards
+- 👥 Full squad lists for both teams
+- ⛔ Suspended players clearly marked
+- 📥 Downloadable match sheet (PDF format)
+
+### 👕 Team Pages
+
+Each team has a dedicated profile showing:
+
+- 🎨 Team logo and information
+- 👥 Current squad with player photos
+- 📈 Season statistics
+- 📜 Match history
+- 📅 Multi-season performance comparison
+
+---
+
+## 🔐 Admin Features
+
+League administrators have access to additional tools:
+
+- ➕ Create new matches
+- ✏️ Edit match information
+- 🗑️ Delete matches
+- 📝 Record results and match events
+- ⚖️ Manage disciplinary records
+
+_Admin features are only visible when logged in with administrator credentials._
+
+---
+
+## 📱 Mobile Optimized
+
+The entire platform is fully responsive:
+
+- 📲 Touch-friendly interface
+- 🎯 Simplified navigation
+- 📑 Accordion views for compact displays
+- 🔄 Adaptive layouts for all screen sizes
+
+---
+
+## 🕐 Season History
+
+Access historical league data:
+
+- 📅 Current season loads by default
+- 🔄 Switch between seasons with dropdown selectors
+- 📊 Compare team and player performance
+- 📚 Complete match archives
+
+---
+
+## 🚀 Quick Start
+
+1. Visit the homepage
+2. Navigate using the top menu
+3. Select your season of interest
+4. Explore teams, matches, and statistics
+5. Click any item for detailed information
+
+---
+
+## 💡 Tips
+
+- 🖱️ Click on team names to view full team profiles
+- 🎯 Use filters to quickly find specific players or teams
+- 📥 Download match sheets before games
+- 🔄 Switch seasons to compare historical data
+- 📱 Access from any device - desktop, tablet, or mobile
+
+---
+
+<div align="center">
+
+**Built with ⚽ for the Sado Veterans Football League**
+
+_Stay updated. Stay connected. Stay competitive._
+
+</div>
