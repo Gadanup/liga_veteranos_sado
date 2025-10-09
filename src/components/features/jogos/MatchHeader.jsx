@@ -251,7 +251,9 @@ const MatchHeader = ({ matchDetails }) => {
             <Stadium sx={{ color: "white", fontSize: 20 }} />
             <Typography variant="body1" sx={{ color: "white", opacity: 0.9 }}>
               {matchDetails.competition_type === "Supercup"
-                ? "Estádio: Campo António Henrique de Matos"
+                ? matchDetails.season === 2024
+                  ? "Estádio: Campo António Henrique de Matos"
+                  : "Estádio: Campo Municipal da Bela Vista"
                 : matchDetails.home_team.stadium_name}
             </Typography>
           </Box>
