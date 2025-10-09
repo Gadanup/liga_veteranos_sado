@@ -1,7 +1,7 @@
 "use client";
 import localFont from "next/font/local";
 import "./globals.css";
-import Nav from "../components/Nav";
+import Nav from "../components/navigation/Nav";
 import { ThemeWrapper } from "../components/ThemeWrapper";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
