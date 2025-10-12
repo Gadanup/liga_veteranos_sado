@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
-import { Box, Container, Grid } from "@mui/material";
+import { Box, Container, Grid, Fab } from "@mui/material";
+import { Edit } from "@mui/icons-material";
 import { theme } from "../../../styles/theme.js";
+import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 
 // Components
 import MatchHeader from "../../../components/features/jogos/MatchHeader";
@@ -12,6 +14,7 @@ import MatchSheetDownload from "../../../components/features/jogos/MatchSheetDow
 import MatchStatistics from "../../../components/features/jogos/MatchStatistics";
 import TeamSquads from "../../../components/features/jogos/TeamSquads";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
+import EditMatchDialog from "../../../components/features/jogos/EditMatchDialog";
 
 const MatchPage = () => {
   const [matchDetails, setMatchDetails] = useState(null);
@@ -27,7 +30,9 @@ const MatchPage = () => {
   const [seasons, setSeasons] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [supercupMatches, setSupercupMatches] = useState([]);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
+  const { isAdmin } = useIsAdmin();
   const params = useParams();
   const router = useRouter();
   const { id } = params;
@@ -54,151 +59,148 @@ const MatchPage = () => {
   }, []);
 
   // Fetch match data
-  useEffect(() => {
-    if (id && selectedSeason) {
-      const loadMatchData = async () => {
-        setLoading(true);
-        try {
-          // Fetch match details
-          const { data: matchData, error } = await supabase
-            .from("matches")
-            .select(
-              `
-              id, competition_type, week, round, home_goals, away_goals,
-              home_penalties, away_penalties, match_date, match_time,
-              match_sheet, season,
-              home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
-              away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
-            `
-            )
-            .eq("id", id)
-            .single();
+  const loadMatchData = async () => {
+    if (!id || !selectedSeason) return;
 
-          if (error) {
-            setError("Erro ao carregar detalhes do jogo");
-            return;
-          }
+    setLoading(true);
+    try {
+      // Fetch match details
+      const { data: matchData, error } = await supabase
+        .from("matches")
+        .select(
+          `
+          id, competition_type, week, round, home_goals, away_goals,
+          home_penalties, away_penalties, match_date, match_time,
+          match_sheet, season,
+          home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
+          away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
+        `
+        )
+        .eq("id", id)
+        .single();
 
-          setMatchDetails(matchData);
+      if (error) {
+        setError("Erro ao carregar detalhes do jogo");
+        return;
+      }
 
-          // If Supercup, fetch all supercup matches
-          if (matchData.competition_type === "Supercup") {
-            const { data: supercupData } = await supabase
-              .from("matches")
-              .select(
-                `id, season, match_date,
-                home_team:teams!matches_home_team_id_fkey (short_name),
-                away_team:teams!matches_away_team_id_fkey (short_name)`
-              )
-              .eq("competition_type", "Supercup")
-              .order("season", { ascending: false });
+      setMatchDetails(matchData);
 
-            if (supercupData) setSupercupMatches(supercupData);
-          }
+      // If Supercup, fetch all supercup matches
+      if (matchData.competition_type === "Supercup") {
+        const { data: supercupData } = await supabase
+          .from("matches")
+          .select(
+            `id, season, match_date,
+            home_team:teams!matches_home_team_id_fkey (short_name),
+            away_team:teams!matches_away_team_id_fkey (short_name)`
+          )
+          .eq("competition_type", "Supercup")
+          .order("season", { ascending: false });
 
-          // Fetch players, events, suspensions in parallel
-          const [
-            playersResult,
-            eventsResult,
-            suspensionsResult,
-            currentPlayersResult,
-          ] = await Promise.allSettled([
-            supabase
-              .from("players")
-              .select("id, name, photo_url, joker, team_id, previousClub"),
-            supabase
-              .from("match_events")
-              .select("event_type, player_id")
-              .eq("match_id", matchData.id),
-            supabase.from("suspensions").select("player_id").eq("active", true),
-            supabase
-              .from("players")
-              .select("id, name, photo_url, joker, team_id")
-              .in("team_id", [matchData.home_team.id, matchData.away_team.id]),
-          ]);
+        if (supercupData) setSupercupMatches(supercupData);
+      }
 
-          // Process players
-          if (
-            playersResult.status === "fulfilled" &&
-            playersResult.value.data
-          ) {
-            const allPlayers = playersResult.value.data;
-            const homePlayersData = allPlayers.filter(
-              (p) =>
-                p.team_id === matchData.home_team.id ||
-                p.previousClub === matchData.home_team.id
-            );
-            const awayPlayersData = allPlayers.filter(
-              (p) =>
-                p.team_id === matchData.away_team.id ||
-                p.previousClub === matchData.away_team.id
-            );
-            const homePlayerIds = homePlayersData.map((p) => p.id);
-            const filteredAwayPlayers = awayPlayersData.filter(
-              (p) => !homePlayerIds.includes(p.id)
-            );
+      // Fetch players, events, suspensions in parallel
+      const [
+        playersResult,
+        eventsResult,
+        suspensionsResult,
+        currentPlayersResult,
+      ] = await Promise.allSettled([
+        supabase
+          .from("players")
+          .select("id, name, photo_url, joker, team_id, previousClub"),
+        supabase
+          .from("match_events")
+          .select("event_type, player_id")
+          .eq("match_id", matchData.id),
+        supabase.from("suspensions").select("player_id").eq("active", true),
+        supabase
+          .from("players")
+          .select("id, name, photo_url, joker, team_id")
+          .in("team_id", [matchData.home_team.id, matchData.away_team.id]),
+      ]);
 
-            setHomePlayers(homePlayersData);
-            setAwayPlayers(filteredAwayPlayers);
-          }
+      // Process players
+      if (playersResult.status === "fulfilled" && playersResult.value.data) {
+        const allPlayers = playersResult.value.data;
+        const homePlayersData = allPlayers.filter(
+          (p) =>
+            p.team_id === matchData.home_team.id ||
+            p.previousClub === matchData.home_team.id
+        );
+        const awayPlayersData = allPlayers.filter(
+          (p) =>
+            p.team_id === matchData.away_team.id ||
+            p.previousClub === matchData.away_team.id
+        );
+        const homePlayerIds = homePlayersData.map((p) => p.id);
+        const filteredAwayPlayers = awayPlayersData.filter(
+          (p) => !homePlayerIds.includes(p.id)
+        );
 
-          // Process current players
-          if (
-            currentPlayersResult.status === "fulfilled" &&
-            currentPlayersResult.value.data
-          ) {
-            const allCurrentPlayers = currentPlayersResult.value.data;
-            setCurrentHomePlayers(
-              allCurrentPlayers.filter(
-                (p) => p.team_id === matchData.home_team.id
-              )
-            );
-            setCurrentAwayPlayers(
-              allCurrentPlayers.filter(
-                (p) => p.team_id === matchData.away_team.id
-              )
-            );
-          }
+        setHomePlayers(homePlayersData);
+        setAwayPlayers(filteredAwayPlayers);
+      }
 
-          // Process events
-          if (eventsResult.status === "fulfilled" && eventsResult.value.data) {
-            const events = eventsResult.value.data;
-            setMatchEvents(events);
+      // Process current players
+      if (
+        currentPlayersResult.status === "fulfilled" &&
+        currentPlayersResult.value.data
+      ) {
+        const allCurrentPlayers = currentPlayersResult.value.data;
+        setCurrentHomePlayers(
+          allCurrentPlayers.filter((p) => p.team_id === matchData.home_team.id)
+        );
+        setCurrentAwayPlayers(
+          allCurrentPlayers.filter((p) => p.team_id === matchData.away_team.id)
+        );
+      }
 
-            if (events.length > 0) {
-              const playerIds = events.map((e) => e.player_id);
-              const { data: eventPlayersData } = await supabase
-                .from("players")
-                .select("id, name, team_id, joker, previousClub")
-                .in("id", playerIds);
+      // Process events
+      if (eventsResult.status === "fulfilled" && eventsResult.value.data) {
+        const events = eventsResult.value.data;
+        setMatchEvents(events);
 
-              if (eventPlayersData) setPlayersData(eventPlayersData);
-            }
-          }
+        if (events.length > 0) {
+          const playerIds = events.map((e) => e.player_id);
+          const { data: eventPlayersData } = await supabase
+            .from("players")
+            .select("id, name, team_id, joker, previousClub")
+            .in("id", playerIds);
 
-          // Process suspensions
-          if (
-            suspensionsResult.status === "fulfilled" &&
-            suspensionsResult.value.data
-          ) {
-            setSuspendedPlayerIds(
-              suspensionsResult.value.data.map((r) => r.player_id)
-            );
-          }
-        } catch (err) {
-          setError("Erro inesperado ao carregar o jogo");
-        } finally {
-          setLoading(false);
+          if (eventPlayersData) setPlayersData(eventPlayersData);
         }
-      };
+      }
 
-      loadMatchData();
+      // Process suspensions
+      if (
+        suspensionsResult.status === "fulfilled" &&
+        suspensionsResult.value.data
+      ) {
+        setSuspendedPlayerIds(
+          suspensionsResult.value.data.map((r) => r.player_id)
+        );
+      }
+    } catch (err) {
+      setError("Erro inesperado ao carregar o jogo");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadMatchData();
   }, [id, selectedSeason]);
 
   const handleSeasonChange = (newSeasonId) => {
     const match = supercupMatches.find((m) => m.season === newSeasonId);
     if (match) router.push(`/jogos/${match.id}`);
+  };
+
+  const handleEditSuccess = () => {
+    loadMatchData();
   };
 
   if (loading) {
@@ -218,7 +220,7 @@ const MatchPage = () => {
   const isSupercup = matchDetails.competition_type === "Supercup";
 
   return (
-    <Box sx={{ minHeight: "100vh" }}>
+    <Box sx={{ minHeight: "100vh", position: "relative" }}>
       <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
         {/* Season Selector for Supercup */}
         {isSupercup && supercupMatches.length > 1 && (
@@ -257,6 +259,38 @@ const MatchPage = () => {
           suspendedPlayerIds={suspendedPlayerIds}
         />
       </Container>
+
+      {/* Admin Edit Button - Floating Action Button */}
+      {isAdmin && (
+        <Fab
+          color="primary"
+          aria-label="edit"
+          onClick={() => setEditDialogOpen(true)}
+          sx={{
+            position: "fixed",
+            bottom: { xs: 16, md: 32 },
+            right: { xs: 16, md: 32 },
+            backgroundColor: theme.colors.primary[600],
+            "&:hover": {
+              backgroundColor: theme.colors.primary[700],
+              transform: "scale(1.1)",
+            },
+            transition: "all 0.3s ease",
+            boxShadow: theme.shadows.lg,
+          }}
+        >
+          <Edit />
+        </Fab>
+      )}
+
+      {/* Edit Match Dialog */}
+      <EditMatchDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        matchDetails={matchDetails}
+        suspendedPlayerIds={suspendedPlayerIds}
+        onSuccess={handleEditSuccess}
+      />
     </Box>
   );
 };
