@@ -435,7 +435,7 @@ const EditMatchDialog = ({
               />
             </Grid>
 
-            {isCup && (
+            {(isCup || isSupercup) && (
               <>
                 <Grid item xs={12}>
                   <Typography
