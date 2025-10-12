@@ -116,15 +116,27 @@ export const useDisciplineData = (seasonId) => {
       // Sort discipline data
       const sortedData = data
         .sort((a, b) => {
+          // Excluded teams go to the bottom
           if (a.excluded && !b.excluded) return 1;
           if (!a.excluded && b.excluded) return -1;
 
-          const avgA = a.matches_played
-            ? a.calculated_points / a.matches_played
-            : 0;
-          const avgB = b.matches_played
-            ? b.calculated_points / b.matches_played
-            : 0;
+          // Teams with 0 matches should be sorted by total points (not average)
+          // and placed after teams with matches
+          const hasMatchesA = a.matches_played > 0;
+          const hasMatchesB = b.matches_played > 0;
+
+          // If one has matches and the other doesn't
+          if (hasMatchesA && !hasMatchesB) return -1; // A comes first
+          if (!hasMatchesA && hasMatchesB) return 1; // B comes first
+
+          // If both have no matches, sort by total calculated_points (ascending)
+          if (!hasMatchesA && !hasMatchesB) {
+            return a.calculated_points - b.calculated_points;
+          }
+
+          // If both have matches, sort by average (ascending)
+          const avgA = a.calculated_points / a.matches_played;
+          const avgB = b.calculated_points / b.matches_played;
           return avgA - avgB;
         })
         .map((team) => ({
