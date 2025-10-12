@@ -31,7 +31,10 @@ const MatchHeader = ({ matchDetails }) => {
         return { fontWeight: "bold", color: theme.colors.accent[500] };
       } else if (awayGoals > homeGoals && team === "away") {
         return { fontWeight: "bold", color: theme.colors.accent[500] };
-      } else if (homeGoals === awayGoals && competitionType === "Cup") {
+      } else if (
+        homeGoals === awayGoals &&
+        (competitionType === "Cup" || competitionType === "Supercup")
+      ) {
         if (homePenalties > awayPenalties && team === "home") {
           return { fontWeight: "bold", color: theme.colors.accent[500] };
         } else if (awayPenalties > homePenalties && team === "away") {
@@ -125,7 +128,8 @@ const MatchHeader = ({ matchDetails }) => {
                 {matchDetails.home_goals !== null
                   ? matchDetails.home_goals
                   : "-"}
-                {matchDetails.competition_type === "Cup" &&
+                {(matchDetails.competition_type === "Cup" ||
+                  matchDetails.competition_type === "Supercup") &&
                   matchDetails.home_penalties !== null &&
                   ` (${matchDetails.home_penalties})`}
               </Typography>
@@ -157,7 +161,8 @@ const MatchHeader = ({ matchDetails }) => {
                 <Typography variant="h6">{matchDetails.match_time}</Typography>
               </Box>
 
-              {matchDetails.competition_type === "Cup" &&
+              {(matchDetails.competition_type === "Cup" ||
+                matchDetails.competition_type === "Supercup") &&
                 (matchDetails.home_penalties !== null ||
                   matchDetails.away_penalties !== null) && (
                   <Typography
@@ -227,7 +232,8 @@ const MatchHeader = ({ matchDetails }) => {
                 {matchDetails.away_goals !== null
                   ? matchDetails.away_goals
                   : "-"}
-                {matchDetails.competition_type === "Cup" &&
+                {(matchDetails.competition_type === "Cup" ||
+                  matchDetails.competition_type === "Supercup") &&
                   matchDetails.away_penalties !== null &&
                   ` (${matchDetails.away_penalties})`}
               </Typography>
