@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 import { supabase } from "../../../lib/supabase";
 import { Box, Container, Typography, Grid } from "@mui/material";
@@ -23,6 +23,7 @@ const LeagueFixtures = () => {
   const [loading, setLoading] = useState(true);
   const [createMatchDialogOpen, setCreateMatchDialogOpen] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAdmin } = useIsAdmin(false);
 
   // Fetch seasons
@@ -64,7 +65,8 @@ const LeagueFixtures = () => {
       .eq("competition_type", "League")
       .eq("season", seasonId)
       .order("week", { ascending: true })
-      .order("match_date", { ascending: true });
+      .order("match_date", { ascending: true })
+      .order("match_time", { ascending: true });
 
     if (!error) {
       const groupedByWeek = matches.reduce((acc, match) => {
@@ -75,7 +77,23 @@ const LeagueFixtures = () => {
       }, {});
 
       setFixturesByWeek(groupedByWeek);
-      setCurrentWeek(findClosestWeek(groupedByWeek));
+
+      // Check if there's a week in the URL
+      const urlWeek = searchParams.get("week");
+      const urlSeason = searchParams.get("season");
+
+      if (urlWeek && urlSeason === String(seasonId) && groupedByWeek[urlWeek]) {
+        // Use week from URL if it matches current season and exists
+        setCurrentWeek(urlWeek);
+      } else {
+        // Otherwise find closest week
+        const closestWeek = findClosestWeek(groupedByWeek);
+        setCurrentWeek(closestWeek);
+        // Update URL with current week
+        if (closestWeek) {
+          updateURL(closestWeek, seasonId);
+        }
+      }
     }
     setLoading(false);
   };
@@ -98,6 +116,23 @@ const LeagueFixtures = () => {
     return closestWeek;
   };
 
+  const updateURL = (week, season) => {
+    const params = new URLSearchParams();
+    if (week) params.set("week", week);
+    if (season) params.set("season", season);
+    router.push(`/liga/calendario?${params.toString()}`, { scroll: false });
+  };
+
+  const handleWeekChange = (newWeek) => {
+    setCurrentWeek(newWeek);
+    updateURL(newWeek, selectedSeason);
+  };
+
+  const handleSeasonChange = (newSeason) => {
+    setSelectedSeason(newSeason);
+    // Don't update week yet, let readAllMatches handle it
+  };
+
   useEffect(() => {
     if (selectedSeason) {
       readAllMatches(selectedSeason);
@@ -118,7 +153,7 @@ const LeagueFixtures = () => {
         <CalendarHeader
           seasons={seasons}
           selectedSeason={selectedSeason}
-          onSeasonChange={setSelectedSeason}
+          onSeasonChange={handleSeasonChange}
           isAdmin={isAdmin}
           onCreateMatch={() => setCreateMatchDialogOpen(true)}
         />
@@ -128,7 +163,7 @@ const LeagueFixtures = () => {
           <WeekNavigator
             weekList={weekList}
             currentWeek={currentWeek}
-            onWeekChange={setCurrentWeek}
+            onWeekChange={handleWeekChange}
           />
         )}
 
