@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -7,6 +7,9 @@ import {
   Typography,
   Chip,
   IconButton,
+  Tooltip,
+  Badge,
+  Popover,
 } from "@mui/material";
 import {
   CalendarToday,
@@ -15,6 +18,8 @@ import {
   Edit,
   Delete,
   Visibility,
+  Block,
+  Warning,
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { supabase } from "../../../../lib/supabase";
@@ -24,7 +29,7 @@ import EditMatchDialog from "./EditMatchDialog";
 
 /**
  * MatchCard Component
- * Displays individual match information with admin controls
+ * Displays individual match information with admin controls and suspended players
  *
  * @param {Object} match - Match data
  * @param {boolean} isAdmin - Whether user has admin privileges
@@ -34,6 +39,52 @@ const MatchCard = ({ match, isAdmin, onUpdate }) => {
   const router = useRouter();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [suspendedPlayers, setSuspendedPlayers] = useState({
+    home: [],
+    away: [],
+  });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [popoverTeam, setPopoverTeam] = useState(null);
+
+  // Fetch suspended players for both teams
+  useEffect(() => {
+    const fetchSuspendedPlayers = async () => {
+      const { data: suspensions, error } = await supabase
+        .from("suspensions")
+        .select(`player_id, players!inner (name, team_id)`)
+        .eq("active", true)
+        .eq("season", match.season)
+        .in("players.team_id", [match.home_team_id, match.away_team_id]);
+
+      if (!error && suspensions) {
+        const homeSuspended = suspensions
+          .filter((s) => s.players.team_id === match.home_team_id)
+          .map((s) => s.players.name);
+
+        const awaySuspended = suspensions
+          .filter((s) => s.players.team_id === match.away_team_id)
+          .map((s) => s.players.name);
+
+        setSuspendedPlayers({
+          home: homeSuspended,
+          away: awaySuspended,
+        });
+      }
+    };
+
+    fetchSuspendedPlayers();
+  }, [match]);
+
+  const handleSuspensionClick = (event, team) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+    setPopoverTeam(team);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+    setPopoverTeam(null);
+  };
 
   const determineMatchResult = (home_goals, away_goals) => {
     if (home_goals === null || away_goals === null) return null;
@@ -77,6 +128,40 @@ const MatchCard = ({ match, isAdmin, onUpdate }) => {
 
   const result = determineMatchResult(match.home_goals, match.away_goals);
   const isPlayed = result !== null;
+  const hasSuspensions =
+    suspendedPlayers.home.length > 0 || suspendedPlayers.away.length > 0;
+
+  const SuspensionBadge = ({ team, count }) => {
+    if (count === 0) return null;
+
+    return (
+      <Box
+        sx={{
+          position: "absolute",
+          top: -4,
+          right: -4,
+          backgroundColor: "#ef4444",
+          color: "white",
+          borderRadius: "50%",
+          width: 20,
+          height: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "10px",
+          fontWeight: "bold",
+          border: "2px solid white",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          zIndex: 5,
+          pointerEvents: "none",
+        }}
+      >
+        {count}
+      </Box>
+    );
+  };
+
+  const open = Boolean(anchorEl);
 
   return (
     <>
@@ -180,6 +265,7 @@ const MatchCard = ({ match, isAdmin, onUpdate }) => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
+            paddingTop: hasSuspensions ? "32px" : "20px",
           }}
         >
           {/* Status Chip */}
@@ -245,26 +331,53 @@ const MatchCard = ({ match, isAdmin, onUpdate }) => {
               gap={1}
             >
               <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: theme.colors.background.secondary,
-                  border: `2px solid ${theme.colors.border.primary}`,
+                sx={{ position: "relative" }}
+                onClick={(e) => {
+                  if (suspendedPlayers.home.length > 0) {
+                    handleSuspensionClick(e, "home");
+                  }
                 }}
               >
-                <img
-                  src={match.home_team.logo_url}
-                  alt={match.home_team.short_name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: theme.colors.background.secondary,
+                    border: `2px solid ${
+                      suspendedPlayers.home.length > 0
+                        ? "#ef4444"
+                        : theme.colors.border.primary
+                    }`,
+                    cursor:
+                      suspendedPlayers.home.length > 0 ? "pointer" : "default",
+                    transition: "all 0.2s ease",
+                    "&:hover":
+                      suspendedPlayers.home.length > 0
+                        ? {
+                            transform: "scale(1.1)",
+                            boxShadow: "0 4px 8px rgba(239, 68, 68, 0.3)",
+                          }
+                        : {},
                   }}
+                >
+                  <img
+                    src={match.home_team.logo_url}
+                    alt={match.home_team.short_name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+                <SuspensionBadge
+                  team="home"
+                  count={suspendedPlayers.home.length}
                 />
               </Box>
               <Typography
@@ -312,26 +425,53 @@ const MatchCard = ({ match, isAdmin, onUpdate }) => {
               gap={1}
             >
               <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  overflow: "hidden",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: theme.colors.background.secondary,
-                  border: `2px solid ${theme.colors.border.primary}`,
+                sx={{ position: "relative" }}
+                onClick={(e) => {
+                  if (suspendedPlayers.away.length > 0) {
+                    handleSuspensionClick(e, "away");
+                  }
                 }}
               >
-                <img
-                  src={match.away_team.logo_url}
-                  alt={match.away_team.short_name}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: theme.colors.background.secondary,
+                    border: `2px solid ${
+                      suspendedPlayers.away.length > 0
+                        ? "#ef4444"
+                        : theme.colors.border.primary
+                    }`,
+                    cursor:
+                      suspendedPlayers.away.length > 0 ? "pointer" : "default",
+                    transition: "all 0.2s ease",
+                    "&:hover":
+                      suspendedPlayers.away.length > 0
+                        ? {
+                            transform: "scale(1.1)",
+                            boxShadow: "0 4px 8px rgba(239, 68, 68, 0.3)",
+                          }
+                        : {},
                   }}
+                >
+                  <img
+                    src={match.away_team.logo_url}
+                    alt={match.away_team.short_name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+                <SuspensionBadge
+                  team="away"
+                  count={suspendedPlayers.away.length}
                 />
               </Box>
               <Typography
@@ -381,6 +521,95 @@ const MatchCard = ({ match, isAdmin, onUpdate }) => {
           </Box>
         </CardContent>
       </Card>
+
+      {/* Suspension Popover */}
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        onClick={(e) => e.stopPropagation()}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+            border: "2px solid #ef4444",
+            minWidth: "200px",
+            maxWidth: "280px",
+          },
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={1}
+            mb={1.5}
+            sx={{
+              borderBottom: "2px solid #fee2e2",
+              pb: 1,
+            }}
+          >
+            <Block sx={{ fontSize: 20, color: "#ef4444" }} />
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: "bold",
+                color: "#991b1b",
+              }}
+            >
+              {popoverTeam === "home"
+                ? match.home_team.short_name
+                : match.away_team.short_name}
+            </Typography>
+          </Box>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.colors.text.secondary,
+              display: "block",
+              mb: 1,
+              fontSize: "11px",
+            }}
+          >
+            Jogadores Suspensos:
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            {(popoverTeam === "home"
+              ? suspendedPlayers.home
+              : suspendedPlayers.away
+            ).map((player, index) => (
+              <Box
+                key={index}
+                sx={{
+                  backgroundColor: "#fef2f2",
+                  padding: "6px 10px",
+                  borderRadius: "6px",
+                  border: "1px solid #fee2e2",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "13px",
+                    fontWeight: "500",
+                    color: "#991b1b",
+                  }}
+                >
+                  {player}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Popover>
 
       {/* Delete Dialog */}
       <DeleteMatchDialog
