@@ -131,7 +131,7 @@ export const socialLinks = [
   {
     name: "Facebook",
     icon: "facebook",
-    url: "https://facebook.com/placeholder", // Replace with actual URL
+    url: "https://www.facebook.com/profile.php?id=61581706886192&rdid=GFsVs4JAbAfkm68J&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CgPNN6UEn%2F", // Replace with actual URL
     color: "#1877F2",
   },
   {
