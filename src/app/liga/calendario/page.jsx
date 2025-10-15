@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 import { supabase } from "../../../lib/supabase";
@@ -15,7 +15,7 @@ import CreateMatchDialog from "../../../components/features/liga/calendario/Crea
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import EmptyState from "../../../components/shared/EmptyState";
 
-const LeagueFixtures = () => {
+const LeagueFixturesContent = () => {
   const [fixturesByWeek, setFixturesByWeek] = useState({});
   const [currentWeek, setCurrentWeek] = useState(null);
   const [seasons, setSeasons] = useState([]);
@@ -242,6 +242,14 @@ const LeagueFixtures = () => {
         />
       </Container>
     </Box>
+  );
+};
+
+const LeagueFixtures = () => {
+  return (
+    <Suspense fallback={<LoadingSkeleton message="A carregar jogos..." />}>
+      <LeagueFixturesContent />
+    </Suspense>
   );
 };
 
