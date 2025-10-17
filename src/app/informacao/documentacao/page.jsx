@@ -21,17 +21,31 @@ import BallsInfoCard from "../../../components/features/informacao/documentacao/
 import FooterInfo from "../../../components/features/informacao/documentacao/FooterInfo";
 
 const documents = [
+  // Old regulation kept for reference
+  // {
+  //   id: 1,
+  //   text: "REGULAMENTO 2024/2025",
+  //   link: "https://drive.google.com/file/d/1PntSOOChfXJMn2_Tdyp0mU8qcy_HhJMj/view?usp=sharing",
+  //   icon: "Rule",
+  //   color: theme.colors.primary[500],
+  //   description: "Regulamento oficial da temporada",
+  //   category: "Essencial",
+  //   fileType: "PDF",
+  //   size: "2.4 MB",
+  //   lastUpdated: "15 Set 2024",
+  //   priority: "high",
+  // },
   {
     id: 1,
-    text: "REGULAMENTO 2024/2025",
-    link: "https://drive.google.com/file/d/1PntSOOChfXJMn2_Tdyp0mU8qcy_HhJMj/view?usp=sharing",
+    text: "REGULAMENTO 2025/2026",
+    link: "https://drive.google.com/file/d/1nT7aJWLuh34ArfHtohUx9qxuAjk934tk/view?usp=drive_link",
     icon: "Rule",
     color: theme.colors.primary[500],
     description: "Regulamento oficial da temporada",
     category: "Essencial",
     fileType: "PDF",
-    size: "2.4 MB",
-    lastUpdated: "15 Set 2024",
+    size: "5.6 MB",
+    lastUpdated: "17 Set 2025",
     priority: "high",
   },
   {
