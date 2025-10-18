@@ -11,7 +11,7 @@ import { theme } from "../../../../styles/theme.js";
  * @param {number} position - Position (0=1st, 1=2nd, 2=3rd)
  * @param {boolean} isMobile - Whether viewing on mobile
  */
-const PodiumCard = ({ player, position, isMobile }) => {
+const PodiumCard = ({ player, position, isMobile, onPlayerClick }) => {
   const getPodiumPosition = (position) => {
     if (position === 0)
       return {
@@ -30,9 +30,11 @@ const PodiumCard = ({ player, position, isMobile }) => {
 
   return (
     <Card
+      onClick={() => onPlayerClick(player)}
       sx={{
         background: `linear-gradient(135deg, ${theme.colors.background.card} 0%, ${theme.colors.background.tertiary} 100%)`,
         borderRadius: "20px",
+        cursor: "pointer",
         border: `3px solid ${podiumInfo.color}`,
         boxShadow: `0 8px 32px rgba(0,0,0,0.1)`,
         position: "relative",

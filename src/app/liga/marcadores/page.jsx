@@ -10,6 +10,7 @@ import GoalscorersHeader from "../../../components/features/liga/marcadores/Goal
 import GoalscorersFilters from "../../../components/features/liga/marcadores/GoalscorersFilters";
 import PodiumCard from "../../../components/features/liga/marcadores/PodiumCard";
 import PlayerCard from "../../../components/features/liga/marcadores/PlayerCard";
+import PlayerDetailsModal from "../../../components/features/liga/marcadores/PlayersDetailsModal";
 import { useGoalscorersData } from "../../../hooks/liga/marcadores/useGoalscorersData";
 
 const Goalscorers = () => {
@@ -18,6 +19,7 @@ const Goalscorers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [teamFilter, setTeamFilter] = useState("");
   const [viewMode, setViewMode] = useState("podium");
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const { goalscorers, teams, loading } = useGoalscorersData(selectedSeason);
@@ -168,6 +170,7 @@ const Goalscorers = () => {
                   player={player}
                   position={index}
                   isMobile={isMobile}
+                  onPlayerClick={setSelectedPlayer}
                 />
               </Grid>
             ))}
@@ -176,11 +179,23 @@ const Goalscorers = () => {
           <Grid container spacing={2}>
             {filteredGoalscorers.map((player, index) => (
               <Grid item xs={12} sm={6} md={4} key={player.id}>
-                <PlayerCard player={player} index={index} />
+                <PlayerCard
+                  player={player}
+                  index={index}
+                  onPlayerClick={setSelectedPlayer}
+                />
               </Grid>
             ))}
           </Grid>
         )}
+
+        {/* Player Details Modal */}
+        <PlayerDetailsModal
+          open={Boolean(selectedPlayer)}
+          onClose={() => setSelectedPlayer(null)}
+          player={selectedPlayer}
+          seasonId={selectedSeason}
+        />
       </Container>
     </Box>
   );

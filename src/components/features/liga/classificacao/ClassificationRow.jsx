@@ -1,16 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
+import { Tooltip } from "@mui/material";
+import dayjs from "dayjs";
 
 /**
- * ClassificationRow Component
- * Displays a single team row in the classification table
- *
- * @param {Object} team - Team data
- * @param {number} position - Team's position in table
- * @param {number} selectedSeason - Currently selected season
- * @param {boolean} isMobile - Whether viewing on mobile
- * @param {Object} router - Next.js router
- * @param {Object} theme - Theme object
- * @param {boolean} isEvenRow - Whether this is an even row for alternating colors
+ * ClassificationRow Component with Form Guide
  */
 const ClassificationRow = ({
   team,
@@ -20,7 +13,9 @@ const ClassificationRow = ({
   router,
   theme,
   isEvenRow,
+  formData = [],
 }) => {
+  const [hoveredForm, setHoveredForm] = useState(null);
   const goalDiff = team.goals_for - team.goals_against;
   const isExcluded = team.teams.excluded;
 
@@ -68,6 +63,73 @@ const ClassificationRow = ({
     return theme.colors.neutral[500];
   };
 
+  const getFormColor = (result) => {
+    switch (result) {
+      case "W":
+        return theme.colors.sports.win;
+      case "L":
+        return theme.colors.sports.loss;
+      case "D":
+        return theme.colors.sports.draw;
+      default:
+        return theme.colors.neutral[300];
+    }
+  };
+
+  const FormCircle = ({ match, index }) => {
+    if (!match) {
+      return (
+        <div
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            backgroundColor: theme.colors.neutral[200],
+            border: `1px solid ${theme.colors.neutral[300]}`,
+          }}
+        />
+      );
+    }
+
+    return (
+      <Tooltip
+        title={
+          <div style={{ textAlign: "center", padding: "4px" }}>
+            <div style={{ fontWeight: "bold", marginBottom: "2px" }}>
+              {match.result === "W"
+                ? "Vitória"
+                : match.result === "L"
+                  ? "Derrota"
+                  : "Empate"}
+            </div>
+            <div style={{ fontSize: "11px" }}>vs {match.opponent}</div>
+            <div style={{ fontSize: "11px" }}>{match.score}</div>
+            <div style={{ fontSize: "10px", opacity: 0.8 }}>
+              {dayjs(match.date).format("DD/MM/YYYY")}
+            </div>
+          </div>
+        }
+        arrow
+        placement="top"
+      >
+        <div
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            backgroundColor: getFormColor(match.result),
+            border: `2px solid ${getFormColor(match.result)}`,
+            cursor: "pointer",
+            transition: "all 0.2s",
+            transform: hoveredForm === index ? "scale(1.3)" : "scale(1)",
+          }}
+          onMouseEnter={() => setHoveredForm(index)}
+          onMouseLeave={() => setHoveredForm(null)}
+        />
+      </Tooltip>
+    );
+  };
+
   return (
     <div
       onClick={() =>
@@ -79,7 +141,7 @@ const ClassificationRow = ({
         display: "grid",
         gridTemplateColumns: isMobile
           ? "35px 1fr 35px 35px 35px 35px 45px 35px"
-          : "50px 1fr 40px 40px 40px 40px 75px 50px 50px",
+          : "50px 1fr 40px 40px 40px 40px 75px 50px 50px 120px",
         gap: isMobile ? "4px" : theme.spacing.sm,
         padding: isMobile
           ? `${theme.spacing.sm} ${theme.spacing.xs}`
@@ -206,7 +268,7 @@ const ClassificationRow = ({
             : theme.colors.text.primary,
         }}
       >
-        {isExcluded ? "-" : team.matches_played}
+        {team.matches_played}
       </div>
 
       {/* Wins */}
@@ -220,7 +282,7 @@ const ClassificationRow = ({
             : theme.colors.sports.win,
         }}
       >
-        {isExcluded ? "-" : team.wins}
+        {team.wins}
       </div>
 
       {/* Draws */}
@@ -234,7 +296,7 @@ const ClassificationRow = ({
             : theme.colors.sports.draw,
         }}
       >
-        {isExcluded ? "-" : team.draws}
+        {team.draws}
       </div>
 
       {/* Losses */}
@@ -248,7 +310,7 @@ const ClassificationRow = ({
             : theme.colors.sports.loss,
         }}
       >
-        {isExcluded ? "-" : team.losses}
+        {team.losses}
       </div>
 
       {/* Goals */}
@@ -262,33 +324,27 @@ const ClassificationRow = ({
             : theme.colors.text.primary,
         }}
       >
-        {isExcluded ? (
-          "-"
-        ) : (
-          <span>
-            <span
-              style={{
-                fontWeight: theme.typography.fontWeight.bold,
-                color: theme.colors.sports.goals,
-              }}
-            >
-              {team.goals_for}
-            </span>
-            <span
-              style={{ color: theme.colors.text.tertiary, margin: "0 1px" }}
-            >
-              :
-            </span>
-            <span
-              style={{
-                fontWeight: theme.typography.fontWeight.bold,
-                color: theme.colors.error[600],
-              }}
-            >
-              {team.goals_against}
-            </span>
+        <span>
+          <span
+            style={{
+              fontWeight: theme.typography.fontWeight.bold,
+              color: theme.colors.sports.goals,
+            }}
+          >
+            {team.goals_for}
           </span>
-        )}
+          <span style={{ color: theme.colors.text.tertiary, margin: "0 1px" }}>
+            :
+          </span>
+          <span
+            style={{
+              fontWeight: theme.typography.fontWeight.bold,
+              color: theme.colors.error[600],
+            }}
+          >
+            {team.goals_against}
+          </span>
+        </span>
       </div>
 
       {/* Goal Difference - Desktop only */}
@@ -301,7 +357,7 @@ const ClassificationRow = ({
             color: getGoalDifferenceColor(goalDiff, isExcluded),
           }}
         >
-          {isExcluded ? "-" : goalDiff > 0 ? `+${goalDiff}` : goalDiff}
+          {goalDiff > 0 ? `+${goalDiff}` : goalDiff}
         </div>
       )}
 
@@ -326,9 +382,25 @@ const ClassificationRow = ({
             lineHeight: "1.2",
           }}
         >
-          {isExcluded ? "-" : team.points}
+          {team.points}
         </div>
       </div>
+
+      {/* Form Guide - Desktop only */}
+      {!isMobile && (
+        <div
+          style={{
+            display: "flex",
+            gap: "4px",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {[0, 1, 2, 3, 4].map((index) => (
+            <FormCircle key={index} match={formData[index]} index={index} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
