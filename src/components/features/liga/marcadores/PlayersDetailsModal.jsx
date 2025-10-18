@@ -236,6 +236,7 @@ const PlayerDetailsModal = ({ open, onClose, player, seasonId }) => {
           alignItems: "center",
           justifyContent: "space-between",
           pb: 2,
+          mb: 2,
         }}
       >
         <Box display="flex" alignItems="center" gap={2}>
