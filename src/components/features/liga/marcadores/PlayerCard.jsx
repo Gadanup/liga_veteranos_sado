@@ -17,12 +17,14 @@ import { theme } from "../../../../styles/theme.js";
  * @param {Object} player - Player data
  * @param {number} index - Index for animation delay
  */
-const PlayerCard = ({ player, index }) => {
+const PlayerCard = ({ player, index, onPlayerClick }) => {
   return (
     <Card
+      onClick={() => onPlayerClick(player)}
       sx={{
         background: theme.colors.background.card,
         borderRadius: "16px",
+        cursor: "pointer",
         border: `2px solid ${theme.colors.border.purple}`,
         boxShadow: theme.components.card.shadow,
         transition: "all 0.3s ease",

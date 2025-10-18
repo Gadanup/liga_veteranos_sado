@@ -1,16 +1,18 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
-import { EmojiEvents } from "@mui/icons-material";
+import {
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  Chip,
+  FormControl,
+} from "@mui/material";
+import { EmojiEvents, CalendarToday } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
 
 /**
  * GoalscorersHeader Component
- * Displays page title and season selector
- *
- * @param {Array} seasons - Available seasons
- * @param {number} selectedSeason - Currently selected season
- * @param {Function} onSeasonChange - Callback when season changes
- * @param {boolean} isMobile - Whether viewing on mobile
+ * Displays page title and enhanced season selector
  */
 const GoalscorersHeader = ({
   seasons,
@@ -61,54 +63,93 @@ const GoalscorersHeader = ({
         />
       </Box>
 
-      {/* Season Selector */}
-      <Box
-        display="flex"
-        alignItems="center"
-        gap={1}
-        sx={{
-          backgroundColor: theme.colors.background.card,
-          padding: "8px 16px",
-          borderRadius: "12px",
-          boxShadow: theme.components.card.shadow,
-          border: `2px solid ${theme.colors.primary[200]}`,
-          minWidth: isMobile ? "auto" : "200px",
-        }}
-      >
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: "14px",
-            fontWeight: "medium",
-            color: theme.colors.text.secondary,
-            whiteSpace: "nowrap",
-          }}
-        >
-          Época:
-        </Typography>
-        <select
+      {/* Enhanced Season Selector */}
+      <FormControl sx={{ minWidth: isMobile ? "100%" : 200 }}>
+        <Select
           value={selectedSeason || ""}
           onChange={(e) => onSeasonChange(Number(e.target.value))}
-          style={{
-            padding: "4px 12px",
-            fontSize: "16px",
-            fontWeight: "600",
+          displayEmpty
+          startAdornment={
+            <CalendarToday
+              sx={{
+                mr: 1,
+                fontSize: 20,
+                color: theme.colors.primary[600],
+              }}
+            />
+          }
+          sx={{
+            backgroundColor: theme.colors.background.card,
+            borderRadius: "12px",
+            border: `2px solid ${theme.colors.primary[200]}`,
+            boxShadow: theme.shadows.md,
+            fontWeight: 600,
             color: theme.colors.primary[700],
-            backgroundColor: "transparent",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            outline: "none",
-            fontFamily: "inherit",
+            "& .MuiOutlinedInput-notchedOutline": {
+              border: "none",
+            },
+            "&:hover": {
+              backgroundColor: theme.colors.background.card,
+              border: `2px solid ${theme.colors.primary[300]}`,
+            },
+            "&.Mui-focused": {
+              backgroundColor: theme.colors.background.card,
+              border: `2px solid ${theme.colors.primary[500]}`,
+            },
+            "& .MuiSelect-select": {
+              py: 1.5,
+              px: 2,
+              display: "flex",
+              alignItems: "center",
+            },
+          }}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                borderRadius: "12px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                border: `1px solid ${theme.colors.border.primary}`,
+                mt: 1,
+                maxHeight: 300,
+                "& .MuiMenuItem-root": {
+                  py: 1.5,
+                  px: 2,
+                  borderRadius: "8px",
+                  mx: 1,
+                  my: 0.5,
+                  "&:hover": {
+                    backgroundColor: theme.colors.primary[50],
+                  },
+                  "&.Mui-selected": {
+                    backgroundColor: theme.colors.primary[100],
+                    fontWeight: 600,
+                    "&:hover": {
+                      backgroundColor: theme.colors.primary[150],
+                    },
+                  },
+                },
+              },
+            },
           }}
         >
           {seasons.map((season) => (
-            <option key={season.id} value={season.id}>
-              {season.description}
-            </option>
+            <MenuItem key={season.id} value={season.id}>
+              <Box display="flex" alignItems="center" gap={1.5}>
+                <Box>
+                  <Box
+                    sx={{
+                      fontWeight: 600,
+                      color: theme.colors.text.primary,
+                    }}
+                  >
+                    Época {season.description}
+                  </Box>
+                </Box>
+              </Box>
+            </MenuItem>
           ))}
-        </select>
-      </Box>
+        </Select>
+      </FormControl>
     </Box>
   );
 };

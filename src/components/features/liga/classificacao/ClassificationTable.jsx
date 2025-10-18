@@ -1,15 +1,9 @@
 import React from "react";
+import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import ClassificationRow from "./ClassificationRow";
 
 /**
- * ClassificationTable Component
- * Displays the standings table with header and rows
- *
- * @param {Array} classification - Classification data
- * @param {number} selectedSeason - Currently selected season
- * @param {boolean} isMobile - Whether viewing on mobile
- * @param {Object} router - Next.js router
- * @param {Object} theme - Theme object
+ * ClassificationTable Component with Sorting
  */
 const ClassificationTable = ({
   classification,
@@ -17,7 +11,51 @@ const ClassificationTable = ({
   isMobile,
   router,
   theme,
+  formData,
+  sortBy,
+  sortOrder,
+  onSort,
 }) => {
+  const SortIcon = ({ field }) => {
+    if (sortBy !== field) return null;
+    return sortOrder === "desc" ? (
+      <ArrowDownward sx={{ fontSize: 14, ml: 0.5 }} />
+    ) : (
+      <ArrowUpward sx={{ fontSize: 14, ml: 0.5 }} />
+    );
+  };
+
+  const HeaderCell = ({ field, label, clickable = true }) => (
+    <div
+      onClick={() => clickable && onSort(field)}
+      style={{
+        textAlign: "center",
+        cursor: clickable ? "pointer" : "default",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "all 0.2s",
+        userSelect: "none",
+        ...(clickable && {
+          "&:hover": {
+            color: theme.colors.accent[300],
+          },
+        }),
+      }}
+      onMouseEnter={(e) => {
+        if (clickable) {
+          e.currentTarget.style.color = theme.colors.accent[300];
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.color = theme.colors.text.inverse;
+      }}
+    >
+      {label}
+      {clickable && <SortIcon field={field} />}
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -38,7 +76,7 @@ const ClassificationTable = ({
           display: "grid",
           gridTemplateColumns: isMobile
             ? "35px 1fr 35px 35px 35px 35px 45px 35px"
-            : "50px 1fr 40px 40px 40px 40px 75px 50px 50px",
+            : "50px 1fr 40px 40px 40px 40px 75px 50px 50px 120px",
           gap: isMobile ? "4px" : theme.spacing.sm,
           fontWeight: theme.typography.fontWeight.semibold,
           fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
@@ -50,13 +88,14 @@ const ClassificationTable = ({
         <div style={{ paddingLeft: isMobile ? "4px" : "8px" }}>
           {isMobile ? "TEAM" : "EQUIPA"}
         </div>
-        <div style={{ textAlign: "center" }}>J</div>
-        <div style={{ textAlign: "center" }}>V</div>
-        <div style={{ textAlign: "center" }}>E</div>
-        <div style={{ textAlign: "center" }}>D</div>
-        <div style={{ textAlign: "center" }}>{isMobile ? "G" : "GOLOS"}</div>
-        {!isMobile && <div style={{ textAlign: "center" }}>DG</div>}
-        <div style={{ textAlign: "center" }}>{isMobile ? "P" : "PTS"}</div>
+        <HeaderCell field="matches_played" label="J" />
+        <HeaderCell field="wins" label="V" />
+        <HeaderCell field="draws" label="E" />
+        <HeaderCell field="losses" label="D" />
+        <HeaderCell field="goals_for" label={isMobile ? "G" : "GOLOS"} />
+        {!isMobile && <HeaderCell field="goal_difference" label="DG" />}
+        <HeaderCell field="points" label={isMobile ? "P" : "PTS"} />
+        {!isMobile && <div style={{ textAlign: "center" }}>FORMA</div>}
       </div>
 
       {/* Table Body */}
@@ -71,6 +110,7 @@ const ClassificationTable = ({
             router={router}
             theme={theme}
             isEvenRow={index % 2 === 0}
+            formData={formData[team.team_id] || []}
           />
         ))}
       </div>

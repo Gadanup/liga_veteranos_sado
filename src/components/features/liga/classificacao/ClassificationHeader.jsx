@@ -1,14 +1,17 @@
 import React from "react";
+import {
+  Select,
+  MenuItem,
+  Box,
+  Chip,
+  Button,
+  FormControl,
+} from "@mui/material";
+import { CalendarToday, CompareArrows } from "@mui/icons-material";
 
 /**
  * ClassificationHeader Component
- * Displays the page title and season selector
- *
- * @param {Array} seasons - Available seasons
- * @param {number} selectedSeason - Currently selected season
- * @param {Function} onSeasonChange - Callback when season changes
- * @param {boolean} isMobile - Whether viewing on mobile
- * @param {Object} theme - Theme object
+ * Displays the page title, enhanced season selector, and comparison button
  */
 const ClassificationHeader = ({
   seasons,
@@ -16,6 +19,7 @@ const ClassificationHeader = ({
   onSeasonChange,
   isMobile,
   theme,
+  onOpenComparison,
 }) => {
   return (
     <div
@@ -46,56 +50,118 @@ const ClassificationHeader = ({
         </h1>
       </div>
 
-      {/* Season Selector */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: theme.spacing.sm,
-          backgroundColor: theme.colors.background.card,
-          padding: `${theme.spacing.sm} ${theme.spacing.lg}`,
-          borderRadius: theme.borderRadius.xl,
-          boxShadow: theme.shadows.md,
-          border: `2px solid ${theme.colors.primary[200]}`,
-          minWidth: isMobile ? "auto" : "200px",
-        }}
-      >
-        <label
-          htmlFor="season-select"
-          style={{
-            fontSize: theme.typography.fontSize.sm,
-            fontWeight: theme.typography.fontWeight.medium,
-            color: theme.colors.text.secondary,
-            whiteSpace: "nowrap",
-          }}
-        >
-          Época:
-        </label>
-        <select
-          id="season-select"
-          value={selectedSeason || ""}
-          onChange={(e) => onSeasonChange(Number(e.target.value))}
-          style={{
-            padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-            fontSize: theme.typography.fontSize.base,
-            fontWeight: theme.typography.fontWeight.semibold,
-            color: theme.colors.primary[700],
-            backgroundColor: "transparent",
-            border: "none",
-            borderRadius: theme.borderRadius.md,
-            cursor: "pointer",
-            outline: "none",
-            transition: theme.transitions.normal,
-            fontFamily: theme.typography.fontFamily.primary,
-          }}
-        >
-          {seasons.map((season) => (
-            <option key={season.id} value={season.id}>
-              {season.description}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Actions Container */}
+      <Box display="flex" gap={2} flexDirection={isMobile ? "column" : "row"}>
+        {/* Compare Button - Desktop Only */}
+        {!isMobile && (
+          <Button
+            variant="outlined"
+            startIcon={<CompareArrows />}
+            onClick={onOpenComparison}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              borderColor: theme.colors.primary[300],
+              color: theme.colors.primary[700],
+              "&:hover": {
+                borderColor: theme.colors.primary[500],
+                backgroundColor: theme.colors.primary[50],
+              },
+            }}
+          >
+            Comparar Equipas
+          </Button>
+        )}
+
+        {/* Enhanced Season Selector */}
+        <FormControl sx={{ minWidth: isMobile ? "100%" : 200 }}>
+          <Select
+            value={selectedSeason || ""}
+            onChange={(e) => onSeasonChange(Number(e.target.value))}
+            displayEmpty
+            startAdornment={
+              <CalendarToday
+                sx={{
+                  mr: 1,
+                  fontSize: 20,
+                  color: theme.colors.primary[600],
+                }}
+              />
+            }
+            sx={{
+              backgroundColor: theme.colors.background.card,
+              borderRadius: "12px",
+              border: `2px solid ${theme.colors.primary[200]}`,
+              boxShadow: theme.shadows.md,
+              fontWeight: 600,
+              color: theme.colors.primary[700],
+              "& .MuiOutlinedInput-notchedOutline": {
+                border: "none",
+              },
+              "&:hover": {
+                backgroundColor: theme.colors.background.card,
+                border: `2px solid ${theme.colors.primary[300]}`,
+              },
+              "&.Mui-focused": {
+                backgroundColor: theme.colors.background.card,
+                border: `2px solid ${theme.colors.primary[500]}`,
+              },
+              "& .MuiSelect-select": {
+                py: 1.5,
+                px: 2,
+                display: "flex",
+                alignItems: "center",
+              },
+            }}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  borderRadius: "12px",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                  border: `1px solid ${theme.colors.border.primary}`,
+                  mt: 1,
+                  maxHeight: 300,
+                  "& .MuiMenuItem-root": {
+                    py: 1.5,
+                    px: 2,
+                    borderRadius: "8px",
+                    mx: 1,
+                    my: 0.5,
+                    "&:hover": {
+                      backgroundColor: theme.colors.primary[50],
+                    },
+                    "&.Mui-selected": {
+                      backgroundColor: theme.colors.primary[100],
+                      fontWeight: 600,
+                      "&:hover": {
+                        backgroundColor: theme.colors.primary[150],
+                      },
+                    },
+                  },
+                },
+              },
+            }}
+          >
+            {seasons.map((season) => (
+              <MenuItem key={season.id} value={season.id}>
+                <Box display="flex" alignItems="center" gap={1.5}>
+                  <Box>
+                    <Box
+                      sx={{
+                        fontWeight: 600,
+                        color: theme.colors.text.primary,
+                      }}
+                    >
+                      Época {season.description}
+                    </Box>
+                  </Box>
+                </Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
     </div>
   );
 };

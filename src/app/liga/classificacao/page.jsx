@@ -10,6 +10,7 @@ import ClassificationLegend from "../../../components/features/liga/classificaca
 import ClassificationTable from "../../../components/features/liga/classificacao/ClassificationTable";
 import ClassificationStats from "../../../components/features/liga/classificacao/ClassificationStats";
 import LoadingSkeleton from "../../../components/features/liga/classificacao/LoadingSkeleton";
+import ComparisonModal from "../../../components/features/liga/classificacao/ComparisonModal";
 
 const Classification = () => {
   const [classification, setClassification] = useState([]);
@@ -17,6 +18,10 @@ const Classification = () => {
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [sortBy, setSortBy] = useState("points");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
+  const [formData, setFormData] = useState({});
   const router = useRouter();
   const theme = useTheme();
 
@@ -51,6 +56,71 @@ const Classification = () => {
     fetchSeasons();
   }, []);
 
+  // Fetch form data (last 5 matches for each team)
+  const fetchFormData = async (seasonId) => {
+    const { data: matches, error } = await supabase
+      .from("matches")
+      .select(
+        `
+        id, match_date, home_team_id, away_team_id, 
+        home_goals, away_goals, competition_type,
+        home_team:teams!matches_home_team_id_fkey (short_name),
+        away_team:teams!matches_away_team_id_fkey (short_name)
+      `
+      )
+      .eq("season", seasonId)
+      .eq("competition_type", "League")
+      .not("home_goals", "is", null)
+      .not("away_goals", "is", null)
+      .order("match_date", { ascending: false });
+
+    if (!error && matches) {
+      const formByTeam = {};
+
+      matches.forEach((match) => {
+        // Process home team
+        if (!formByTeam[match.home_team_id]) {
+          formByTeam[match.home_team_id] = [];
+        }
+        if (formByTeam[match.home_team_id].length < 5) {
+          const result =
+            match.home_goals > match.away_goals
+              ? "W"
+              : match.home_goals < match.away_goals
+                ? "L"
+                : "D";
+          formByTeam[match.home_team_id].push({
+            result,
+            opponent: match.away_team.short_name,
+            score: `${match.home_goals}-${match.away_goals}`,
+            date: match.match_date,
+          });
+        }
+
+        // Process away team
+        if (!formByTeam[match.away_team_id]) {
+          formByTeam[match.away_team_id] = [];
+        }
+        if (formByTeam[match.away_team_id].length < 5) {
+          const result =
+            match.away_goals > match.home_goals
+              ? "W"
+              : match.away_goals < match.home_goals
+                ? "L"
+                : "D";
+          formByTeam[match.away_team_id].push({
+            result,
+            opponent: match.home_team.short_name,
+            score: `${match.away_goals}-${match.home_goals}`,
+            date: match.match_date,
+          });
+        }
+      });
+
+      setFormData(formByTeam);
+    }
+  };
+
   // Fetch classification
   const readClassification = async (seasonId) => {
     if (!seasonId) return;
@@ -68,22 +138,95 @@ const Classification = () => {
       .eq("season_year", seasonId);
 
     if (!error) {
-      const sortedData = classificationData.sort((a, b) => {
-        if (a.teams.excluded && !b.teams.excluded) return 1;
-        if (!a.teams.excluded && b.teams.excluded) return -1;
-
-        const goalDifferenceA = a.goals_for - a.goals_against;
-        const goalDifferenceB = b.goals_for - b.goals_against;
-
-        if (a.points !== b.points) return b.points - a.points;
-        if (goalDifferenceA !== goalDifferenceB)
-          return goalDifferenceB - goalDifferenceA;
-        return b.goals_for - a.goals_for;
-      });
-
+      const sortedData = sortClassification(
+        classificationData,
+        sortBy,
+        sortOrder
+      );
       setClassification(sortedData);
     }
+
+    // Fetch form data
+    await fetchFormData(seasonId);
+
     setLoading(false);
+  };
+
+  const sortClassification = (data, field, order) => {
+    return [...data].sort((a, b) => {
+      // Excluded teams always go to bottom
+      if (a.teams.excluded && !b.teams.excluded) return 1;
+      if (!a.teams.excluded && b.teams.excluded) return -1;
+
+      let valueA, valueB;
+
+      switch (field) {
+        case "points":
+          valueA = a.points;
+          valueB = b.points;
+          break;
+        case "goals_for":
+          valueA = a.goals_for;
+          valueB = b.goals_for;
+          break;
+        case "goals_against":
+          valueA = a.goals_against;
+          valueB = b.goals_against;
+          break;
+        case "goal_difference":
+          valueA = a.goals_for - a.goals_against;
+          valueB = b.goals_for - b.goals_against;
+          break;
+        case "wins":
+          valueA = a.wins;
+          valueB = b.wins;
+          break;
+        case "draws":
+          valueA = a.draws;
+          valueB = b.draws;
+          break;
+        case "losses":
+          valueA = a.losses;
+          valueB = b.losses;
+          break;
+        case "matches_played":
+          valueA = a.matches_played;
+          valueB = b.matches_played;
+          break;
+        default:
+          // Default sorting by points, then goal difference, then goals for
+          if (a.points !== b.points) return b.points - a.points;
+          const gdA = a.goals_for - a.goals_against;
+          const gdB = b.goals_for - b.goals_against;
+          if (gdA !== gdB) return gdB - gdA;
+          return b.goals_for - a.goals_for;
+      }
+
+      if (order === "desc") {
+        return valueB - valueA;
+      } else {
+        return valueA - valueB;
+      }
+    });
+  };
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      // Toggle order
+      setSortOrder(sortOrder === "desc" ? "asc" : "desc");
+      setClassification(
+        sortClassification(
+          classification,
+          field,
+          sortOrder === "desc" ? "asc" : "desc"
+        )
+      );
+    } else {
+      // New field, default to desc
+      setSortBy(field);
+      setSortOrder("desc");
+      setClassification(sortClassification(classification, field, "desc"));
+    }
   };
 
   useEffect(() => {
@@ -107,6 +250,7 @@ const Classification = () => {
         onSeasonChange={setSelectedSeason}
         isMobile={isMobile}
         theme={theme}
+        onOpenComparison={() => setComparisonModalOpen(true)}
       />
 
       {/* Legend */}
@@ -142,6 +286,10 @@ const Classification = () => {
             isMobile={isMobile}
             router={router}
             theme={theme}
+            formData={formData}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
           />
           {!isMobile && (
             <ClassificationStats
@@ -151,6 +299,15 @@ const Classification = () => {
           )}
         </>
       )}
+
+      {/* Comparison Modal */}
+      <ComparisonModal
+        open={comparisonModalOpen}
+        onClose={() => setComparisonModalOpen(false)}
+        classification={classification}
+        selectedSeason={selectedSeason}
+        theme={theme}
+      />
     </div>
   );
 };
