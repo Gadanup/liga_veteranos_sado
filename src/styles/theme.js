@@ -135,7 +135,7 @@ export const theme = {
     // Sports-specific colors (harmonized with your theme)
     sports: {
       win: "#22c55e", // Green for wins
-      draw: "#f97316", // Orange for draws
+      draw: "#ffd700", // Orange for draws
       loss: "#ef4444", // Red for losses
       home: "#6b4ba1", // Your purple for home team
       away: "#64748b", // Slate gray for away team

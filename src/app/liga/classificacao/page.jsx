@@ -158,13 +158,27 @@ const Classification = () => {
       if (a.teams.excluded && !b.teams.excluded) return 1;
       if (!a.teams.excluded && b.teams.excluded) return -1;
 
+      // Teams with 0 matches always go to bottom (but above excluded teams)
+      if (a.matches_played === 0 && b.matches_played > 0) return 1;
+      if (a.matches_played > 0 && b.matches_played === 0) return -1;
+
       let valueA, valueB;
 
       switch (field) {
         case "points":
-          valueA = a.points;
-          valueB = b.points;
-          break;
+          // When sorting by points, apply full tiebreaker logic
+          if (a.points !== b.points) {
+            return order === "desc" ? b.points - a.points : a.points - b.points;
+          }
+          // If points are equal, use tiebreakers
+          const gdA = a.goals_for - a.goals_against;
+          const gdB = b.goals_for - b.goals_against;
+          if (gdA !== gdB) return gdB - gdA;
+          if (a.goals_for !== b.goals_for) return b.goals_for - a.goals_for;
+          if (a.matches_played !== b.matches_played)
+            return b.matches_played - a.matches_played;
+          return 0;
+
         case "goals_for":
           valueA = a.goals_for;
           valueB = b.goals_for;
@@ -194,12 +208,15 @@ const Classification = () => {
           valueB = b.matches_played;
           break;
         default:
-          // Default sorting by points, then goal difference, then goals for
+          // Default sorting: Points → Goal Difference → Goals For → Matches Played
           if (a.points !== b.points) return b.points - a.points;
-          const gdA = a.goals_for - a.goals_against;
-          const gdB = b.goals_for - b.goals_against;
-          if (gdA !== gdB) return gdB - gdA;
-          return b.goals_for - a.goals_for;
+          const gdA_default = a.goals_for - a.goals_against;
+          const gdB_default = b.goals_for - b.goals_against;
+          if (gdA_default !== gdB_default) return gdB_default - gdA_default;
+          if (a.goals_for !== b.goals_for) return b.goals_for - a.goals_for;
+          if (a.matches_played !== b.matches_played)
+            return b.matches_played - a.matches_played;
+          return 0;
       }
 
       if (order === "desc") {
