@@ -9,7 +9,7 @@ import { theme } from "../../../styles/theme.js";
 // Components
 import DisciplineHeader from "../../../components/features/liga/disciplina/DisciplineHeader";
 import DisciplineCard from "../../../components/features/liga/disciplina/DisciplineCard";
-import PunishmentModal from "../../../components/features/liga/disciplina/PunishmentModal";
+import EnhancedDisciplineModal from "../../../components/features/liga/disciplina/EnhancedDisciplineModal";
 import { useDisciplineData } from "../../../hooks/liga/disciplina/useDisciplineData";
 
 const Discipline = () => {
@@ -52,14 +52,15 @@ const Discipline = () => {
         team_punishment_id, event_date, description, quantity, team_id,
         match_id, punishment_type_id, season, player_id,
         team:teams (id, short_name, logo_url),
-        punishment_type:punishment_types (punishment_type_id, description),
+        punishment_type:punishment_types (punishment_type_id, description, points_added),
         match:matches (id, home_team_id, away_team_id),
         season_table:seasons (id),
         player:players (id, name)
       `
       )
       .eq("team_id", teamId)
-      .eq("season", selectedSeason);
+      .eq("season", selectedSeason)
+      .order("event_date", { ascending: false });
 
     if (!error) {
       setPunishmentEvents(data ?? []);
@@ -75,6 +76,13 @@ const Discipline = () => {
   const handleClose = () => {
     setOpen(false);
     setPunishmentEvents([]);
+  };
+
+  const handleDataUpdate = async () => {
+    // Refetch discipline data after changes
+    await fetchPunishmentEvents(currentTeamId);
+    // This will trigger a re-render of the discipline data
+    window.location.reload(); // Simple solution, or you can implement a more elegant refresh
   };
 
   if (loading && seasons.length === 0) {
@@ -195,13 +203,15 @@ const Discipline = () => {
         )}
       </Container>
 
-      {/* Punishment Modal */}
-      <PunishmentModal
+      {/* Enhanced Discipline Modal */}
+      <EnhancedDisciplineModal
         open={open}
         onClose={handleClose}
         currentTeam={currentTeam}
         punishmentEvents={punishmentEvents}
         isMobile={isMobile}
+        selectedSeason={selectedSeason}
+        onDataUpdate={handleDataUpdate}
       />
     </Box>
   );
