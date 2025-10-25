@@ -31,6 +31,7 @@ import {
   Snackbar,
   Autocomplete,
   FormHelperText,
+  Avatar,
 } from "@mui/material";
 import {
   Close,
@@ -45,6 +46,7 @@ import {
   Delete,
   Warning,
   SportsSoccer,
+  TrendingUp,
 } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
 import { supabase } from "../../../../lib/supabase.ts";
@@ -409,22 +411,68 @@ const EnhancedDisciplineModal = ({
 
     return (
       <Box>
-        <Grid container spacing={3} mb={3}>
+        <Grid container spacing={2.5} mb={3}>
           <Grid item xs={12} md={4}>
             <Card
               sx={{
                 background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
                 boxShadow: theme.components.card.shadow,
+                borderRadius: "16px",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: theme.components.card.hoverShadow,
+                },
               }}
             >
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Amarelos
+              <CardContent sx={{ p: 3 }}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={2}
+                >
+                  <Box
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: "12px",
+                      background: "rgba(251, 191, 36, 0.2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "16px",
+                        height: "24px",
+                        backgroundColor: "#ffcd00",
+                        borderRadius: "3px",
+                        border: "1px solid #000",
+                      }}
+                    />
+                  </Box>
+                </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={600}
+                  mb={0.5}
+                >
+                  Cartões Amarelos
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+                <Typography
+                  variant="h3"
+                  sx={{ fontWeight: "bold", color: "#92400e" }}
+                >
                   {currentTeam?.yellow_cards || 0}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1, display: "block" }}
+                >
                   Total na época
                 </Typography>
               </CardContent>
@@ -435,16 +483,62 @@ const EnhancedDisciplineModal = ({
               sx={{
                 background: "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)",
                 boxShadow: theme.components.card.shadow,
+                borderRadius: "16px",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: theme.components.card.hoverShadow,
+                },
               }}
             >
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Vermelhos
+              <CardContent sx={{ p: 3 }}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={2}
+                >
+                  <Box
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: "12px",
+                      background: "rgba(239, 68, 68, 0.2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "16px",
+                        height: "24px",
+                        backgroundColor: "#ef4444",
+                        borderRadius: "3px",
+                        border: "1px solid #000",
+                      }}
+                    />
+                  </Box>
+                </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={600}
+                  mb={0.5}
+                >
+                  Cartões Vermelhos
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+                <Typography
+                  variant="h3"
+                  sx={{ fontWeight: "bold", color: "#991b1b" }}
+                >
                   {currentTeam?.red_cards || 0}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1, display: "block" }}
+                >
                   Total na época
                 </Typography>
               </CardContent>
@@ -455,24 +549,71 @@ const EnhancedDisciplineModal = ({
               sx={{
                 background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
                 boxShadow: theme.components.card.shadow,
+                borderRadius: "16px",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                  boxShadow: theme.components.card.hoverShadow,
+                },
               }}
             >
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
+              <CardContent sx={{ p: 3 }}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={2}
+                >
+                  <Box
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: "12px",
+                      background: "rgba(59, 130, 246, 0.2)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <TrendingUp sx={{ fontSize: 28, color: "#1e40af" }} />
+                  </Box>
+                </Box>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontWeight={600}
+                  mb={0.5}
+                >
                   Pontos Totais
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+                <Typography
+                  variant="h3"
+                  sx={{ fontWeight: "bold", color: "#1e40af" }}
+                >
                   {currentTeam?.calculated_points || 0}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Média: {avgPoints}
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1, display: "block" }}
+                >
+                  Média: {avgPoints} por jogo
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
 
-        <Alert severity="info" icon={<Info />} sx={{ mb: 3 }}>
+        <Alert
+          severity="info"
+          icon={<Info />}
+          sx={{
+            mb: 3,
+            borderRadius: "12px",
+            border: "1px solid #bfdbfe",
+            backgroundColor: "#eff6ff",
+          }}
+        >
           <Typography variant="body2">
             <strong>Sistema de Pontuação:</strong> Amarelo = 5 pontos | Vermelho
             = 20 pontos | Suspensões a cada 3 amarelos (3º, 6º, 9º, etc.)
@@ -480,22 +621,55 @@ const EnhancedDisciplineModal = ({
         </Alert>
 
         {currentTeam?.suspendedPlayers?.length > 0 && (
-          <Card sx={{ mb: 2 }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center", gap: 1 }}
-              >
-                <PersonOff color="error" />
-                Jogadores Suspensos
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+          <Card
+            sx={{
+              mb: 2.5,
+              borderRadius: "16px",
+              border: "2px solid #fecaca",
+              backgroundColor: "#fef2f2",
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" gap={1.5} mb={2}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "10px",
+                    background: "rgba(239, 68, 68, 0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <PersonOff
+                    sx={{ color: theme.colors.sports.loss, fontSize: 24 }}
+                  />
+                </Box>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color={theme.colors.sports.loss}
+                >
+                  Jogadores Suspensos
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
                 {currentTeam.suspendedPlayers.map((player, idx) => (
                   <Chip
                     key={idx}
                     label={player}
-                    color="error"
+                    sx={{
+                      backgroundColor: "#ef4444",
+                      color: "white",
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      height: "36px",
+                      borderRadius: "10px",
+                      "& .MuiChip-icon": {
+                        color: "white",
+                      },
+                    }}
                     icon={<PersonOff />}
                   />
                 ))}
@@ -505,17 +679,39 @@ const EnhancedDisciplineModal = ({
         )}
 
         {currentTeam?.atRiskPlayers?.length > 0 && (
-          <Card>
-            <CardContent>
-              <Typography
-                variant="h6"
-                gutterBottom
-                sx={{ display: "flex", alignItems: "center", gap: 1 }}
-              >
-                <Warning sx={{ color: theme.colors.sports.draw }} />
-                Jogadores em Risco
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+          <Card
+            sx={{
+              borderRadius: "16px",
+              border: "2px solid #fde68a",
+              backgroundColor: "#fffbeb",
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" gap={1.5} mb={2}>
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "10px",
+                    background: "rgba(251, 191, 36, 0.2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Warning
+                    sx={{ color: theme.colors.sports.draw, fontSize: 24 }}
+                  />
+                </Box>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color={theme.colors.sports.draw}
+                >
+                  Jogadores em Risco
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
                 {currentTeam.atRiskPlayers.map((player, idx) => (
                   <Chip
                     key={idx}
@@ -523,6 +719,13 @@ const EnhancedDisciplineModal = ({
                     sx={{
                       backgroundColor: theme.colors.sports.draw,
                       color: "white",
+                      fontWeight: 600,
+                      fontSize: "14px",
+                      height: "36px",
+                      borderRadius: "10px",
+                      "& .MuiChip-icon": {
+                        color: "white",
+                      },
                     }}
                     icon={<Warning />}
                   />
@@ -545,7 +748,13 @@ const EnhancedDisciplineModal = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="h6">Suspensões</Typography>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              color={theme.colors.text.primary}
+            >
+              Suspensões
+            </Typography>
             <Button
               variant="contained"
               startIcon={<Add />}
@@ -554,6 +763,13 @@ const EnhancedDisciplineModal = ({
                 background: theme.colors.themed.purpleGradient,
                 textTransform: "none",
                 fontWeight: 600,
+                borderRadius: "12px",
+                px: 3,
+                py: 1,
+                boxShadow: theme.components.card.shadow,
+                "&:hover": {
+                  boxShadow: theme.components.card.hoverShadow,
+                },
               }}
             >
               Adicionar Suspensão
@@ -562,17 +778,34 @@ const EnhancedDisciplineModal = ({
         )}
 
         {suspensions.length > 0 ? (
-          <TableContainer component={Paper} sx={{ borderRadius: "12px" }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: "16px",
+              boxShadow: theme.components.card.shadow,
+              border: `1px solid ${theme.colors.border.purple}`,
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: theme.colors.primary[50] }}>
-                  <TableCell sx={{ fontWeight: "bold" }}>Jogador</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Data</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Jogos</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Motivo</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Estado</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    Jogador
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>Data</TableCell>
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    Jogos
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    Motivo
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    Estado
+                  </TableCell>
                   {isAdmin && (
-                    <TableCell sx={{ fontWeight: "bold" }}>Ações</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                      Ações
+                    </TableCell>
                   )}
                 </TableRow>
               </TableHead>
@@ -582,41 +815,40 @@ const EnhancedDisciplineModal = ({
                     (p) => p.id === suspension.player_id
                   );
                   return (
-                    <TableRow key={suspension.id}>
+                    <TableRow
+                      key={suspension.id}
+                      sx={{
+                        "&:nth-of-type(odd)": {
+                          backgroundColor: theme.colors.background.secondary,
+                        },
+                        "&:hover": {
+                          backgroundColor: theme.colors.primary[50],
+                        },
+                      }}
+                    >
                       <TableCell>
                         <Box display="flex" alignItems="center" gap={1.5}>
                           {player?.photo_url ? (
-                            <img
+                            <Avatar
                               src={player.photo_url}
-                              alt={suspension.player_name}
-                              style={{
+                              sx={{
                                 width: 36,
                                 height: 36,
-                                borderRadius: "50%",
-                                objectFit: "cover",
                                 border: `2px solid ${theme.colors.border.purple}`,
                               }}
                             />
                           ) : (
-                            <Box
+                            <Avatar
                               sx={{
                                 width: 36,
                                 height: 36,
-                                borderRadius: "50%",
                                 backgroundColor: theme.colors.primary[100],
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
+                                color: theme.colors.primary[600],
                                 border: `2px solid ${theme.colors.border.purple}`,
                               }}
                             >
-                              <Person
-                                sx={{
-                                  fontSize: 20,
-                                  color: theme.colors.primary[600],
-                                }}
-                              />
-                            </Box>
+                              <Person sx={{ fontSize: 20 }} />
+                            </Avatar>
                           )}
                           <Typography fontWeight={600}>
                             {suspension.player_name}
@@ -628,13 +860,25 @@ const EnhancedDisciplineModal = ({
                           suspension.suspension_date
                         ).toLocaleDateString("pt-PT")}
                       </TableCell>
-                      <TableCell>{suspension.matches_suspended}</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={suspension.matches_suspended}
+                          size="small"
+                          sx={{
+                            backgroundColor: theme.colors.primary[600],
+                            color: "white",
+                            fontWeight: 600,
+                            borderRadius: "8px",
+                          }}
+                        />
+                      </TableCell>
                       <TableCell>{suspension.reason}</TableCell>
                       <TableCell>
                         <Chip
                           label={suspension.active ? "Ativa" : "Cumprida"}
                           color={suspension.active ? "error" : "success"}
                           size="small"
+                          sx={{ fontWeight: 600, borderRadius: "8px" }}
                         />
                       </TableCell>
                       {isAdmin && (
@@ -647,6 +891,11 @@ const EnhancedDisciplineModal = ({
                                 handleDeactivateSuspension(suspension.id)
                               }
                               disabled={loading}
+                              sx={{
+                                textTransform: "none",
+                                fontWeight: 600,
+                                borderRadius: "8px",
+                              }}
                             >
                               Cumprir
                             </Button>
@@ -660,7 +909,26 @@ const EnhancedDisciplineModal = ({
             </Table>
           </TableContainer>
         ) : (
-          <Alert severity="info">Nenhuma suspensão registada</Alert>
+          <Box
+            sx={{
+              p: 6,
+              textAlign: "center",
+              backgroundColor: theme.colors.background.tertiary,
+              borderRadius: "16px",
+              border: `2px dashed ${theme.colors.border.purple}`,
+            }}
+          >
+            <PersonOff
+              sx={{ fontSize: 60, color: theme.colors.neutral[400], mb: 2 }}
+            />
+            <Typography
+              variant="h6"
+              color={theme.colors.text.secondary}
+              fontWeight={600}
+            >
+              Nenhuma suspensão registada
+            </Typography>
+          </Box>
         )}
       </Box>
     );
@@ -676,7 +944,13 @@ const EnhancedDisciplineModal = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="h6">Castigos da Equipa</Typography>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              color={theme.colors.text.primary}
+            >
+              Castigos da Equipa
+            </Typography>
             <Button
               variant="contained"
               startIcon={<Add />}
@@ -685,6 +959,13 @@ const EnhancedDisciplineModal = ({
                 background: theme.colors.themed.purpleGradient,
                 textTransform: "none",
                 fontWeight: 600,
+                borderRadius: "12px",
+                px: 3,
+                py: 1,
+                boxShadow: theme.components.card.shadow,
+                "&:hover": {
+                  boxShadow: theme.components.card.hoverShadow,
+                },
               }}
             >
               Adicionar Castigo
@@ -693,33 +974,50 @@ const EnhancedDisciplineModal = ({
         )}
 
         {punishmentEvents?.length > 0 ? (
-          <TableContainer component={Paper} sx={{ borderRadius: "12px" }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: "16px",
+              boxShadow: theme.components.card.shadow,
+              border: `1px solid ${theme.colors.border.purple}`,
+            }}
+          >
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: theme.colors.primary[50] }}>
-                  <TableCell sx={{ fontWeight: "bold" }}>
-                    <DateRange sx={{ verticalAlign: "middle", mr: 1 }} />
-                    Data
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <DateRange sx={{ fontSize: 18 }} />
+                      Data
+                    </Box>
                   </TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>
-                    <Gavel sx={{ verticalAlign: "middle", mr: 1 }} />
-                    Tipo
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Gavel sx={{ fontSize: 18 }} />
+                      Tipo
+                    </Box>
                   </TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>
-                    <Info sx={{ verticalAlign: "middle", mr: 1 }} />
-                    Descrição
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Info sx={{ fontSize: 18 }} />
+                      Descrição
+                    </Box>
                   </TableCell>
                   {!isMobile && (
-                    <TableCell sx={{ fontWeight: "bold" }}>
-                      <Person sx={{ verticalAlign: "middle", mr: 1 }} />
-                      Jogador
+                    <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Person sx={{ fontSize: 18 }} />
+                        Jogador
+                      </Box>
                     </TableCell>
                   )}
-                  <TableCell sx={{ fontWeight: "bold" }} align="center">
+                  <TableCell sx={{ fontWeight: "bold", py: 2 }} align="center">
                     Qtd
                   </TableCell>
                   {isAdmin && (
-                    <TableCell sx={{ fontWeight: "bold" }}>Ações</TableCell>
+                    <TableCell sx={{ fontWeight: "bold", py: 2 }}>
+                      Ações
+                    </TableCell>
                   )}
                 </TableRow>
               </TableHead>
@@ -753,6 +1051,7 @@ const EnhancedDisciplineModal = ({
                             backgroundColor: theme.colors.sports.draw,
                             color: "white",
                             fontWeight: "bold",
+                            borderRadius: "8px",
                           }}
                         />
                       </TableCell>
@@ -764,37 +1063,26 @@ const EnhancedDisciplineModal = ({
                           {event.player?.name ? (
                             <Box display="flex" alignItems="center" gap={1.5}>
                               {player?.photo_url ? (
-                                <img
+                                <Avatar
                                   src={player.photo_url}
-                                  alt={event.player.name}
-                                  style={{
+                                  sx={{
                                     width: 32,
                                     height: 32,
-                                    borderRadius: "50%",
-                                    objectFit: "cover",
                                     border: `2px solid ${theme.colors.border.purple}`,
                                   }}
                                 />
                               ) : (
-                                <Box
+                                <Avatar
                                   sx={{
                                     width: 32,
                                     height: 32,
-                                    borderRadius: "50%",
                                     backgroundColor: theme.colors.primary[100],
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
+                                    color: theme.colors.primary[600],
                                     border: `2px solid ${theme.colors.border.purple}`,
                                   }}
                                 >
-                                  <Person
-                                    sx={{
-                                      fontSize: 18,
-                                      color: theme.colors.primary[600],
-                                    }}
-                                  />
-                                </Box>
+                                  <Person sx={{ fontSize: 18 }} />
+                                </Avatar>
                               )}
                               <Typography>{event.player.name}</Typography>
                             </Box>
@@ -811,6 +1099,7 @@ const EnhancedDisciplineModal = ({
                             backgroundColor: theme.colors.primary[600],
                             color: "white",
                             fontWeight: "bold",
+                            borderRadius: "8px",
                           }}
                         />
                       </TableCell>
@@ -823,6 +1112,11 @@ const EnhancedDisciplineModal = ({
                               handleDeletePunishment(event.team_punishment_id)
                             }
                             disabled={loading}
+                            sx={{
+                              "&:hover": {
+                                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                              },
+                            }}
                           >
                             <Delete />
                           </IconButton>
@@ -835,13 +1129,22 @@ const EnhancedDisciplineModal = ({
             </Table>
           </TableContainer>
         ) : (
-          <Box textAlign="center" py={6}>
+          <Box
+            sx={{
+              p: 6,
+              textAlign: "center",
+              backgroundColor: theme.colors.background.tertiary,
+              borderRadius: "16px",
+              border: `2px dashed ${theme.colors.border.purple}`,
+            }}
+          >
             <Shield
               sx={{ fontSize: 60, color: theme.colors.neutral[400], mb: 2 }}
             />
             <Typography
               variant="h6"
-              sx={{ color: theme.colors.text.secondary }}
+              color={theme.colors.text.secondary}
+              fontWeight={600}
             >
               Nenhum castigo registado
             </Typography>
@@ -854,10 +1157,15 @@ const EnhancedDisciplineModal = ({
   const renderPlayersTab = () => {
     return (
       <Box>
-        <Typography variant="h6" mb={3}>
+        <Typography
+          variant="h6"
+          mb={3}
+          fontWeight="bold"
+          color={theme.colors.text.primary}
+        >
           Estado dos Jogadores
         </Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2.5}>
           {players.map((player) => {
             const status = getPlayerYellowCardStatus(player.yellow_cards);
             const yellowCards = playerYellowCardDetails[player.id] || [];
@@ -868,11 +1176,22 @@ const EnhancedDisciplineModal = ({
                   sx={{
                     border: status.warning
                       ? `2px solid ${theme.colors.sports.loss}`
-                      : "none",
+                      : `1px solid ${theme.colors.border.purple}`,
                     backgroundColor: status.warning ? "#fef2f2" : "white",
+                    borderRadius: "16px",
+                    boxShadow: status.warning
+                      ? "0 4px 12px rgba(239, 68, 68, 0.15)"
+                      : theme.components.card.shadow,
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: status.warning
+                        ? "0 8px 20px rgba(239, 68, 68, 0.2)"
+                        : theme.components.card.hoverShadow,
+                    },
                   }}
                 >
-                  <CardContent>
+                  <CardContent sx={{ p: 3 }}>
                     <Box
                       display="flex"
                       justifyContent="space-between"
@@ -881,35 +1200,31 @@ const EnhancedDisciplineModal = ({
                     >
                       <Box display="flex" alignItems="center" gap={2}>
                         {player.photo_url ? (
-                          <img
+                          <Avatar
                             src={player.photo_url}
-                            alt={player.name}
-                            style={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                              border: `2px solid ${theme.colors.border.purple}`,
+                            sx={{
+                              width: 56,
+                              height: 56,
+                              border: `3px solid ${theme.colors.border.purple}`,
                             }}
                           />
                         ) : (
-                          <Box
+                          <Avatar
                             sx={{
-                              width: 48,
-                              height: 48,
-                              borderRadius: "50%",
+                              width: 56,
+                              height: 56,
                               backgroundColor: theme.colors.primary[100],
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              border: `2px solid ${theme.colors.border.purple}`,
+                              color: theme.colors.primary[600],
+                              border: `3px solid ${theme.colors.border.purple}`,
                             }}
                           >
-                            <Person sx={{ color: theme.colors.primary[600] }} />
-                          </Box>
+                            <Person sx={{ fontSize: 28 }} />
+                          </Avatar>
                         )}
                         <Box>
-                          <Typography variant="h6">{player.name}</Typography>
+                          <Typography variant="h6" fontWeight="bold">
+                            {player.name}
+                          </Typography>
                           <Typography variant="body2" color="text.secondary">
                             {player.yellow_cards}{" "}
                             {player.yellow_cards === 1
@@ -919,9 +1234,24 @@ const EnhancedDisciplineModal = ({
                         </Box>
                       </Box>
                       {status.warning && (
-                        <Warning
-                          sx={{ color: theme.colors.sports.loss, fontSize: 32 }}
-                        />
+                        <Box
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: "12px",
+                            background: "rgba(239, 68, 68, 0.1)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Warning
+                            sx={{
+                              color: theme.colors.sports.loss,
+                              fontSize: 28,
+                            }}
+                          />
+                        </Box>
                       )}
                     </Box>
 
@@ -934,14 +1264,27 @@ const EnhancedDisciplineModal = ({
                     >
                       <Chip
                         label={`${player.yellow_cards} Amarelos`}
-                        sx={{ backgroundColor: "#fef3c7", fontWeight: 600 }}
+                        sx={{
+                          backgroundColor: "#fef3c7",
+                          fontWeight: 600,
+                          fontSize: "14px",
+                          height: "32px",
+                          borderRadius: "8px",
+                        }}
                       />
-                      <Typography
-                        variant="body2"
-                        sx={{ color: status.color, fontWeight: 600 }}
-                      >
-                        {status.text}
-                      </Typography>
+                      <Chip
+                        label={status.text}
+                        sx={{
+                          backgroundColor: status.warning
+                            ? "rgba(239, 68, 68, 0.1)"
+                            : "rgba(107, 75, 161, 0.1)",
+                          color: status.color,
+                          fontWeight: 600,
+                          fontSize: "14px",
+                          height: "32px",
+                          borderRadius: "8px",
+                        }}
+                      />
                     </Box>
 
                     {yellowCards.length > 0 && (
@@ -1069,8 +1412,8 @@ const EnhancedDisciplineModal = ({
             maxWidth: 1200,
             maxHeight: "90vh",
             backgroundColor: theme.colors.background.card,
-            borderRadius: "20px",
-            boxShadow: 24,
+            borderRadius: "24px",
+            boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
@@ -1089,44 +1432,78 @@ const EnhancedDisciplineModal = ({
           >
             <Box display="flex" alignItems="center" gap={2}>
               {currentTeam?.teams?.logo_url && (
-                <img
-                  src={currentTeam.teams.logo_url}
-                  alt="Team logo"
-                  style={{
-                    width: 48,
-                    height: 48,
-                    objectFit: "contain",
+                <Box
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: "14px",
                     background: "white",
-                    borderRadius: "50%",
-                    padding: 4,
+                    padding: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                />
+                >
+                  <img
+                    src={currentTeam.teams.logo_url}
+                    alt="Team logo"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
               )}
               <Box>
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
                   Gestão Disciplinar
                 </Typography>
-                <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                <Typography variant="body1" sx={{ opacity: 0.95 }}>
                   {currentTeam?.teams?.short_name}
                 </Typography>
               </Box>
             </Box>
-            <IconButton onClick={onClose} sx={{ color: "white" }}>
+            <IconButton
+              onClick={onClose}
+              sx={{
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              }}
+            >
               <Close />
             </IconButton>
           </Box>
 
           {/* Tabs */}
-          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+          <Box
+            sx={{
+              borderBottom: 1,
+              borderColor: "divider",
+              backgroundColor: theme.colors.background.secondary,
+            }}
+          >
             <Tabs
               value={activeTab}
               onChange={(e, newValue) => setActiveTab(newValue)}
               sx={{
-                backgroundColor: theme.colors.background.secondary,
+                minHeight: "64px",
                 "& .MuiTab-root": {
                   fontWeight: 600,
                   textTransform: "none",
                   fontSize: "15px",
+                  minHeight: "64px",
+                  color: theme.colors.text.secondary,
+                  "&.Mui-selected": {
+                    color: theme.colors.primary[600],
+                  },
+                },
+                "& .MuiTabs-indicator": {
+                  height: "3px",
+                  borderRadius: "3px 3px 0 0",
+                  backgroundColor: theme.colors.primary[600],
                 },
               }}
             >
@@ -1146,7 +1523,7 @@ const EnhancedDisciplineModal = ({
           </Box>
 
           {/* Content */}
-          <Box sx={{ flex: 1, overflow: "auto", padding: 3 }}>
+          <Box sx={{ flex: 1, overflow: "auto", padding: 4 }}>
             {activeTab === 0 && renderOverviewTab()}
             {activeTab === 1 && renderSuspensionsTab()}
             {activeTab === 2 && renderPunishmentsTab()}
@@ -1161,10 +1538,42 @@ const EnhancedDisciplineModal = ({
         onClose={() => setSuspensionDialog(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "20px",
+          },
+        }}
       >
-        <DialogTitle>Adicionar Suspensão</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+        <DialogTitle
+          sx={{
+            background: theme.colors.themed.purpleGradient,
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            pb: 2,
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <PersonOff />
+            <Typography variant="h6" fontWeight="bold">
+              Adicionar Suspensão
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={() => setSuspensionDialog(false)}
+            sx={{
+              color: "white",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             <Autocomplete
               options={players}
               getOptionLabel={(option) => option.name}
@@ -1175,44 +1584,37 @@ const EnhancedDisciplineModal = ({
                 <li {...props} key={option.id}>
                   <Box display="flex" alignItems="center" gap={1.5}>
                     {option.photo_url ? (
-                      <img
+                      <Avatar
                         src={option.photo_url}
-                        alt={option.name}
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: `2px solid ${theme.colors.border.purple}`,
-                        }}
+                        sx={{ width: 32, height: 32 }}
                       />
                     ) : (
-                      <Box
+                      <Avatar
                         sx={{
                           width: 32,
                           height: 32,
-                          borderRadius: "50%",
                           backgroundColor: theme.colors.primary[100],
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          border: `2px solid ${theme.colors.border.purple}`,
+                          color: theme.colors.primary[600],
                         }}
                       >
-                        <Person
-                          sx={{
-                            fontSize: 18,
-                            color: theme.colors.primary[600],
-                          }}
-                        />
-                      </Box>
+                        <Person sx={{ fontSize: 18 }} />
+                      </Avatar>
                     )}
                     <Typography>{option.name}</Typography>
                   </Box>
                 </li>
               )}
               renderInput={(params) => (
-                <TextField {...params} label="Jogador" required />
+                <TextField
+                  {...params}
+                  label="Jogador"
+                  required
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "12px",
+                    },
+                  }}
+                />
               )}
             />
             <TextField
@@ -1227,6 +1629,11 @@ const EnhancedDisciplineModal = ({
               }
               InputLabelProps={{ shrink: true }}
               required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
             <TextField
               label="Jogos Suspensos"
@@ -1240,6 +1647,11 @@ const EnhancedDisciplineModal = ({
               }
               required
               inputProps={{ min: 1 }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
             <TextField
               label="Motivo"
@@ -1251,17 +1663,38 @@ const EnhancedDisciplineModal = ({
               }
               placeholder="Ex: 3º cartão amarelo, Agressão, Vermelho direto, etc."
               required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setSuspensionDialog(false)} disabled={loading}>
+        <DialogActions sx={{ px: 3, pb: 3, gap: 2 }}>
+          <Button
+            onClick={() => setSuspensionDialog(false)}
+            disabled={loading}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+            }}
+          >
             Cancelar
           </Button>
           <Button
             variant="contained"
             onClick={handleAddSuspension}
             disabled={loading}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+              background: theme.colors.themed.purpleGradient,
+            }}
           >
             Adicionar
           </Button>
@@ -1274,10 +1707,42 @@ const EnhancedDisciplineModal = ({
         onClose={() => setPunishmentDialog(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "20px",
+          },
+        }}
       >
-        <DialogTitle>Adicionar Castigo à Equipa</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+        <DialogTitle
+          sx={{
+            background: theme.colors.themed.purpleGradient,
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            pb: 2,
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Gavel />
+            <Typography variant="h6" fontWeight="bold">
+              Adicionar Castigo à Equipa
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={() => setPunishmentDialog(false)}
+            sx={{
+              color: "white",
+              "&:hover": {
+                backgroundColor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 3 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             <FormControl fullWidth required>
               <InputLabel>Tipo de Castigo</InputLabel>
               <Select
@@ -1289,6 +1754,9 @@ const EnhancedDisciplineModal = ({
                   })
                 }
                 label="Tipo de Castigo"
+                sx={{
+                  borderRadius: "12px",
+                }}
               >
                 {punishmentTypes.map((type) => (
                   <MenuItem
@@ -1312,6 +1780,11 @@ const EnhancedDisciplineModal = ({
               }
               InputLabelProps={{ shrink: true }}
               required
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
             <TextField
               label="Descrição"
@@ -1325,6 +1798,11 @@ const EnhancedDisciplineModal = ({
                 })
               }
               placeholder="Detalhe o que aconteceu..."
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
             <TextField
               label="Quantidade"
@@ -1338,74 +1816,89 @@ const EnhancedDisciplineModal = ({
               }
               helperText="Caso haja vários jogos de suspensão ou múltiplas ocorrências"
               inputProps={{ min: 1 }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
-            <Autocomplete
-              options={players}
-              getOptionLabel={(option) => option.name}
-              onChange={(e, value) =>
-                setNewPunishment({
-                  ...newPunishment,
-                  player_id: value?.id || null,
-                })
-              }
-              renderOption={(props, option) => (
-                <li {...props} key={option.id}>
-                  <Box display="flex" alignItems="center" gap={1.5}>
-                    {option.photo_url ? (
-                      <img
-                        src={option.photo_url}
-                        alt={option.name}
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: `2px solid ${theme.colors.border.purple}`,
-                        }}
-                      />
-                    ) : (
-                      <Box
-                        sx={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: "50%",
-                          backgroundColor: theme.colors.primary[100],
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          border: `2px solid ${theme.colors.border.purple}`,
-                        }}
-                      >
-                        <Person
+            <Box>
+              <Autocomplete
+                options={players}
+                getOptionLabel={(option) => option.name}
+                onChange={(e, value) =>
+                  setNewPunishment({
+                    ...newPunishment,
+                    player_id: value?.id || null,
+                  })
+                }
+                renderOption={(props, option) => (
+                  <li {...props} key={option.id}>
+                    <Box display="flex" alignItems="center" gap={1.5}>
+                      {option.photo_url ? (
+                        <Avatar
+                          src={option.photo_url}
+                          sx={{ width: 32, height: 32 }}
+                        />
+                      ) : (
+                        <Avatar
                           sx={{
-                            fontSize: 18,
+                            width: 32,
+                            height: 32,
+                            backgroundColor: theme.colors.primary[100],
                             color: theme.colors.primary[600],
                           }}
-                        />
-                      </Box>
-                    )}
-                    <Typography>{option.name}</Typography>
-                  </Box>
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="Jogador (opcional)" />
-              )}
-            />
-            <FormHelperText>
-              Selecione um jogador apenas se o castigo for aplicado a um jogador
-              específico
-            </FormHelperText>
+                        >
+                          <Person sx={{ fontSize: 18 }} />
+                        </Avatar>
+                      )}
+                      <Typography>{option.name}</Typography>
+                    </Box>
+                  </li>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Jogador (opcional)"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                      },
+                    }}
+                  />
+                )}
+              />
+              <FormHelperText sx={{ mt: 1, ml: 2 }}>
+                Selecione um jogador apenas se o castigo for aplicado a um
+                jogador específico
+              </FormHelperText>
+            </Box>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPunishmentDialog(false)} disabled={loading}>
+        <DialogActions sx={{ px: 3, pb: 3, gap: 2 }}>
+          <Button
+            onClick={() => setPunishmentDialog(false)}
+            disabled={loading}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+            }}
+          >
             Cancelar
           </Button>
           <Button
             variant="contained"
             onClick={handleAddPunishment}
             disabled={loading}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+              background: theme.colors.themed.purpleGradient,
+            }}
           >
             Adicionar
           </Button>
@@ -1422,7 +1915,11 @@ const EnhancedDisciplineModal = ({
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}
+          sx={{
+            width: "100%",
+            borderRadius: "12px",
+            boxShadow: theme.components.card.shadow,
+          }}
         >
           {snackbar.message}
         </Alert>
