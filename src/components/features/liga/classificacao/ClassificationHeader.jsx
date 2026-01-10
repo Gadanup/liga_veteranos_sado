@@ -1,16 +1,9 @@
 import React from "react";
-import {
-  Select,
-  MenuItem,
-  Box,
-  Chip,
-  Button,
-  FormControl,
-} from "@mui/material";
+import { Select, MenuItem, Box, Button, FormControl } from "@mui/material";
 import { CalendarToday, CompareArrows } from "@mui/icons-material";
 
 /**
- * ClassificationHeader Component
+ * ClassificationHeader Component with Improved Responsive Design
  * Displays the page title, enhanced season selector, and comparison button
  */
 const ClassificationHeader = ({
@@ -30,10 +23,17 @@ const ClassificationHeader = ({
         justifyContent: "space-between",
         alignItems: isMobile ? "center" : "flex-start",
         gap: theme.spacing.lg,
+        width: "100%",
       }}
     >
       {/* Title */}
-      <div style={{ flex: 1, textAlign: isMobile ? "center" : "left" }}>
+      <div
+        style={{
+          flex: 1,
+          textAlign: isMobile ? "center" : "left",
+          minWidth: 0,
+        }}
+      >
         <h1
           style={{
             fontSize: isMobile
@@ -51,7 +51,13 @@ const ClassificationHeader = ({
       </div>
 
       {/* Actions Container */}
-      <Box display="flex" gap={2} flexDirection={isMobile ? "column" : "row"}>
+      <Box
+        display="flex"
+        gap={2}
+        flexDirection={isMobile ? "column" : "row"}
+        flexShrink={0}
+        width={isMobile ? "100%" : "auto"}
+      >
         {/* Compare Button - Desktop Only */}
         {!isMobile && (
           <Button
@@ -64,6 +70,7 @@ const ClassificationHeader = ({
               fontWeight: 600,
               borderColor: theme.colors.primary[300],
               color: theme.colors.primary[700],
+              whiteSpace: "nowrap",
               "&:hover": {
                 borderColor: theme.colors.primary[500],
                 backgroundColor: theme.colors.primary[50],
@@ -75,7 +82,12 @@ const ClassificationHeader = ({
         )}
 
         {/* Enhanced Season Selector */}
-        <FormControl sx={{ minWidth: isMobile ? "100%" : 200 }}>
+        <FormControl
+          sx={{
+            minWidth: isMobile ? "100%" : 200,
+            maxWidth: isMobile ? "100%" : 250,
+          }}
+        >
           <Select
             value={selectedSeason || ""}
             onChange={(e) => onSeasonChange(Number(e.target.value))}

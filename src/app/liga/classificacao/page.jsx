@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { useTheme } from "../../../components/ThemeWrapper";
@@ -18,6 +18,7 @@ const Classification = () => {
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(1200);
   const [sortBy, setSortBy] = useState("points");
   const [sortOrder, setSortOrder] = useState("desc");
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
@@ -25,15 +26,29 @@ const Classification = () => {
   const router = useRouter();
   const theme = useTheme();
 
-  // Check if mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+  // Check viewport size with debounce
+  const updateViewportDimensions = useCallback(() => {
+    setViewportWidth(window.innerWidth);
+    setIsMobile(window.innerWidth <= 768);
   }, []);
+
+  useEffect(() => {
+    // Initial check
+    updateViewportDimensions();
+
+    // Debounced resize handler
+    let timeoutId;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateViewportDimensions, 150);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [updateViewportDimensions]);
 
   // Fetch seasons
   useEffect(() => {
@@ -258,8 +273,19 @@ const Classification = () => {
 
   const currentSeasonData = seasons.find((s) => s.id === selectedSeason);
 
+  // Determine if legend should show based on viewport
+  const showLegend = viewportWidth >= 900;
+  const showStats = viewportWidth >= 900;
+
   return (
-    <div style={{ padding: theme.spacing.lg, minHeight: "100vh" }}>
+    <div
+      style={{
+        padding: isMobile ? theme.spacing.md : theme.spacing.lg,
+        minHeight: "100vh",
+        maxWidth: "100%",
+        overflow: "hidden",
+      }}
+    >
       {/* Header */}
       <ClassificationHeader
         seasons={seasons}
@@ -270,8 +296,8 @@ const Classification = () => {
         onOpenComparison={() => setComparisonModalOpen(true)}
       />
 
-      {/* Legend */}
-      {!isMobile && <ClassificationLegend theme={theme} />}
+      {/* Legend - Hide on smaller screens */}
+      {showLegend && <ClassificationLegend theme={theme} />}
 
       {/* Table or Empty State */}
       {loading ? (
@@ -307,8 +333,9 @@ const Classification = () => {
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSort={handleSort}
+            viewportWidth={viewportWidth}
           />
-          {!isMobile && (
+          {showStats && (
             <ClassificationStats
               classification={classification}
               theme={theme}

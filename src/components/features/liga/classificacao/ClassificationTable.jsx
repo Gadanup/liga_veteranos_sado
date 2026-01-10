@@ -3,7 +3,13 @@ import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
 import ClassificationRow from "./ClassificationRow";
 
 /**
- * ClassificationTable Component with Sorting
+ * ClassificationTable Component with Improved Responsive Design
+ *
+ * Breakpoints:
+ * - xs: < 600px (mobile)
+ * - sm: 600-899px (tablet portrait / small windows)
+ * - md: 900-1199px (tablet landscape / medium windows)
+ * - lg: 1200px+ (desktop)
  */
 const ClassificationTable = ({
   classification,
@@ -15,7 +21,70 @@ const ClassificationTable = ({
   sortBy,
   sortOrder,
   onSort,
+  viewportWidth = 1200, // Pass this from parent
 }) => {
+  // Determine layout based on viewport width
+  const getLayout = () => {
+    if (viewportWidth < 600) {
+      return "xs"; // Mobile
+    } else if (viewportWidth < 900) {
+      return "sm"; // Tablet portrait / Small window
+    } else if (viewportWidth < 1200) {
+      return "md"; // Tablet landscape / Medium window
+    } else {
+      return "lg"; // Desktop
+    }
+  };
+
+  const layout = getLayout();
+
+  // Define grid templates for different layouts
+  const gridTemplates = {
+    xs: {
+      header: "35px 50px 35px 35px 35px 35px 45px 35px",
+      columns: 8,
+      showLogo: false,
+      showGoalDiff: false,
+      showForm: false,
+      fontSize: "11px",
+      padding: "8px 4px",
+      gap: "4px",
+    },
+    sm: {
+      header: "40px minmax(120px, 1fr) 40px 40px 40px 40px 60px 40px",
+      columns: 8,
+      showLogo: true,
+      showGoalDiff: false,
+      showForm: false,
+      fontSize: "12px",
+      padding: "10px 8px",
+      gap: "8px",
+    },
+    md: {
+      header: "45px minmax(150px, 2fr) 45px 45px 45px 45px 70px 50px 50px",
+      columns: 9,
+      showLogo: true,
+      showGoalDiff: true,
+      showForm: false,
+      fontSize: "13px",
+      padding: "12px",
+      gap: "10px",
+    },
+    lg: {
+      header:
+        "50px minmax(180px, 2fr) 40px 40px 40px 40px 75px 50px 50px 120px",
+      columns: 10,
+      showLogo: true,
+      showGoalDiff: true,
+      showForm: true,
+      fontSize: "15px",
+      padding: "16px",
+      gap: "12px",
+    },
+  };
+
+  const currentLayout = gridTemplates[layout];
+
   const SortIcon = ({ field }) => {
     if (sortBy !== field) return null;
     return sortOrder === "desc" ? (
@@ -36,11 +105,7 @@ const ClassificationTable = ({
         justifyContent: "center",
         transition: "all 0.2s",
         userSelect: "none",
-        ...(clickable && {
-          "&:hover": {
-            color: theme.colors.accent[300],
-          },
-        }),
+        fontSize: currentLayout.fontSize,
       }}
       onMouseEnter={(e) => {
         if (clickable) {
@@ -63,6 +128,7 @@ const ClassificationTable = ({
         borderRadius: theme.borderRadius.xl,
         boxShadow: theme.shadows.lg,
         overflow: "hidden",
+        width: "100%",
       }}
     >
       {/* Table Header */}
@@ -70,32 +136,37 @@ const ClassificationTable = ({
         style={{
           background: theme.colors.themed.purpleGradient,
           color: theme.colors.text.inverse,
-          padding: isMobile
-            ? `${theme.spacing.sm} ${theme.spacing.xs}`
-            : theme.spacing.md,
+          padding: currentLayout.padding,
           display: "grid",
-          gridTemplateColumns: isMobile
-            ? "35px 1fr 35px 35px 35px 35px 45px 35px"
-            : "50px 1fr 40px 40px 40px 40px 75px 50px 50px 120px",
-          gap: isMobile ? "4px" : theme.spacing.sm,
+          gridTemplateColumns: currentLayout.header,
+          gap: currentLayout.gap,
           fontWeight: theme.typography.fontWeight.semibold,
-          fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+          fontSize: currentLayout.fontSize,
           alignItems: "center",
-          minHeight: isMobile ? "40px" : "50px",
+          minHeight: layout === "xs" ? "40px" : "50px",
         }}
       >
         <div style={{ textAlign: "center" }}>POS</div>
-        <div style={{ paddingLeft: isMobile ? "4px" : "8px" }}>
-          {isMobile ? "TEAM" : "EQUIPA"}
+
+        <div style={{ paddingLeft: layout === "xs" ? "4px" : "8px" }}>
+          {layout === "xs" ? "TEAM" : "EQUIPA"}
         </div>
+
         <HeaderCell field="matches_played" label="J" />
         <HeaderCell field="wins" label="V" />
         <HeaderCell field="draws" label="E" />
         <HeaderCell field="losses" label="D" />
-        <HeaderCell field="goals_for" label={isMobile ? "G" : "GOLOS"} />
-        {!isMobile && <HeaderCell field="goal_difference" label="DG" />}
-        <HeaderCell field="points" label={isMobile ? "P" : "PTS"} />
-        {!isMobile && <div style={{ textAlign: "center" }}>FORMA</div>}
+        <HeaderCell field="goals_for" label={layout === "xs" ? "G" : "GOLOS"} />
+
+        {currentLayout.showGoalDiff && (
+          <HeaderCell field="goal_difference" label="DG" />
+        )}
+
+        <HeaderCell field="points" label={layout === "xs" ? "P" : "PTS"} />
+
+        {currentLayout.showForm && (
+          <div style={{ textAlign: "center" }}>FORMA</div>
+        )}
       </div>
 
       {/* Table Body */}
@@ -111,6 +182,8 @@ const ClassificationTable = ({
             theme={theme}
             isEvenRow={index % 2 === 0}
             formData={formData[team.team_id] || []}
+            layout={layout}
+            layoutConfig={currentLayout}
           />
         ))}
       </div>
