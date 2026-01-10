@@ -3,7 +3,7 @@ import { Tooltip } from "@mui/material";
 import dayjs from "dayjs";
 
 /**
- * ClassificationRow Component with Form Guide
+ * ClassificationRow Component with Improved Responsive Design
  */
 const ClassificationRow = ({
   team,
@@ -14,14 +14,38 @@ const ClassificationRow = ({
   theme,
   isEvenRow,
   formData = [],
+  layout = "lg",
+  layoutConfig = {},
 }) => {
   const [hoveredForm, setHoveredForm] = useState(null);
   const goalDiff = team.goals_for - team.goals_against;
   const isExcluded = team.teams.excluded;
 
+  // Default layout config if not provided
+  const config = {
+    showLogo: true,
+    showGoalDiff: true,
+    showForm: true,
+    fontSize: "14px",
+    padding: "16px",
+    gap: "12px",
+    header: "50px minmax(180px, 2fr) 40px 40px 40px 40px 75px 50px 50px 120px",
+    ...layoutConfig,
+  };
+
   const getPositionBadgeStyle = (position, isExcluded) => {
+    const baseSize =
+      layout === "xs"
+        ? { width: "28px", height: "28px" }
+        : layout === "sm"
+          ? { width: "32px", height: "32px" }
+          : layout === "md"
+            ? { width: "34px", height: "34px" }
+            : { width: "35px", height: "35px" };
+
     if (isExcluded) {
       return {
+        ...baseSize,
         backgroundColor: theme.colors.error[100],
         color: theme.colors.error[700],
         border: `2px solid ${theme.colors.error[300]}`,
@@ -30,6 +54,7 @@ const ClassificationRow = ({
 
     if (position === 1) {
       return {
+        ...baseSize,
         backgroundColor: theme.colors.accent[500],
         color: theme.colors.neutral[900],
         border: `2px solid ${theme.colors.accent[600]}`,
@@ -37,18 +62,21 @@ const ClassificationRow = ({
       };
     } else if (position <= 3) {
       return {
+        ...baseSize,
         backgroundColor: theme.colors.accent[100],
         color: theme.colors.accent[700],
         border: `2px solid ${theme.colors.accent[300]}`,
       };
     } else if (position <= 6) {
       return {
+        ...baseSize,
         backgroundColor: theme.colors.primary[100],
         color: theme.colors.primary[700],
         border: `2px solid ${theme.colors.primary[300]}`,
       };
     } else {
       return {
+        ...baseSize,
         backgroundColor: theme.colors.neutral[100],
         color: theme.colors.neutral[600],
         border: `2px solid ${theme.colors.neutral[300]}`,
@@ -130,6 +158,32 @@ const ClassificationRow = ({
     );
   };
 
+  // Logo sizes based on layout
+  const logoSize =
+    layout === "xs"
+      ? {
+          width: "26px",
+          height: "26px",
+          container: { width: "32px", height: "32px" },
+        }
+      : layout === "sm"
+        ? {
+            width: "28px",
+            height: "28px",
+            container: { width: "34px", height: "34px" },
+          }
+        : layout === "md"
+          ? {
+              width: "30px",
+              height: "30px",
+              container: { width: "36px", height: "36px" },
+            }
+          : {
+              width: "30px",
+              height: "30px",
+              container: { width: "36px", height: "36px" },
+            };
+
   return (
     <div
       onClick={() =>
@@ -139,13 +193,9 @@ const ClassificationRow = ({
       }
       style={{
         display: "grid",
-        gridTemplateColumns: isMobile
-          ? "35px 1fr 35px 35px 35px 35px 45px 35px"
-          : "50px 1fr 40px 40px 40px 40px 75px 50px 50px 120px",
-        gap: isMobile ? "4px" : theme.spacing.sm,
-        padding: isMobile
-          ? `${theme.spacing.sm} ${theme.spacing.xs}`
-          : theme.spacing.md,
+        gridTemplateColumns: config.header,
+        gap: config.gap,
+        padding: config.padding,
         alignItems: "center",
         borderBottom: `1px solid ${theme.colors.border.primary}`,
         cursor: "pointer",
@@ -155,7 +205,7 @@ const ClassificationRow = ({
           : isEvenRow
             ? theme.colors.background.card
             : theme.colors.background.tertiary,
-        minHeight: isMobile ? "55px" : "60px",
+        minHeight: layout === "xs" ? "55px" : "60px",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.backgroundColor = theme.colors.primary[50];
@@ -176,13 +226,11 @@ const ClassificationRow = ({
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div
           style={{
-            width: isMobile ? "28px" : "35px",
-            height: isMobile ? "28px" : "35px",
             borderRadius: theme.borderRadius.full,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+            fontSize: config.fontSize,
             fontWeight: theme.typography.fontWeight.bold,
             ...getPositionBadgeStyle(position, isExcluded),
           }}
@@ -196,15 +244,16 @@ const ClassificationRow = ({
         style={{
           display: "flex",
           alignItems: "center",
-          gap: isMobile ? "6px" : theme.spacing.sm,
+          gap: layout === "xs" ? "0" : "8px",
           overflow: "hidden",
-          paddingLeft: isMobile ? "4px" : "8px",
+          paddingLeft: layout === "xs" ? "0" : "8px",
+          minWidth: 0,
         }}
       >
+        {/* Always show logo */}
         <div
           style={{
-            width: isMobile ? "32px" : "36px",
-            height: isMobile ? "32px" : "36px",
+            ...logoSize.container,
             borderRadius: theme.borderRadius.md,
             overflow: "hidden",
             display: "flex",
@@ -219,49 +268,51 @@ const ClassificationRow = ({
             src={team.teams.logo_url}
             alt={`${team.teams.short_name} logo`}
             style={{
-              width: isMobile ? "26px" : "30px",
-              height: isMobile ? "26px" : "30px",
+              ...logoSize,
               objectFit: "contain",
             }}
           />
         </div>
-        <div style={{ overflow: "hidden", minWidth: 0, flex: 1 }}>
-          <div
-            style={{
-              fontSize: isMobile ? "12px" : theme.typography.fontSize.base,
-              fontWeight: theme.typography.fontWeight.semibold,
-              color: isExcluded
-                ? theme.colors.text.tertiary
-                : theme.colors.text.primary,
-              fontFamily: theme.typography.fontFamily.primary,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              lineHeight: "1.3",
-            }}
-          >
-            {team.teams.short_name}
-          </div>
-          {isExcluded && !isMobile && (
+        {/* Show name only on non-mobile */}
+        {layout !== "xs" && (
+          <div style={{ overflow: "hidden", minWidth: 0, flex: 1 }}>
             <div
               style={{
-                fontSize: theme.typography.fontSize.xs,
-                color: theme.colors.error[600],
-                fontWeight: theme.typography.fontWeight.medium,
-                lineHeight: "1",
+                fontSize: config.fontSize,
+                fontWeight: theme.typography.fontWeight.semibold,
+                color: isExcluded
+                  ? theme.colors.text.tertiary
+                  : theme.colors.text.primary,
+                fontFamily: theme.typography.fontFamily.primary,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                lineHeight: "1.3",
               }}
             >
-              Excluído
+              {team.teams.short_name}
             </div>
-          )}
-        </div>
+            {isExcluded && (
+              <div
+                style={{
+                  fontSize: theme.typography.fontSize.xs,
+                  color: theme.colors.error[600],
+                  fontWeight: theme.typography.fontWeight.medium,
+                  lineHeight: "1",
+                }}
+              >
+                Excluído
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Stats - Matches Played */}
       <div
         style={{
           textAlign: "center",
-          fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+          fontSize: config.fontSize,
           fontWeight: theme.typography.fontWeight.medium,
           color: isExcluded
             ? theme.colors.text.tertiary
@@ -275,7 +326,7 @@ const ClassificationRow = ({
       <div
         style={{
           textAlign: "center",
-          fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+          fontSize: config.fontSize,
           fontWeight: theme.typography.fontWeight.bold,
           color: isExcluded
             ? theme.colors.text.tertiary
@@ -289,7 +340,7 @@ const ClassificationRow = ({
       <div
         style={{
           textAlign: "center",
-          fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+          fontSize: config.fontSize,
           fontWeight: theme.typography.fontWeight.bold,
           color: isExcluded
             ? theme.colors.text.tertiary
@@ -303,7 +354,7 @@ const ClassificationRow = ({
       <div
         style={{
           textAlign: "center",
-          fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+          fontSize: config.fontSize,
           fontWeight: theme.typography.fontWeight.bold,
           color: isExcluded
             ? theme.colors.text.tertiary
@@ -317,7 +368,7 @@ const ClassificationRow = ({
       <div
         style={{
           textAlign: "center",
-          fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+          fontSize: config.fontSize,
           fontWeight: theme.typography.fontWeight.medium,
           color: isExcluded
             ? theme.colors.text.tertiary
@@ -347,12 +398,12 @@ const ClassificationRow = ({
         </span>
       </div>
 
-      {/* Goal Difference - Desktop only */}
-      {!isMobile && (
+      {/* Goal Difference */}
+      {config.showGoalDiff && (
         <div
           style={{
             textAlign: "center",
-            fontSize: theme.typography.fontSize.sm,
+            fontSize: config.fontSize,
             fontWeight: theme.typography.fontWeight.bold,
             color: getGoalDifferenceColor(goalDiff, isExcluded),
           }}
@@ -366,9 +417,10 @@ const ClassificationRow = ({
         <div
           style={{
             display: "inline-block",
-            padding: isMobile
-              ? "3px 6px"
-              : `${theme.spacing.xs} ${theme.spacing.sm}`,
+            padding:
+              layout === "xs"
+                ? "3px 6px"
+                : `${theme.spacing.xs} ${theme.spacing.sm}`,
             borderRadius: theme.borderRadius.md,
             backgroundColor: isExcluded
               ? theme.colors.neutral[200]
@@ -376,9 +428,9 @@ const ClassificationRow = ({
             color: isExcluded
               ? theme.colors.text.tertiary
               : theme.colors.accent[700],
-            fontSize: isMobile ? "11px" : theme.typography.fontSize.sm,
+            fontSize: config.fontSize,
             fontWeight: theme.typography.fontWeight.bold,
-            minWidth: isMobile ? "25px" : "30px",
+            minWidth: layout === "xs" ? "25px" : "30px",
             lineHeight: "1.2",
           }}
         >
@@ -386,8 +438,8 @@ const ClassificationRow = ({
         </div>
       </div>
 
-      {/* Form Guide - Desktop only */}
-      {!isMobile && (
+      {/* Form Guide */}
+      {config.showForm && (
         <div
           style={{
             display: "flex",
