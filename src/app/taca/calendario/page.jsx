@@ -26,7 +26,6 @@ const CupCalendarContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAdmin } = useIsAdmin(false);
-
   // Fetch seasons
   useEffect(() => {
     const fetchSeasons = async () => {
@@ -76,11 +75,16 @@ const CupCalendarContent = () => {
       // For group stage matches: use week number (Jornada 1, 2, 3...)
       // For knockout matches: use round name (Semifinal, Final)
       const groupedByWeek = cupMatches.reduce((acc, match) => {
+        const isMobile = window.innerWidth <= 768;
         let weekKey;
 
         if (match.group_name && match.week) {
           // Group stage match - use "Jornada X"
-          weekKey = `Jornada ${match.week}`;
+          if (isMobile) {
+            weekKey = `${match.week}`;
+          } else {
+            weekKey = `Jornada ${match.week}`;
+          }
         } else if (match.round) {
           // Knockout match - use round name
           weekKey = match.round;
@@ -189,7 +193,7 @@ const CupCalendarContent = () => {
         )}
 
         {/* Current Week/Round Title */}
-        {currentWeek && (
+        {/* {currentWeek && (
           <Typography
             variant="h3"
             align="center"
@@ -203,7 +207,7 @@ const CupCalendarContent = () => {
           >
             {currentWeek}
           </Typography>
-        )}
+        )} */}
 
         {/* Loading State */}
         {loading ? (
