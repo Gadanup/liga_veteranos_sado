@@ -50,10 +50,17 @@ export const navigationSections = [
     items: [
       {
         label: "Taça",
-        href: "/taca/sorteio",
+        href: "/taca",
         icon: EmojiEventsRoundedIcon,
         showWhenClosed: true,
         id: "Taça",
+      },
+      {
+        label: "Calendário",
+        href: "/taca/calendario",
+        icon: CalendarMonthRoundedIcon,
+        showWhenClosed: false,
+        id: "Calendário_Taça",
       },
     ],
   },
