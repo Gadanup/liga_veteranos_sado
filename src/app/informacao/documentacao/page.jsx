@@ -90,7 +90,7 @@ const documents = [
   {
     id: 5,
     text: "FICHA DE INSCRIÇÃO DE JOGADOR",
-    link: "https://docs.google.com/forms/d/e/1FAIpQLSe48ZQn639DBzpV-J4xyn_FkyisjIxKODyZh4O8ebKgwqFs0w/viewform",
+    link: "https://docs.google.com/forms/d/e/1FAIpQLSca4ZvVIW3A3i9QFYsXqsT5t3E6uhV9XmPzZTbT3izLVjtIUw/viewform",
     icon: "AccountBox",
     color: theme.colors.success[500],
     description: "Formulário de inscrição online",
