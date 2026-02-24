@@ -18,11 +18,11 @@ export const useGoalscorersData = (seasonId) => {
     const fetchGoalscorers = async () => {
       setLoading(true);
 
-      // Fetch matches for selected season
+      // Fetch ONLY LEAGUE matches for selected season
       const { data: matches, error: matchesError } = await supabase
         .from("matches")
         .select("id")
-        .in("competition_type", ["League", "Cup"])
+        .eq("competition_type", "League") // ← Only League matches now
         .eq("season", seasonId);
 
       if (matchesError) {
