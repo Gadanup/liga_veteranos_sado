@@ -62,6 +62,13 @@ export const navigationSections = [
         showWhenClosed: false,
         id: "Calendário_Taça",
       },
+      {
+        label: "Melhores marcadores",
+        href: "/taca/marcadores",
+        icon: SportsSoccerRoundedIcon,
+        showWhenClosed: false,
+        id: "Marcadores_Taça",
+      },
     ],
   },
   {
