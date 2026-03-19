@@ -36,10 +36,12 @@ export const useDisciplineData = (seasonId) => {
         return;
       }
 
-      // Fetch active suspensions
+      // Fetch active suspensions — include transfer fields to show under both teams when applicable
       const { data: suspensions, error: suspensionsError } = await supabase
         .from("suspensions")
-        .select(`player_id, players (name, team_id), active, season`)
+        .select(
+          `player_id, suspension_date, players (name, team_id, previousClub, transferDate), active, season`
+        )
         .eq("active", true)
         .eq("season", seasonId);
 
@@ -49,12 +51,34 @@ export const useDisciplineData = (seasonId) => {
         return;
       }
 
-      // Group suspended players by team
+      // Group suspended players by team.
+      // If a player transferred mid-season and the suspension was earned before the transfer,
+      // show the player under BOTH the current team and the previous club.
       const suspendedPlayersByTeam = suspensions.reduce((acc, suspension) => {
-        const teamId = suspension.players?.team_id;
-        if (!teamId) return acc;
-        if (!acc[teamId]) acc[teamId] = [];
-        acc[teamId].push(suspension.players.name);
+        const player = suspension.players;
+        if (!player) return acc;
+
+        // Always show under current team
+        if (player.team_id) {
+          if (!acc[player.team_id]) acc[player.team_id] = [];
+          if (!acc[player.team_id].includes(player.name)) {
+            acc[player.team_id].push(player.name);
+          }
+        }
+
+        // Also show under previous club if suspension was earned before the transfer date
+        if (
+          player.previousClub &&
+          player.transferDate &&
+          suspension.suspension_date < player.transferDate
+        ) {
+          const prevClubId = Number(player.previousClub);
+          if (!acc[prevClubId]) acc[prevClubId] = [];
+          if (!acc[prevClubId].includes(player.name)) {
+            acc[prevClubId].push(player.name);
+          }
+        }
+
         return acc;
       }, {});
 
