@@ -124,11 +124,28 @@ const EnhancedDisciplineModal = ({
     try {
       const { data, error } = await supabase
         .from("players")
-        .select("id, name, photo_url")
+        .select("id, name, photo_url, transferDate, previousClub")
         .eq("team_id", currentTeam.team_id)
         .order("name");
 
       if (error) throw error;
+
+      // Fetch previous club names for players who transferred in this season
+      const previousClubIds = [
+        ...new Set(
+          data.filter((p) => p.previousClub).map((p) => Number(p.previousClub))
+        ),
+      ];
+      let previousClubNames = {};
+      if (previousClubIds.length > 0) {
+        const { data: clubs } = await supabase
+          .from("teams")
+          .select("id, short_name")
+          .in("id", previousClubIds);
+        previousClubNames = Object.fromEntries(
+          clubs?.map((c) => [c.id, c.short_name]) || []
+        );
+      }
 
       // Fetch matches with team names
       const { data: matches } = await supabase
@@ -167,7 +184,16 @@ const EnhancedDisciplineModal = ({
 
         const match = matches.find((m) => m.id === event.match_id);
         if (match) {
-          const isHome = match.home_team_id === currentTeam.team_id;
+          const player = data.find((p) => p.id === event.player_id);
+          const wasAtPreviousClub =
+            !!player?.transferDate && match.match_date < player.transferDate;
+
+          // Use the team the player was actually on during this match
+          const playerTeamIdAtTime = wasAtPreviousClub
+            ? Number(player.previousClub)
+            : currentTeam.team_id;
+
+          const isHome = match.home_team_id === playerTeamIdAtTime;
           const opponent = isHome
             ? match.away_team?.short_name
             : match.home_team?.short_name;
@@ -178,6 +204,10 @@ const EnhancedDisciplineModal = ({
             minute: event.minute,
             opponent: opponent,
             isHome: isHome,
+            wasAtPreviousClub,
+            previousClubName: wasAtPreviousClub
+              ? previousClubNames[Number(player.previousClub)] || null
+              : null,
           });
         }
       });
@@ -228,11 +258,51 @@ const EnhancedDisciplineModal = ({
 
       if (error) throw error;
 
+      // Also fetch suspensions from players who have since transferred away from this team,
+      // but earned their suspension while they were still here (suspension_date < transferDate).
+      const { data: transferredOut } = await supabase
+        .from("players")
+        .select("id, transferDate")
+        .eq("previousClub", currentTeam.team_id)
+        .not("transferDate", "is", null);
+
+      let transferredSuspensions = [];
+      if (transferredOut?.length > 0) {
+        const transferredIds = transferredOut.map((p) => p.id);
+        const { data: tSusp } = await supabase
+          .from("suspensions")
+          .select(
+            `
+            id,
+            player_id,
+            suspension_date,
+            matches_suspended,
+            reason,
+            active,
+            players (name)
+          `
+          )
+          .eq("season", selectedSeason)
+          .in("player_id", transferredIds)
+          .order("suspension_date", { ascending: false });
+
+        transferredSuspensions = (tSusp || [])
+          .filter((s) => {
+            const p = transferredOut.find((p) => p.id === s.player_id);
+            return p && s.suspension_date < p.transferDate;
+          })
+          .map((s) => ({ ...s, isTransferredPlayer: true }));
+      }
+
+      const allSuspensions = [...(data || []), ...transferredSuspensions].sort(
+        (a, b) => new Date(b.suspension_date) - new Date(a.suspension_date)
+      );
+
       setSuspensions(
-        data?.map((s) => ({
+        allSuspensions.map((s) => ({
           ...s,
           player_name: s.players?.name,
-        })) || []
+        }))
       );
     } catch (error) {
       console.error("Error fetching suspensions:", error);
@@ -850,9 +920,25 @@ const EnhancedDisciplineModal = ({
                               <Person sx={{ fontSize: 20 }} />
                             </Avatar>
                           )}
-                          <Typography fontWeight={600}>
-                            {suspension.player_name}
-                          </Typography>
+                          <Box>
+                            <Typography fontWeight={600}>
+                              {suspension.player_name}
+                            </Typography>
+                            {suspension.isTransferredPlayer && (
+                              <Chip
+                                label="Transferido"
+                                size="small"
+                                sx={{
+                                  height: "18px",
+                                  fontSize: "10px",
+                                  backgroundColor: "rgba(107, 114, 128, 0.15)",
+                                  color: "#4b5563",
+                                  fontWeight: 600,
+                                  mt: 0.25,
+                                }}
+                              />
+                            )}
+                          </Box>
                         </Box>
                       </TableCell>
                       <TableCell>
@@ -1326,27 +1412,47 @@ const EnhancedDisciplineModal = ({
                                 <Box
                                   display="flex"
                                   alignItems="center"
-                                  gap={1}
+                                  justifyContent="space-between"
                                   mb={0.5}
                                 >
-                                  <Box
-                                    sx={{
-                                      width: "12px",
-                                      height: "16px",
-                                      backgroundColor: "#ffcd00",
-                                      borderRadius: "2px",
-                                      border: "1px solid #000",
-                                    }}
-                                  />
-                                  <Typography
-                                    variant="caption"
-                                    sx={{
-                                      fontWeight: 700,
-                                      color: theme.colors.text.primary,
-                                    }}
-                                  >
-                                    Cartão #{idx + 1}
-                                  </Typography>
+                                  <Box display="flex" alignItems="center" gap={1}>
+                                    <Box
+                                      sx={{
+                                        width: "12px",
+                                        height: "16px",
+                                        backgroundColor: "#ffcd00",
+                                        borderRadius: "2px",
+                                        border: "1px solid #000",
+                                      }}
+                                    />
+                                    <Typography
+                                      variant="caption"
+                                      sx={{
+                                        fontWeight: 700,
+                                        color: theme.colors.text.primary,
+                                      }}
+                                    >
+                                      Cartão #{idx + 1}
+                                    </Typography>
+                                  </Box>
+                                  {card.wasAtPreviousClub && (
+                                    <Chip
+                                      label={
+                                        card.previousClubName
+                                          ? `Anterior: ${card.previousClubName}`
+                                          : "Clube anterior"
+                                      }
+                                      size="small"
+                                      sx={{
+                                        height: "18px",
+                                        fontSize: "10px",
+                                        backgroundColor:
+                                          "rgba(107, 114, 128, 0.15)",
+                                        color: "#4b5563",
+                                        fontWeight: 600,
+                                      }}
+                                    />
+                                  )}
                                 </Box>
                                 <Typography
                                   variant="body2"
@@ -1380,6 +1486,7 @@ const EnhancedDisciplineModal = ({
                                         theme.colors.primary[600],
                                       color: "white",
                                       fontWeight: 600,
+                                      mt: 0.5,
                                     }}
                                   />
                                 )}
