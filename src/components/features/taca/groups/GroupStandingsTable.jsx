@@ -74,8 +74,8 @@ const GroupStandingsTable = ({ standings, groupName, isMobile }) => {
           display: "grid",
           gridTemplateColumns: isMobile
             ? isVerySmallMobile
-              ? "30px 1fr 30px 30px 30px 35px"
-              : "35px 1fr 35px 35px 35px 40px"
+              ? "28px 1fr 24px 24px 24px 24px 40px 28px"
+              : "32px 1fr 30px 30px 30px 30px 46px 34px"
             : "50px 1fr 60px 60px 60px 60px 80px 80px 100px",
           gap: isMobile ? "4px" : theme.spacing.sm,
           fontWeight: theme.typography.fontWeight.semibold,
@@ -93,8 +93,8 @@ const GroupStandingsTable = ({ standings, groupName, isMobile }) => {
         <div style={{ textAlign: "center" }}>J</div>
         <div style={{ textAlign: "center" }}>V</div>
         <div style={{ textAlign: "center" }}>E</div>
-        {!isMobile && <div style={{ textAlign: "center" }}>D</div>}
-        {!isMobile && <div style={{ textAlign: "center" }}>GOLOS</div>}
+        <div style={{ textAlign: "center" }}>D</div>
+        <div style={{ textAlign: "center" }}>{isMobile ? "G" : "GOLOS"}</div>
         {!isMobile && <div style={{ textAlign: "center" }}>DG</div>}
         <div style={{ textAlign: "center" }}>{isMobile ? "P" : "PTS"}</div>
       </Box>
@@ -113,8 +113,8 @@ const GroupStandingsTable = ({ standings, groupName, isMobile }) => {
                 display: "grid",
                 gridTemplateColumns: isMobile
                   ? isVerySmallMobile
-                    ? "30px 1fr 30px 30px 30px 35px"
-                    : "35px 1fr 35px 35px 35px 40px"
+                    ? "28px 1fr 24px 24px 24px 24px 40px 28px"
+                    : "32px 1fr 30px 30px 30px 30px 46px 34px"
                   : "50px 1fr 60px 60px 60px 60px 80px 80px 100px",
                 gap: isMobile ? "4px" : theme.spacing.sm,
                 padding: isMobile
@@ -218,7 +218,7 @@ const GroupStandingsTable = ({ standings, groupName, isMobile }) => {
                 sx={{
                   textAlign: "center",
                   fontWeight: 600,
-                  color: theme.colors.success[600],
+                  color: theme.colors.sports.win,
                 }}
               >
                 {team.wins}
@@ -229,36 +229,47 @@ const GroupStandingsTable = ({ standings, groupName, isMobile }) => {
                 sx={{
                   textAlign: "center",
                   fontWeight: 500,
-                  color: theme.colors.warning[600],
+                  color: theme.colors.sports.draw,
                 }}
               >
                 {team.draws}
               </Box>
 
-              {/* Losses (Desktop only) */}
-              {!isMobile && (
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    fontWeight: 500,
+              {/* Losses */}
+              <Box
+                sx={{
+                  textAlign: "center",
+                  fontWeight: 500,
+                  color: theme.colors.sports.loss,
+                }}
+              >
+                {team.losses}
+              </Box>
+
+              {/* Goals */}
+              <Box sx={{ textAlign: "center", fontWeight: 500 }}>
+                <span
+                  style={{
+                    fontWeight: theme.typography.fontWeight.bold,
+                    color: theme.colors.sports.goals,
+                  }}
+                >
+                  {team.goals_for}
+                </span>
+                <span
+                  style={{ color: theme.colors.text.tertiary, margin: "0 1px" }}
+                >
+                  :
+                </span>
+                <span
+                  style={{
+                    fontWeight: theme.typography.fontWeight.bold,
                     color: theme.colors.error[600],
                   }}
                 >
-                  {team.losses}
-                </Box>
-              )}
-
-              {/* Goals (Desktop only) */}
-              {!isMobile && (
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    fontWeight: 500,
-                  }}
-                >
-                  {team.goals_for}:{team.goals_against}
-                </Box>
-              )}
+                  {team.goals_against}
+                </span>
+              </Box>
 
               {/* Goal Difference (Desktop only) */}
               {!isMobile && (
