@@ -23,7 +23,7 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
     }
   };
 
-  // Determine match winner
+  // Determine match winner (including penalty shootout)
   const getWinner = (match) => {
     if (!match || match.home_goals === null || match.away_goals === null) {
       return null;
@@ -41,7 +41,22 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
         logo_url: match.away_team_logo,
       };
     }
-    return null; // Draw (shouldn't happen in knockout)
+    if (match.home_penalties != null && match.away_penalties != null) {
+      if (match.home_penalties > match.away_penalties) {
+        return {
+          team_id: match.home_team_id,
+          team_name: match.home_team_name,
+          logo_url: match.home_team_logo,
+        };
+      } else if (match.away_penalties > match.home_penalties) {
+        return {
+          team_id: match.away_team_id,
+          team_name: match.away_team_name,
+          logo_url: match.away_team_logo,
+        };
+      }
+    }
+    return null;
   };
 
   // Check if match is completed
@@ -140,8 +155,9 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
         {score !== null && score !== undefined && (
           <Box
             sx={{
-              minWidth: "40px",
+              minWidth: "48px",
               height: "40px",
+              px: 1,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -150,10 +166,11 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
                 : theme.colors.background.tertiary,
               borderRadius: theme.borderRadius.md,
               fontWeight: theme.typography.fontWeight.bold,
-              fontSize: "18px",
+              fontSize: "16px",
               color: isWinner
                 ? theme.colors.text.inverse
                 : theme.colors.text.primary,
+              whiteSpace: "nowrap",
             }}
           >
             {score}
@@ -261,7 +278,11 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
               team_name: match.home_team_name,
               logo_url: match.home_team_logo,
             },
-            match.home_goals,
+            completed
+              ? match.home_penalties != null
+                ? `${match.home_goals} (${match.home_penalties})`
+                : match.home_goals
+              : null,
             winner?.team_id === match.home_team_id,
             "left"
           )}
@@ -271,7 +292,11 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
               team_name: match.away_team_name,
               logo_url: match.away_team_logo,
             },
-            match.away_goals,
+            completed
+              ? match.away_penalties != null
+                ? `${match.away_goals} (${match.away_penalties})`
+                : match.away_goals
+              : null,
             winner?.team_id === match.away_team_id,
             "left"
           )}

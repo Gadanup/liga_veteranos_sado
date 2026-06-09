@@ -59,7 +59,7 @@ export const useCupMatches = () => {
       .select(
         `
         id, home_goals, away_goals, home_penalties, away_penalties,
-        match_date, match_time,
+        match_date, match_time, stadium_name,
         home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
         away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
       `
@@ -83,7 +83,7 @@ export const useCupMatches = () => {
         ? dayjs(match.match_date).format("DD/MM/YYYY")
         : "TBD",
       time: match.match_time,
-      stadium: match.home_team?.stadium_name || "TBD",
+      stadium: match.stadium_name || match.home_team?.stadium_name || "TBD",
       sides: [
         {
           team: {

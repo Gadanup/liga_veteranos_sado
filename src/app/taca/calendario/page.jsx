@@ -59,7 +59,7 @@ const CupCalendarContent = () => {
       .select(
         `
         id, match_date, match_time, week, home_goals, away_goals,
-        home_team_id, away_team_id, competition_type, round, season, group_name,
+        home_team_id, away_team_id, competition_type, round, season, group_name, stadium_name,
         home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
         away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
       `
