@@ -134,7 +134,7 @@ const LeagueCupView = ({
         .select(
           `
           id, match_date, match_time, week, home_goals, away_goals,
-          group_name, round, season,
+          group_name, round, season, stadium_name,
           home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
           away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
         `
@@ -161,7 +161,7 @@ const LeagueCupView = ({
           home_team_name: match.home_team?.short_name,
           away_team_logo: match.away_team?.logo_url,
           away_team_name: match.away_team?.short_name,
-          stadium: match.home_team?.stadium_name,
+          stadium: match.stadium_name || match.home_team?.stadium_name,
         }));
 
         const groupedMatches = transformedMatches.reduce((acc, match) => {
@@ -179,8 +179,8 @@ const LeagueCupView = ({
         .from("matches")
         .select(
           `
-          id, match_date, match_time, home_goals, away_goals,
-          round, season,
+          id, match_date, match_time, home_goals, away_goals, home_penalties, away_penalties,
+          round, season, stadium_name,
           home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
           away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
         `
@@ -399,6 +399,8 @@ const LeagueCupView = ({
                     match_time: match.match_time,
                     home_goals: match.home_goals,
                     away_goals: match.away_goals,
+                    home_penalties: match.home_penalties,
+                    away_penalties: match.away_penalties,
                     round: match.round,
                     home_team_id: match.home_team?.id,
                     home_team_name: match.home_team?.short_name,
@@ -406,7 +408,7 @@ const LeagueCupView = ({
                     away_team_id: match.away_team?.id,
                     away_team_name: match.away_team?.short_name,
                     away_team_logo: match.away_team?.logo_url,
-                    stadium: match.home_team?.stadium_name,
+                    stadium: match.stadium_name || match.home_team?.stadium_name,
                   };
                 };
 

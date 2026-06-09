@@ -529,7 +529,7 @@ const CupMatchCard = ({ match, isAdmin, onUpdate }) => {
                 fontWeight: "500",
               }}
             >
-              {match.home_team.stadium_name || "Estádio a definir"}
+              {match.stadium_name || match.home_team.stadium_name || "Estádio a definir"}
             </Typography>
           </Box>
         </CardContent>
