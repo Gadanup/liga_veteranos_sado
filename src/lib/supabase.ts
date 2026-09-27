@@ -1,17 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
-export const supabase = createClient(
-  (process.env.NEXT_PUBLIC_SUPABASE_URL =
-    "https://dmsocybvdzdzafpemybt.supabase.co"),
-  (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc29jeWJ2ZHpkemFmcGVteWJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU2MTcwMzYsImV4cCI6MjA0MTE5MzAzNn0.j0uZXo4szp3pfnZmutyc7n8fjP2BpXCI_FLihoizDW4")
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// USED TO MAKE CLAUDIO SIDE OF THE CODE WORK
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY (see .env.example)"
+  );
+}
 
-// import { createClient } from "@supabase/supabase-js";
-
-// export const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-// );
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
