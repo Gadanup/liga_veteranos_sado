@@ -42,7 +42,7 @@ Goal: fix known bugs and risks without changing how anything looks.
 ### 0.1 Security & environment
 - [x] **0.1.0** Project audit docs, DB types, Claude rules/skills, commit & PR conventions (`CONTRIBUTING.md`, PR template) — *branch `docs/project-audit`*
 - [x] **0.1.1** RLS + permissions fix (S1) — *done 2026-09-27*
-- [ ] **0.1.2** Disable public sign-ups in Supabase Auth; add Vercel env vars `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Production + Preview); commit `src/lib/supabase.ts` reading from env + `.env.example` (S2). **S**
+- [x] **0.1.2** Disable public sign-ups in Supabase Auth; add Vercel env vars `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Production + Preview); commit `src/lib/supabase.ts` reading from env + `.env.example` (S2). **S**
   *Done when:* Preview and Production deploys load data; no key in source.
 - [ ] **0.1.3** Staging Supabase project (free plan allows 2): copy schema + a sample of data; `.env.local` for dev points to staging (S4). **M**
   *Done when:* `npm run dev` never touches production; DB scripts are tested there first.
