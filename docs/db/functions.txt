@@ -1,0 +1,10 @@
+Initialising login role...
+┌────────────────────────────────────────┬──────────────────┐
+│ proname                                │ security_definer │
+├────────────────────────────────────────┼──────────────────┤
+│ get_group_standings_for_season         │ false            │
+│ get_group_summary                      │ false            │
+│ get_qualified_teams_for_season         │ false            │
+│ reset_and_recalculate_league_standings │ false            │
+│ update_discipline_standings            │ false            │
+└────────────────────────────────────────┴──────────────────┘

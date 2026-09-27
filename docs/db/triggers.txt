@@ -1,0 +1,8 @@
+Initialising login role...
+┌──────────────────┬─────────────────────────────────────────────────┬───────────────┬──────────────────────┬───────────────────────────────────────────────────────────┐
+│ tbl              │ trigger_name                                    │ action_timing │ ev                   │ action_statement                                          │
+├──────────────────┼─────────────────────────────────────────────────┼───────────────┼──────────────────────┼───────────────────────────────────────────────────────────┤
+│ match_events     │ update_discipline_standings_on_match_events     │ AFTER         │ INSERT,DELETE,UPDATE │ EXECUTE FUNCTION update_discipline_standings()            │
+│ matches          │ trigger_recalculate_league_standingsnew         │ AFTER         │ UPDATE,INSERT        │ EXECUTE FUNCTION reset_and_recalculate_league_standings() │
+│ team_punishments │ update_discipline_standings_on_team_punishments │ AFTER         │ UPDATE,INSERT,DELETE │ EXECUTE FUNCTION update_discipline_standings()            │
+└──────────────────┴─────────────────────────────────────────────────┴───────────────┴──────────────────────┴───────────────────────────────────────────────────────────┘

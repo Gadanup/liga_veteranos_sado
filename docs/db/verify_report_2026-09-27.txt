@@ -1,0 +1,17 @@
+01_security_fix.sql applied 2026-09-27 (SQL Editor). 02_verify_security.sql result:
+
+anon can read matches ............ OK
+anon can read league table ....... OK
+anon can read cup groups view .... OK (12 rows)
+anon cannot see admin emails ..... OK
+anon cannot update matches ....... OK
+anon cannot delete players ....... OK
+anon cannot insert suspensions ... OK
+anon cannot truncate ............. OK
+admin recognised by is_admin() ... OK
+admin sees own admin row ......... OK
+admin can edit a match + trigger . OK
+admin can add a match event ...... OK
+
+Note: tables_rls.txt, anon_grants.txt and policies.txt in this folder are the snapshot from
+BEFORE the fix (2026-09-26). Re-run the queries in 01_APP_OVERVIEW.md / CLAUDE.md to refresh them.

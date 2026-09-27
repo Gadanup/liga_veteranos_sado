@@ -1,0 +1,11 @@
+
+# <type>(<scope>): <subject>          ← imperative, lowercase, no period, ≤ 72 chars
+#
+# <body: what and WHY>                  ← optional, wrap at ~72 chars
+#
+# Plan: <step>   Refs: <B1, M3…>        ← optional footer
+#
+# types:  feat fix ui refactor perf db test docs chore revert
+# scopes: liga taca supertaca jogo equipa marcadores disciplina galeria historico
+#         info admin layout ui-kit theme api db auth deps assets docs claude
+# See CONTRIBUTING.md
