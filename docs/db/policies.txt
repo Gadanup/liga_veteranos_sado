@@ -1,0 +1,9 @@
+Initialising login role...
+┌────────────────┬───────────────────────────────────┬────────┬──────────────────────┬───────────────────────────────────────┬────────────┐
+│ tablename      │ policyname                        │ cmd    │ roles                │ qual                                  │ with_check │
+├────────────────┼───────────────────────────────────┼────────┼──────────────────────┼───────────────────────────────────────┼────────────┤
+│ admin_users    │ Anyone can read admin_users       │ SELECT │ {anon,authenticated} │ true                                  │ NULL       │
+│ season_winners │ Allow authenticated insert/update │ ALL    │ {public}             │ (auth.role() = 'authenticated'::text) │ NULL       │
+│ season_winners │ Allow public read access          │ SELECT │ {public}             │ true                                  │ NULL       │
+│ seasons        │ Enable read access for all users  │ SELECT │ {public}             │ true                                  │ NULL       │
+└────────────────┴───────────────────────────────────┴────────┴──────────────────────┴───────────────────────────────────────┴────────────┘

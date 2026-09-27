@@ -1,0 +1,24 @@
+Initialising login role...
+┌──────────────────────┬─────────────────────────────────────────────────────────┐
+│ table_name           │ anon_privileges                                         │
+├──────────────────────┼─────────────────────────────────────────────────────────┤
+│ admin_users          │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ competition_type     │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ cup_group_matches    │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ cup_group_standings  │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ cup_group_teams      │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ cup_matches          │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ discipline_standings │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ event_type           │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ league_standings     │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ match_events         │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ matches              │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ players              │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ punishment_types     │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ season_stats         │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ season_winners       │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ seasons              │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ suspensions          │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ team_punishments     │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+│ teams                │ DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE │
+└──────────────────────┴─────────────────────────────────────────────────────────┘
