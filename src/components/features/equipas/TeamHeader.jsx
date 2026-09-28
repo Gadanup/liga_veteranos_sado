@@ -98,28 +98,30 @@ const TeamHeader = ({ teamData, selectedSeason }) => {
           </Grid>
 
           {/* Team Roster Image */}
-          <Grid item xs={12} md={4}>
-            <Box
-              sx={{
-                position: "relative",
-                borderRadius: theme.borderRadius.xl,
-                overflow: "hidden",
-                boxShadow: theme.shadows.xl,
-              }}
-            >
-              <Image
-                src={teamData.roster_url}
-                alt={`${teamData.name} Roster`}
-                width={300}
-                height={200}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  objectFit: "cover",
+          {teamData.roster_url && (
+            <Grid item xs={12} md={4}>
+              <Box
+                sx={{
+                  position: "relative",
+                  borderRadius: theme.borderRadius.xl,
+                  overflow: "hidden",
+                  boxShadow: theme.shadows.xl,
                 }}
-              />
-            </Box>
-          </Grid>
+              >
+                <Image
+                  src={teamData.roster_url}
+                  alt={`${teamData.name} Roster`}
+                  width={300}
+                  height={200}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "cover",
+                  }}
+                />
+              </Box>
+            </Grid>
+          )}
         </Grid>
       </CardContent>
     </Card>
