@@ -9,6 +9,7 @@ import {
   Button,
 } from "@mui/material";
 import { Menu, ChevronLeft, Login, Logout, Person } from "@mui/icons-material";
+import { useGetCurrentSeason } from "../../hooks/useGetCurrentSeason";
 
 const AppBar = styled(MuiAppBar)(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -36,6 +37,8 @@ const NavAppBar = ({
   onLogout,
   router,
 }) => {
+  const { currentSeason } = useGetCurrentSeason();
+
   return (
     <AppBar
       position="fixed"
@@ -178,7 +181,7 @@ const NavAppBar = ({
               >
                 {isMobile ? "Veteranos do Sado" : "Liga Veteranos do Sado"}
               </Typography>
-              {!isMobile && (
+              {!isMobile && currentSeason && (
                 <Typography
                   variant="caption"
                   sx={{
@@ -189,7 +192,7 @@ const NavAppBar = ({
                     letterSpacing: "1px",
                   }}
                 >
-                  Época 2025/2026
+                  Época {currentSeason.description}
                 </Typography>
               )}
             </Box>
