@@ -4,6 +4,7 @@ import { Download } from "@mui/icons-material";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
 import { theme } from "../../../styles/theme.js";
+import { formatSeasonShort } from "../../../utils/season";
 
 /**
  * MatchSheetDownload Component
@@ -33,8 +34,7 @@ const MatchSheetDownload = ({
     doc.setTextColor(107, 75, 161);
     doc.text("LIGA DE FUTEBOL VETERANOS DO SADO", 50, 15);
     doc.setFontSize(15);
-    // doc.text("2024/25", 95, 22); OLD SEASON
-    doc.text("2025/26", 95, 22);
+    doc.text(formatSeasonShort(matchDetails.season), 95, 22);
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
 
