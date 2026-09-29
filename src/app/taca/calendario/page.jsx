@@ -3,9 +3,9 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 import { supabase } from "../../../lib/supabase";
-import { Box, Container, Typography, Grid } from "@mui/material";
-import { theme } from "../../../styles/theme.js";
+import { Box, Container, Grid } from "@mui/material";
 import dayjs from "dayjs";
+import { useHorizontalSwipe } from "../../../hooks/useHorizontalSwipe";
 
 // Components
 import CupCalendarHeader from "../../../components/features/taca/calendario/CupCalendarHeader";
@@ -75,16 +75,14 @@ const CupCalendarContent = () => {
       // For group stage matches: use week number (Jornada 1, 2, 3...)
       // For knockout matches: use round name (Semifinal, Final)
       const groupedByWeek = cupMatches.reduce((acc, match) => {
-        const isMobile = window.innerWidth <= 768;
         let weekKey;
 
         if (match.group_name && match.week) {
-          // Group stage match - use "Jornada X"
-          if (isMobile) {
-            weekKey = `${match.week}`;
-          } else {
-            weekKey = `Jornada ${match.week}`;
-          }
+          // Group stage: key on the number alone. It used to depend on
+          // window.innerWidth ("1" on mobile, "Jornada 1" on desktop), so a
+          // URL shared from a phone did not resolve on a desktop. The label is
+          // formatted in WeekNavigator instead.
+          weekKey = `${match.week}`;
         } else if (match.round) {
           // Knockout match - use round name
           weekKey = match.round;
@@ -157,6 +155,18 @@ const CupCalendarContent = () => {
     setCurrentSeason(season);
   };
 
+  // Swipe across the matches to move between rounds on a phone.
+  const goToAdjacentWeek = (offset) => {
+    const weeks = Object.keys(fixturesByWeek);
+    const target = weeks[weeks.indexOf(currentWeek) + offset];
+    if (target) handleWeekChange(target);
+  };
+
+  const swipeHandlers = useHorizontalSwipe({
+    onSwipeLeft: () => goToAdjacentWeek(1),
+    onSwipeRight: () => goToAdjacentWeek(-1),
+  });
+
   useEffect(() => {
     if (selectedSeason) {
       fetchCupMatches(selectedSeason);
@@ -194,23 +204,6 @@ const CupCalendarContent = () => {
           />
         )}
 
-        {/* Current Week/Round Title */}
-        {/* {currentWeek && (
-          <Typography
-            variant="h3"
-            align="center"
-            sx={{
-              color: theme.colors.text.primary,
-              fontWeight: "bold",
-              fontSize: "48px",
-              marginBottom: 4,
-              opacity: 0.3,
-            }}
-          >
-            {currentWeek}
-          </Typography>
-        )} */}
-
         {/* Loading State */}
         {loading ? (
           <LoadingSkeleton message="A carregar jogos da Taça..." />
@@ -222,7 +215,7 @@ const CupCalendarContent = () => {
           <>
             {/* Matches Grid */}
             {currentWeek && fixturesByWeek[currentWeek] && (
-              <Grid container spacing={3}>
+              <Grid container spacing={3} {...swipeHandlers}>
                 {fixturesByWeek[currentWeek].map((match, index) => (
                   <Grid
                     item
