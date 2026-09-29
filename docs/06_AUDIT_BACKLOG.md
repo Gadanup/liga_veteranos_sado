@@ -12,8 +12,13 @@
 > | 📄 **From `02_IMPROVEMENTS.md`** | Carried over from the earlier audit, **not** re-verified in this pass. Confirm before scheduling. |
 > | ❓ **Unverified** | Could not be checked — no Supabase access token in this environment (`npx supabase db query` → `AccessTokenRequiredError`). |
 >
-> Nothing in this document has been applied. No writes were made to the database.
+> No writes were made to the database during the audit.
 > Related: `02_IMPROVEMENTS.md` (original backlog), `IMPLEMENTATION_PLAN.md` (ordered plan), `05_SCREEN_SPECS.md` (redesign specs).
+>
+> **Changes since the audit was written** (`main` is now `1cf6a1f`)
+> - PR #118 (`474087c`) replaced the hardcoded Supercup stadium in `MatchHeader.jsx` with `matches.stadium_name` and added `docs/db/03_supertaca_stadiums.sql`. `[C7]` is updated accordingly, and the SQL files proposed by `[N3]` and `[N4]` are renumbered to `04_` and `05_` so they do not collide.
+> - `[N13]` was added while implementing `[D1]`: `npm ci` and `npm install` both fail on a clean clone.
+> - `[N1]` was applied (a local untracked directory, so there is nothing to commit). The Phase 1 branches are open as separate PRs.
 
 ---
 
@@ -71,6 +76,7 @@ Paste each block into the matching list, then open each card and fill the descri
 [N6] Cabeçalhos de segurança e config de imagens no next.config.mjs
 [N10] Adicionar robots.txt, sitemap.xml e web manifest
 [N12] Documentar que faltar uma env var faz falhar o build inteiro
+[N13] npm ci e npm install falham com ERESOLVE numa clonagem limpa
 ```
 
 ### → `Fase 2 — Segurança & dados`
@@ -238,7 +244,7 @@ Format: **ID · title** → severity, area, effort, risk, plan step, verificatio
 
 **Fix (two steps, in order).**
 1. Code: replace all four `select("*")` with explicit column lists (`id, name, photo_url, team_id, joker, number, position` for players). Ship and verify in production.
-2. DB (`docs/db/03_players_columns.sql`): `revoke select on public.players from anon, authenticated;` then `grant select (<public columns>)`. A per-column `revoke` does not work against a table-level grant — the table grant must be dropped first.
+2. DB (`docs/db/04_players_columns.sql`): `revoke select on public.players from anon, authenticated;` then `grant select (<public columns>)`. A per-column `revoke` does not work against a table-level grant — the table grant must be dropped first.
 
 **Risk.** ⚠️ After step 2 any surviving `select("*")` on `players` returns 403. Confirm all call sites first. Rollback: `grant select on public.players to anon, authenticated;`
 
@@ -256,7 +262,7 @@ Format: **ID · title** → severity, area, effort, risk, plan step, verificatio
 
 **Evidence.** `src/components/features/jogos/EditMatchDialog.jsx:415-435` (fields), `:263-276` (`handleSubmit`).
 
-**Fix.** A `parseScore` helper rejecting anything outside 0–30 or non-integer; reject a half-filled result (one team's goals set, the other empty); plus `docs/db/04_match_constraints.sql` adding `NOT VALID` CHECKs for goals, penalties and `home_team_id <> away_team_id`, validated afterwards once historical rows are confirmed clean.
+**Fix.** A `parseScore` helper rejecting anything outside 0–30 or non-integer; reject a half-filled result (one team's goals set, the other empty); plus `docs/db/05_match_constraints.sql` adding `NOT VALID` CHECKs for goals, penalties and `home_team_id <> away_team_id`, validated afterwards once historical rows are confirmed clean.
 
 **Bundle with.** `[B6]` — the same `handleSubmit` is the right place for the goals-vs-events warning.
 
@@ -486,6 +492,24 @@ Buckets `players/`, `teams/`, `rosters/` with public read + admin write, plus an
 
 ---
 
+#### `[N13]` `npm ci` e `npm install` falham com ERESOLVE numa clonagem limpa
+
+`🟠 Alto` `Build` `S` `Risco baixo` · step **0.3.1** · ✅ Verified 2026-09-29
+
+**Problem.** `react-brackets@0.4.7` declares `peerDependencies: { react: "^17.0.0" }` while the project runs React 18. With npm 7+ that is a hard error, so on a clean clone both `npm ci` and a plain `npm install` abort with `ERESOLVE could not resolve`. There is no `.npmrc`, so the `node_modules` in use was installed with a flag nobody recorded, and the install is not reproducible.
+
+**Evidence.** `npm ci --dry-run` → `Fix the upstream dependency conflict, or retry this command with --force or --legacy-peer-deps`. `node -e "require('./node_modules/react-brackets/package.json').peerDependencies"` → `{"react":"^17.0.0","react-swipeable-views":"^0.13.9","styled-components":"^5.1.1"}`. `react-brackets` is genuinely used, by `components/features/taca/sorteio/CupBracket.jsx`.
+
+**Fix (done).** `.npmrc` with `legacy-peer-deps=true`, committed in the `[D1]` branch (`chore/0.3.1-remove-unused-deps`) because that PR cannot otherwise be reproduced.
+
+**Still open.**
+1. **Check how Vercel has been coping.** Production deploys work today, so either Vercel applies the flag itself or it resolves differently. Worth confirming — if a future Vercel change stops doing that, deploys break with no code change on our side. The new `.npmrc` makes this moot, but the answer tells us whether it was ever at risk.
+2. **Decide about `react-brackets`.** It is unmaintained against React 18 and also wants `styled-components` and `react-swipeable-views`, neither of which is installed. It only renders the desktop knockout bracket. `[D2]` already asks whether `/taca/sorteio` survives at all; if the bracket is rewritten during `4.8`, the dependency and the flag can both go.
+
+**Conservative alternative.** Keep the `.npmrc` and change nothing else. It is one line and it makes every install deterministic.
+
+---
+
 #### `[D1]` Adicionar `dayjs` e remover as 7 dependências não usadas
 
 `🟠 Alto` `Código` `S` `Risco médio` · step **0.3.1** · ✅ Verified 2026-09-29
@@ -494,7 +518,9 @@ Buckets `players/`, `teams/`, `rosters/` with public read + admin write, plus an
 
 **⚠️ Order matters.** `dayjs` is imported across the app but only installed transitively via `@mui/toolpad`. Add `dayjs` to `package.json` **first**, in its own commit, or the build breaks.
 
-**Keep** `@mui/material-nextjs` and `@supabase/ssr` — needed for `AppRouterCacheProvider` (step 1.3.2) and Server Components (step 5.4).
+**Keep** `@mui/material-nextjs` and `@supabase/ssr` — needed for `AppRouterCacheProvider` (step 1.3.2) and Server Components (step 5.4). `@emotion/cache` stays as an emotion peer.
+
+**Note when doing this.** `dayjs` resolves to 1.11.23 once declared directly; toolpad had pinned 1.11.10, so this is a real (if small) version bump of the library behind every date on the site — check the calendar and the match sheet on the Preview. Removing toolpad also drops ~12.7k lines from the lockfile. See `[N13]`: the install only works with `legacy-peer-deps`, so this branch has to carry an `.npmrc`.
 
 ---
 
@@ -630,7 +656,9 @@ This is **correct fail-fast behaviour, not a bug** — no code change proposed. 
 
 `🟡 Médio` `Código` `M` `Risco baixo` · step **2.1.2** · ✅ Partially verified 2026-09-29
 
-`NavAppBar` is already fixed (commit `14a9ed1`, reads `currentSeason.description`). Still hardcoded: `MatchSheetDownload.jsx:37` ("2025/26" in the PDF header), `MatchHeader.jsx:304,500` (Supercup stadium by `season === 2024`), `navigationConfig.js` (Supercup link `/jogos/256`), `informacao/documentacao/page.jsx` + `QuickActionsGrid.jsx`, `informacao/sorteio/SorteioHeader.jsx`, `historico/page.jsx`, `hooks/taca/sorteio/useCupMatches.js`. Depends on `[E2]`.
+**Already done.** `NavAppBar` reads `currentSeason.description` (commit `14a9ed1`). The Supercup stadium rule in `MatchHeader.jsx` was replaced by `matches.stadium_name` with a fallback to the home team, and the two historical values were stored by `docs/db/03_supertaca_stadiums.sql` (PR #118, commit `474087c`, landed after this audit was written).
+
+**Still hardcoded:** `MatchSheetDownload.jsx:37` ("2025/26" in the PDF header), `navigationConfig.js` (the Supercup link is still a literal `/jogos/<id>`, now pointing at the 2026/27 match — it needs `seasons.supercup_match_id` and a `/supertaca` route), `informacao/documentacao/page.jsx` + `QuickActionsGrid.jsx`, `informacao/sorteio/SorteioHeader.jsx`, `historico/page.jsx`, `hooks/taca/sorteio/useCupMatches.js`. Depends on `[E2]`.
 
 **Done when.** `grep -rnE "20[0-9]{2}/(20)?[0-9]{2}|jogos/[0-9]+" src` finds nothing season-specific.
 
@@ -753,7 +781,9 @@ Recorded so nobody re-audits these.
 
 Slots into `IMPLEMENTATION_PLAN.md`.
 
-**Fase 1 — quick wins (≈1 week, low risk).** `[N1]` first and alone. Then `[N2]`, then the one-liners `[B1]` `[B14]` `[B9]` `[B10]` `[P3]`, then `[M3]`+`[B12]`+`[N8]` as one PR, then `[B4]`+`[P7]`+`[N7]`, then `[D1]` (with `dayjs` in its own commit) `[D2]` `[D3]`, then `[N6]`+`[N10]`.
+**Fase 1 — quick wins (≈1 week, low risk).** `[N1]` first and alone. Then `[N2]`, then the one-liners `[B1]` `[B14]` `[B9]` `[B10]` `[P3]`, then `[M3]`+`[B12]`+`[N8]` as one PR, then `[B4]`+`[P7]`+`[N7]`, then `[D1]`+`[N13]` (with `dayjs` in its own commit) `[D2]` `[D3]`, then `[N6]`+`[N10]`.
+
+> **Started 2026-09-29.** Done: `[N1]`. In review: `[B1]`, `[B9]`, `[B11]`, `[M3]`+`[B12]`+`[N8]`, `[D1]`+`[N13]`, `[N10]`. Not started: `[N2]` (deferred by the owner), `[B14]`, `[B10]`, `[B4]`, `[P7]`, `[N7]`, `[P3]`, `[D2]`, `[D3]`, `[N6]`, `[N12]`.
 
 **Fase 2 — segurança e dados (≈2 weeks).** `[S4]` first (it unblocks the trigger work). Then `[N3]`, `[N4]`+`[B6]`, `[B15]`+`[N5]`+`[B16]`+`[B17]`, `[N11]`, `[E2]`+`[C7]`, `[P1]`+`[P2]`.
 
