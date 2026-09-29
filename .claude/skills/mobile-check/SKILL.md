@@ -20,6 +20,6 @@ Scope: the files the user names, or the files changed on the current branch (`gi
 
 ## Output
 
-A table: `file:line · problem · fix`, ordered by user impact (home page and match page first). Link items to IDs in `docs/02_IMPROVEMENTS.md` §3 where they match. Only fix code if the user asks; keep fixes minimal and run `npm run build` afterwards.
+A table: `file:line · problem · fix`, ordered by user impact (home page and match page first). Link items to IDs in `docs/archive/02_IMPROVEMENTS.md` §3 where they match. Only fix code if the user asks; keep fixes minimal and run `npm run build` afterwards.
 
 If a browser tool is available, also load the page at 360×800 and 390×844 and report what visibly breaks.

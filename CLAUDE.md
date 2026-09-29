@@ -1,13 +1,17 @@
 # Liga Veteranos do Sado — Project rules for Claude
 
 Public site + light admin for the Setúbal veterans football league. Small team, PRs into `main`.
-**Work follows `docs/IMPLEMENTATION_PLAN.md`** (numbered steps, e.g. "step 2.2.1"; tick the checkbox in the same PR). Read `docs/01_APP_OVERVIEW.md` before non-trivial work. Improvement backlog: `docs/06_AUDIT_BACKLOG.md` (IDs like `M3`, `B1`, `N2`; mirrored on Trello) — it supersedes `docs/02_IMPROVEMENTS.md`, which is kept for the original root-cause analysis. Design direction: `docs/03_UI_REDESIGN.md`. Data-entry plan: `docs/04_DATA_ENTRY.md`.
+## Docs — one source of truth for status
+
+- **`docs/ROADMAP.md` is the ONLY status tracker** (NOW / NEXT / Blocked / LATER / DONE). "What's next?" is always answered there — use the `/next` skill. The PR that finishes an item moves it to DONE in the same PR (`/ship` does it). Never track status anywhere else.
+- `docs/README.md` = map of the docs. `docs/backlog.md` = details of each item (IDs `B1`, `M3`, `N2`…), **no status**. `docs/reference/` = how/why: `app-overview.md` (read before non-trivial work), `design-direction.md`, `screen-specs.md`, `data-entry.md`. `docs/archive/` = superseded, don't work from it. `docs/db/` = SQL scripts.
+- Step IDs (`1.2.1`, `2.2.1`…) are used in branch names; they are listed in ROADMAP → LATER.
 
 ## This project differs from the Growth-Project defaults
 
 The global CLAUDE.md describes a Vite + React Router + TS template. **This app is Next.js 14 App Router, mostly JavaScript.** Apply the global conventions (import order, hook structure, named exports, no `any`, strings in constants, React Query for server state) to **new or rewritten code**, but:
 
-- Routes live in `src/app/**/page.jsx` (Next.js). Keep pages thin. Target structure is in `IMPLEMENTATION_PLAN.md` §1.1 (`api/`, `components/ui`, `components/layout`, `constants/`, `modules/<feature>/`, `theme/`, `utils/`); old `components/features/**` is removed only when its page is rewritten.
+- Routes live in `src/app/**/page.jsx` (Next.js). Keep pages thin. Target structure is in `docs/reference/app-overview.md` §9 (`api/`, `components/ui`, `components/layout`, `constants/`, `modules/<feature>/`, `theme/`, `utils/`); old `components/features/**` is removed only when its page is rewritten.
 - No React Router, no Vite. Use `next/navigation` (`useRouter`, `useSearchParams`, `useParams`).
 - **JavaScript only** (`.js/.jsx`) — TypeScript was not approved (2026-09-27). `src/types/database.types.ts` is a schema reference, not imported by JS.
 - Approved stack additions: **React Query** (`@tanstack/react-query`), **Vitest + React Testing Library**, **Supabase Storage** for images. Any other new dependency still needs the user's OK.
@@ -29,7 +33,7 @@ The global CLAUDE.md describes a Vite + React Router + TS template. **This app i
 - The Supabase project is **production**. Never run insert/update/delete against it from scripts or the CLI. Generate SQL for the user to review and run.
 - Admin checks in the UI (`useIsAdmin`) are cosmetic — real protection is RLS. Never "fix" a permission error by loosening RLS. Since 2026-09-27 every table has RLS: public read, writes only when `public.is_admin()` (email in `admin_users`) — `docs/db/01_security_fix.sql`, verified by `docs/db/02_verify_security.sql`. New tables must get the same `public_read` / `admin_write` policies.
 - Reading DB metadata is fine with `npx supabase db query --linked --project-ref dmsocybvdzdzafpemybt "<select …>"` (read-only SELECTs only). Regenerate types after schema changes: `npx supabase gen types typescript --project-id dmsocybvdzdzafpemybt --schema public > src/types/database.types.ts`.
-- `dayjs` is imported everywhere but only installed transitively via `@mui/toolpad`. Add it to `package.json` before removing toolpad.
+- **Backups instead of staging** (decided 2026-09-29): before any critical DB change, dump the schema (`npx supabase db dump -f supabase/schema.sql`, committed) and the data (`--data-only`, to a private folder outside the repo — never git, the repo is public). Remind the user before any DB change. Needs a one-time `npx supabase link` by the user.
 
 ## Domain rules (read before touching data logic)
 

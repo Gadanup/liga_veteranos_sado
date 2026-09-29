@@ -38,3 +38,9 @@ next-env.d.ts
 .claude/settings.local.json
 # Supabase CLI local state
 supabase/.temp
+
+# Database data dumps — never commit (public repo, personal data)
+supabase/dumps/
+*.dump
+liga_data_*.sql
+*_data_*.sql

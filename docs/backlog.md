@@ -1,4 +1,6 @@
-# 06 — Audit Backlog (Trello-ready)
+# Backlog — item details (Trello-ready)
+
+> **This file has no status.** What is done, in progress or next lives only in [`ROADMAP.md`](ROADMAP.md). Use this file for the *details* of an item (problem, evidence, fix, risk). The phase lists in §2 and §7 are the audit's original grouping, not current status.
 
 > Full-stack audit of 2026-09-29, branch `main`, commit `a498971`.
 > Every item is written as a **Trello card**: one ID, one title, one owner-ready description.
@@ -9,11 +11,11 @@
 > | Mark | Meaning |
 > |---|---|
 > | ✅ **Verified 2026-09-29** | Read in the current code, or reproduced by running the build. File/line references are live. |
-> | 📄 **From `02_IMPROVEMENTS.md`** | Carried over from the earlier audit, **not** re-verified in this pass. Confirm before scheduling. |
+> | 📄 **From `docs/archive/02_IMPROVEMENTS.md`** | Carried over from the earlier audit, **not** re-verified in this pass. Confirm before scheduling. |
 > | ❓ **Unverified** | Could not be checked — no Supabase access token in this environment (`npx supabase db query` → `AccessTokenRequiredError`). |
 >
 > No writes were made to the database during the audit.
-> Related: `02_IMPROVEMENTS.md` (original backlog), `IMPLEMENTATION_PLAN.md` (ordered plan), `05_SCREEN_SPECS.md` (redesign specs).
+> Related: `docs/archive/02_IMPROVEMENTS.md` (original backlog), `docs/ROADMAP.md` (ordered plan), `docs/reference/screen-specs.md` (redesign specs).
 >
 > **Changes since the audit was written** (`main` is now `1cf6a1f`)
 > - PR #118 (`474087c`) replaced the hardcoded Supercup stadium in `MatchHeader.jsx` with `matches.stadium_name` and added `docs/db/03_supertaca_stadiums.sql`. `[C7]` is updated accordingly, and the SQL files proposed by `[N3]` and `[N4]` are renumbered to `04_` and `05_` so they do not collide.
@@ -28,7 +30,7 @@
 
 | List | What goes in it |
 |---|---|
-| `Fase 1 — Quick wins & fixes` | Low-risk, ships in ~1 week. Maps to Phase 0 of `IMPLEMENTATION_PLAN.md`. |
+| `Fase 1 — Quick wins & fixes` | Low-risk, ships in ~1 week. Maps to Phase 0 of `docs/ROADMAP.md`. |
 | `Fase 2 — Segurança & dados` | RGPD, validation, DB triggers, images. Maps to Phase 2. |
 | `Fase 3 — Otimizações` | Server Components, SQL aggregation, PWA, React Query. Maps to Phases 1/5. |
 | `Backlog` | Everything not yet scheduled (mostly the Phase 4 redesign items). |
@@ -82,7 +84,7 @@ Paste each block into the matching list, then open each card and fill the descri
 ### → `Fase 2 — Segurança & dados`
 
 ```
-[S4] Criar projeto Supabase de staging
+[S4] Backup de schema e dados antes de mudanças críticas (substitui staging)
 [N3] RGPD: parar de expor birthdate e dados pessoais dos jogadores
 [N4] Validar resultados no cliente e adicionar CHECK constraints
 [B6] Avisar quando o resultado não bate com os eventos de golo
@@ -270,7 +272,7 @@ Format: **ID · title** → severity, area, effort, risk, plan step, verificatio
 
 #### `[B6]` Avisar quando o resultado não bate com os eventos de golo
 
-`🟠 Alto` `BD` `S` `Risco baixo` · step **3.5.1** · 📄 From `02_IMPROVEMENTS.md`
+`🟠 Alto` `BD` `S` `Risco baixo` · step **3.5.1** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 **Problem.** The score and the goal events are saved independently. Saving 3–1 with only two goal events raises no warning, so the top-scorer list silently disagrees with the result.
 
@@ -288,7 +290,7 @@ Format: **ID · title** → severity, area, effort, risk, plan step, verificatio
 
 **Fix.** Extract the body of `reset_and_recalculate_league_standings()` into `recalc_league_standings_for_season(p_season bigint)`, have the existing trigger call it with `NEW.season`, and add an `AFTER DELETE` trigger calling it with `OLD.season`.
 
-**Blocked by.** `[S4]` — this is a ~40-line plpgsql refactor on the live standings of a production DB. Do not write it blind; test on staging first.
+**Before running.** No staging project (decision 2026-09-29, `ROADMAP.md` → Decisions). This is a ~40-line plpgsql refactor on the live standings: back up schema + data first (`[S4]`), ship it with a rollback file and a self-rolling-back verify script that recalculates a season and compares it with the current table, and run it outside match days.
 
 **Interim workaround for the admin.** After deleting a match, edit and re-save another match of the same season to force a recalculation. Add this to `docs/ADMIN_GUIDE.md` (step 3.8.1).
 
@@ -330,7 +332,7 @@ group by 1, 2 order by 1, 2;
 
 #### `[B17]` Equipas sem linha em `league_standings` desaparecem da tabela
 
-`🟠 Alto` `BD` `M` `Risco baixo` · step **2.2.1** · 📄 From `02_IMPROVEMENTS.md`
+`🟠 Alto` `BD` `M` `Risco baixo` · step **2.2.1** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 **Problem.** Both standings triggers only `UPDATE` existing rows. A team whose `league_standings` / `discipline_standings` row was not inserted by hand at season start silently never appears. This will bite during the 2026/27 setup.
 
@@ -462,7 +464,7 @@ group by 1, 2 order by 1, 2;
 
 #### `[B2]` Marcadores creditam golos à equipa atual do jogador
 
-`🟠 Alto` `Código` `M` `Risco baixo` · step **2.2.3** · 📄 From `02_IMPROVEMENTS.md`
+`🟠 Alto` `Código` `M` `Risco baixo` · step **2.2.3** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 A player who transferred mid-season has all goals shown under the new team, and past seasons show the player's current team. `hooks/liga/marcadores/useGoalscorersData.js`, `hooks/taca/marcadores/useCupGoalscorersData.js`. Properly fixed by `match_events.team_id` (step 2.2.2).
 
@@ -470,7 +472,7 @@ A player who transferred mid-season has all goals shown under the new team, and 
 
 #### `[B3]` Atribuição de eventos falha em transferências entre as duas equipas
 
-`🟠 Alto` `Código` `M` `Risco baixo` · step **2.2.3** · 📄 From `02_IMPROVEMENTS.md`
+`🟠 Alto` `Código` `M` `Risco baixo` · step **2.2.3** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 If a player appears in both squads (transferred between the two teams playing), they are forced into "home". A player with two transfers in a season loses history. `app/jogos/[id]/page.jsx:127-144`, `components/features/jogos/EditMatchDialog.jsx:122-133`. Fixed by step 2.2.2.
 
@@ -478,7 +480,7 @@ If a player appears in both squads (transferred between the two teams playing), 
 
 #### `[B5]` Jogadores suspensos hoje não podem receber eventos de jogos antigos
 
-`🟠 Alto` `Código` `S` `Risco baixo` · step **0.2.4** · 📄 From `02_IMPROVEMENTS.md`
+`🟠 Alto` `Código` `S` `Risco baixo` · step **0.2.4** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 The event editor filters out players suspended **now**, not at the date of the match, so an old match cannot be corrected. `EditMatchDialog.jsx:136-141`.
 
@@ -486,7 +488,7 @@ The event editor filters out players suspended **now**, not at the date of the m
 
 #### `[P2]` Mover fotos e logos para Supabase Storage
 
-`🟠 Alto` `Performance` `M` `Risco baixo` · step **2.3.1** + **2.3.2** · 📄 From `02_IMPROVEMENTS.md`
+`🟠 Alto` `Performance` `M` `Risco baixo` · step **2.3.1** + **2.3.2** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 Buckets `players/`, `teams/`, `rosters/` with public read + admin write, plus an `api/storage.js` upload helper that resizes to WebP ≤400px client-side. Removes the commit-and-deploy cycle for a new photo. Depends on `[P1]`.
 
@@ -554,7 +556,7 @@ The grouping key is built from `window.innerWidth` **at fetch time** — `"1"` o
 
 #### `[B11]` Página de jogo: "Jogo não encontrado" e estado de erro
 
-`🟡 Médio` `Código` `S` `Risco baixo` · step **0.2.4** · 📄 From `02_IMPROVEMENTS.md`
+`🟡 Médio` `Código` `S` `Risco baixo` · step **0.2.4** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 Shows "Carregar dados do Jogo" when the match does not exist; the `error` state is set but never rendered. `app/jogos/[id]/page.jsx:210-218`.
 
@@ -570,7 +572,7 @@ The at-risk list counts yellows from **all** competitions in the season and iter
 
 #### `[B8]` Links de equipa sem `encodeURIComponent` no `short_name`
 
-`🟡 Médio` `Código` `S` `Risco baixo` · step **4.2** · 📄 From `02_IMPROVEMENTS.md`
+`🟡 Médio` `Código` `S` `Risco baixo` · step **4.2** · 📄 From `docs/archive/02_IMPROVEMENTS.md`
 
 `/equipas/${short_name}` is built from the raw name; names with accents or spaces ("Águias S. Gabriel") work in most browsers but are fragile, and renaming a team breaks shared links. `ClassificationRow.jsx:190` and others.
 
@@ -634,11 +636,15 @@ None exist (`find src public -name "robots*" -o -name "sitemap*" -o -name "manif
 
 ---
 
-#### `[S4]` Criar projeto Supabase de staging
+#### `[S4]` Backup de schema e dados antes de mudanças críticas (substitui staging)
 
-`🟡 Médio` `Segurança` `M` `Risco baixo` · step **0.1.3** · 📄 From `02_IMPROVEMENTS.md`
+`🟡 Médio` `Segurança` `S` `Risco baixo` · replaces step **0.1.3** · decision 2026-09-29
 
-`npm run dev` currently talks to production. The free plan allows two projects. **This card blocks `[B15]`, `[N5]` and `[B16]`** — none of the trigger work should be written blind against the live standings.
+**Decision.** No staging Supabase project for now (not worth it for the size of the project; kept as an optional Phase 5 item). Instead, before any critical DB change: dump the **schema** and commit it as `supabase/schema.sql`, and dump the **data** to a private folder outside the repo (never git — the repo is public and the data has personal information). The free plan has no backups, so the data dump is the real safety net.
+
+**How.** One-time `npx supabase link --project-ref dmsocybvdzdzafpemybt` (needs the DB password). Then `npx supabase db dump -f supabase/schema.sql` and `npx supabase db dump --data-only -f <private-folder>/liga_data_YYYY-MM-DD.sql`. Claude can run and verify the dumps once linked. Rules in `CONTRIBUTING.md` §5.
+
+**Affects.** `[B15]`, `[N5]`, `[B16]` no longer wait for staging: backup first, then rollback file + self-rolling-back verify script.
 
 ---
 
@@ -666,7 +672,7 @@ This is **correct fail-fast behaviour, not a bug** — no code change proposed. 
 
 #### `[E2]` Colunas de configuração na tabela `seasons`
 
-`🟡 Médio` `BD` `S` `Risco baixo` · step **2.1.1** · 📄 From `04_DATA_ENTRY.md`
+`🟡 Médio` `BD` `S` `Risco baixo` · step **2.1.1** · 📄 From `docs/reference/data-entry.md`
 
 `seasons.supercup_match_id`, `regulation_url`, `registration_form_url`, `calendar_url`, `transfer_window_start/end`. Unblocks `[C7]`.
 
@@ -698,7 +704,7 @@ This is **correct fail-fast behaviour, not a bug** — no code change proposed. 
 
 ### ⚪ Low / later
 
-Carried from `02_IMPROVEMENTS.md`, not re-verified in this pass. They belong on the board but not in the next three phases.
+Carried from `docs/archive/02_IMPROVEMENTS.md`, not re-verified in this pass. They belong on the board but not in the next three phases.
 
 | ID | Title | Area | Effort | Step |
 |---|---|---|---|---|
@@ -779,13 +785,13 @@ Recorded so nobody re-audits these.
 
 ## 7. Suggested phase order
 
-Slots into `IMPLEMENTATION_PLAN.md`.
+Slots into `docs/ROADMAP.md`.
 
 **Fase 1 — quick wins (≈1 week, low risk).** `[N1]` first and alone. Then `[N2]`, then the one-liners `[B1]` `[B14]` `[B9]` `[B10]` `[P3]`, then `[M3]`+`[B12]`+`[N8]` as one PR, then `[B4]`+`[P7]`+`[N7]`, then `[D1]`+`[N13]` (with `dayjs` in its own commit) `[D2]` `[D3]`, then `[N6]`+`[N10]`.
 
-> **Started 2026-09-29.** Done: `[N1]`. In review: `[B1]`, `[B9]`, `[B11]`, `[M3]`+`[B12]`+`[N8]`, `[D1]`+`[N13]`, `[N10]`. Not started: `[N2]` (deferred by the owner), `[B14]`, `[B10]`, `[B4]`, `[P7]`, `[N7]`, `[P3]`, `[D2]`, `[D3]`, `[N6]`, `[N12]`.
+> Current status of each item: see [`ROADMAP.md`](ROADMAP.md) (this file no longer tracks it).
 
-**Fase 2 — segurança e dados (≈2 weeks).** `[S4]` first (it unblocks the trigger work). Then `[N3]`, `[N4]`+`[B6]`, `[B15]`+`[N5]`+`[B16]`+`[B17]`, `[N11]`, `[E2]`+`[C7]`, `[P1]`+`[P2]`.
+**Fase 2 — segurança e dados (≈2 weeks).** `[S4]` first (backup routine — replaces staging, see card). Then `[N3]`, `[N4]`+`[B6]`, `[B15]`+`[N5]`+`[B16]`+`[B17]`, `[N11]`, `[E2]`+`[C7]`, `[P1]`+`[P2]`.
 
 **Fase 3 — otimizações.** `[M1]`+`[M2]`+`[N9]`, `[C1]`–`[C3]`, `[P4]`, `[P5]`, `[M10]`.
 

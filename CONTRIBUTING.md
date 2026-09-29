@@ -30,7 +30,7 @@ main  ──●────────────●────────�
 <type>/<short-description>              ← when there's no plan step
 ```
 - lowercase, words separated by `-`, English, ≤ 50 chars
-- `<plan-step>` = step number from `docs/IMPLEMENTATION_PLAN.md` (e.g. `1.3.3`)
+- `<plan-step>` = step number from `docs/ROADMAP.md` (e.g. `1.3.3`)
 
 | Type | Use for | Example |
 |---|---|---|
@@ -108,12 +108,12 @@ Commits created with Claude end with the line `Co-Authored-By: Claude …` (adde
 - **Summary** — what and why, 1–3 sentences.
 - **Plan step / backlog** — e.g. `Plan 0.2.1 · B1`.
 - **Screenshots** for any UI change: mobile (360–390 px) and desktop, before/after.
-- **Database** — SQL file(s) in `docs/db/`, applied on staging? production? rollback file?
+- **Database** — SQL file(s) in `docs/db/`, backup taken? applied to production (date)? rollback file?
 - **Checklist** — build, lint, tests, phone test on Vercel Preview.
 
 **Review**
 - At least one look from the other person before merging (self-merge allowed for `docs/`, `chore(assets)` and urgent `fix/`).
-- The author ticks the step checkbox in `docs/IMPLEMENTATION_PLAN.md` in the same PR.
+- The author moves the item from **NOW** to **DONE** in `docs/ROADMAP.md` in the same PR (date · what · PR number). `ROADMAP.md` is the only status tracker — see `docs/README.md`.
 - Database scripts are run **after** review, and noted in the PR ("applied to production on YYYY-MM-DD").
 
 ---
@@ -121,7 +121,9 @@ Commits created with Claude end with the line `Co-Authored-By: Claude …` (adde
 ## 5. Database changes
 
 - One numbered file per change in `docs/db/`: `NN_short_name.sql` + `NN_short_name_rollback.sql` (+ optional `NN_verify_*.sql`).
-- Staging first, production second, via Supabase SQL Editor. Never from local scripts.
+- **Back up first** (no staging project — decision 2026-09-29): before any critical change, dump the schema and commit it (`npx supabase db dump -f supabase/schema.sql`), and dump the data to a **private folder outside the repo** (`npx supabase db dump --data-only -f <private-folder>/liga_data_YYYY-MM-DD.sql`). Data dumps never go in git — the repo is public and they contain personal data.
+- Every script: one transaction, a rollback file, a check query; for trigger/function changes, a verify script that rolls itself back (like `02_verify_security.sql`). Run via the Supabase SQL Editor, never from local scripts. Avoid match days.
+- After running it, dump the schema again so `supabase/schema.sql` in the PR shows the change.
 - After a schema change: `npx supabase gen types typescript --project-id dmsocybvdzdzafpemybt --schema public > src/types/database.types.ts` and commit it in the same PR.
 - New tables must get RLS with `public_read` + `admin_write` policies (see `docs/db/01_security_fix.sql`).
 
