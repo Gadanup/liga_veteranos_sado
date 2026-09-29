@@ -24,6 +24,8 @@ const ClassificationRow = ({
   // Default layout config if not provided
   const config = {
     showLogo: true,
+    showWDL: true,
+    showGoals: true,
     showGoalDiff: true,
     showForm: true,
     fontSize: "14px",
@@ -184,6 +186,8 @@ const ClassificationRow = ({
               container: { width: "36px", height: "36px" },
             };
 
+  // Hover lives in globals.css behind @media (hover: hover). Mutating style on
+  // mouseenter left the row lifted after a tap on touch devices.
   return (
     <div
       onClick={() =>
@@ -207,20 +211,7 @@ const ClassificationRow = ({
             : theme.colors.background.tertiary,
         minHeight: layout === "xs" ? "55px" : "60px",
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = theme.colors.primary[50];
-        e.currentTarget.style.transform = "translateY(-1px)";
-        e.currentTarget.style.boxShadow = theme.shadows.md;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = isExcluded
-          ? theme.colors.error[50]
-          : isEvenRow
-            ? theme.colors.background.card
-            : theme.colors.background.tertiary;
-        e.currentTarget.style.transform = "translateY(0)";
-        e.currentTarget.style.boxShadow = "none";
-      }}
+      className="classification-row"
     >
       {/* Position Badge */}
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -273,39 +264,38 @@ const ClassificationRow = ({
             }}
           />
         </div>
-        {/* Show name only on non-mobile */}
-        {layout !== "xs" && (
-          <div style={{ overflow: "hidden", minWidth: 0, flex: 1 }}>
+        {/* The name is essential at every width — on xs it used to be hidden,
+            leaving the home page as a column of unlabelled logos. */}
+        <div style={{ overflow: "hidden", minWidth: 0, flex: 1 }}>
+          <div
+            style={{
+              fontSize: config.fontSize,
+              fontWeight: theme.typography.fontWeight.semibold,
+              color: isExcluded
+                ? theme.colors.text.tertiary
+                : theme.colors.text.primary,
+              fontFamily: theme.typography.fontFamily.primary,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              lineHeight: "1.3",
+            }}
+          >
+            {team.teams.short_name}
+          </div>
+          {isExcluded && (
             <div
               style={{
-                fontSize: config.fontSize,
-                fontWeight: theme.typography.fontWeight.semibold,
-                color: isExcluded
-                  ? theme.colors.text.tertiary
-                  : theme.colors.text.primary,
-                fontFamily: theme.typography.fontFamily.primary,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                lineHeight: "1.3",
+                fontSize: theme.typography.fontSize.xs,
+                color: theme.colors.error[600],
+                fontWeight: theme.typography.fontWeight.medium,
+                lineHeight: "1",
               }}
             >
-              {team.teams.short_name}
+              Excluído
             </div>
-            {isExcluded && (
-              <div
-                style={{
-                  fontSize: theme.typography.fontSize.xs,
-                  color: theme.colors.error[600],
-                  fontWeight: theme.typography.fontWeight.medium,
-                  lineHeight: "1",
-                }}
-              >
-                Excluído
-              </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Stats - Matches Played */}
@@ -322,81 +312,87 @@ const ClassificationRow = ({
         {team.matches_played}
       </div>
 
-      {/* Wins */}
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: config.fontSize,
-          fontWeight: theme.typography.fontWeight.bold,
-          color: isExcluded
-            ? theme.colors.text.tertiary
-            : theme.colors.sports.win,
-        }}
-      >
-        {team.wins}
-      </div>
+      {/* Wins / Draws / Losses — dropped on xs to make room for the name */}
+      {config.showWDL && (
+        <>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: config.fontSize,
+              fontWeight: theme.typography.fontWeight.bold,
+              color: isExcluded
+                ? theme.colors.text.tertiary
+                : theme.colors.sports.win,
+            }}
+          >
+            {team.wins}
+          </div>
 
-      {/* Draws */}
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: config.fontSize,
-          fontWeight: theme.typography.fontWeight.bold,
-          color: isExcluded
-            ? theme.colors.text.tertiary
-            : theme.colors.sports.draw,
-        }}
-      >
-        {team.draws}
-      </div>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: config.fontSize,
+              fontWeight: theme.typography.fontWeight.bold,
+              color: isExcluded
+                ? theme.colors.text.tertiary
+                : theme.colors.sports.draw,
+            }}
+          >
+            {team.draws}
+          </div>
 
-      {/* Losses */}
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: config.fontSize,
-          fontWeight: theme.typography.fontWeight.bold,
-          color: isExcluded
-            ? theme.colors.text.tertiary
-            : theme.colors.sports.loss,
-        }}
-      >
-        {team.losses}
-      </div>
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: config.fontSize,
+              fontWeight: theme.typography.fontWeight.bold,
+              color: isExcluded
+                ? theme.colors.text.tertiary
+                : theme.colors.sports.loss,
+            }}
+          >
+            {team.losses}
+          </div>
+        </>
+      )}
 
       {/* Goals */}
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: config.fontSize,
-          fontWeight: theme.typography.fontWeight.medium,
-          color: isExcluded
-            ? theme.colors.text.tertiary
-            : theme.colors.text.primary,
-        }}
-      >
-        <span>
-          <span
-            style={{
-              fontWeight: theme.typography.fontWeight.bold,
-              color: theme.colors.sports.goals,
-            }}
-          >
-            {team.goals_for}
+      {config.showGoals && (
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: config.fontSize,
+            fontWeight: theme.typography.fontWeight.medium,
+            color: isExcluded
+              ? theme.colors.text.tertiary
+              : theme.colors.text.primary,
+          }}
+        >
+          <span>
+            <span
+              style={{
+                fontWeight: theme.typography.fontWeight.bold,
+                color: theme.colors.sports.goals,
+              }}
+            >
+              {team.goals_for}
+            </span>
+            <span
+              style={{ color: theme.colors.text.tertiary, margin: "0 1px" }}
+            >
+              :
+            </span>
+            <span
+              style={{
+                fontWeight: theme.typography.fontWeight.bold,
+                color: theme.colors.error[600],
+              }}
+            >
+              {team.goals_against}
+            </span>
           </span>
-          <span style={{ color: theme.colors.text.tertiary, margin: "0 1px" }}>
-            :
-          </span>
-          <span
-            style={{
-              fontWeight: theme.typography.fontWeight.bold,
-              color: theme.colors.error[600],
-            }}
-          >
-            {team.goals_against}
-          </span>
-        </span>
-      </div>
+        </div>
+      )}
 
       {/* Goal Difference */}
       {config.showGoalDiff && (
@@ -425,9 +421,9 @@ const ClassificationRow = ({
             backgroundColor: isExcluded
               ? theme.colors.neutral[200]
               : theme.colors.accent[100],
-            color: isExcluded
-              ? theme.colors.text.tertiary
-              : theme.colors.accent[700],
+            // accent[700] (#ccad00) on accent[100] was ~2.1:1; WCAG AA needs
+            // 4.5:1. This is the most important number on the home page.
+            color: isExcluded ? theme.colors.text.tertiary : "#6b5c00",
             fontSize: config.fontSize,
             fontWeight: theme.typography.fontWeight.bold,
             minWidth: layout === "xs" ? "25px" : "30px",

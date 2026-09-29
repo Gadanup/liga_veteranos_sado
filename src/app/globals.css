@@ -31,3 +31,19 @@
     transition: margin-left 0.3s ease;
   }
 }
+
+/* Standings row hover. Guarded so touch devices don't keep a tapped row
+   lifted — the previous version mutated style on mouseenter. */
+@media (hover: hover) {
+  .classification-header-cell:hover {
+    color: #ffe89d;
+  }
+
+  .classification-row:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+    filter: brightness(0.98);
+  }
+}
