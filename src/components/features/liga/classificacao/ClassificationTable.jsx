@@ -40,20 +40,26 @@ const ClassificationTable = ({
 
   // Define grid templates for different layouts
   const gridTemplates = {
+    // xs drops V/E/D and the goals column so the team name fits. At 360px that
+    // leaves ~208px for the name, which was previously hidden entirely.
     xs: {
-      header: "35px 50px 35px 35px 35px 35px 45px 35px",
-      columns: 8,
-      showLogo: false,
-      showGoalDiff: false,
+      header: "28px minmax(0, 1fr) 28px 34px 32px",
+      columns: 5,
+      showLogo: true,
+      showWDL: false,
+      showGoals: false,
+      showGoalDiff: true,
       showForm: false,
-      fontSize: "11px",
-      padding: "8px 4px",
+      fontSize: "13px",
+      padding: "10px 8px",
       gap: "4px",
     },
     sm: {
       header: "40px minmax(120px, 1fr) 40px 40px 40px 40px 60px 40px",
       columns: 8,
       showLogo: true,
+      showWDL: true,
+      showGoals: true,
       showGoalDiff: false,
       showForm: false,
       fontSize: "12px",
@@ -64,6 +70,8 @@ const ClassificationTable = ({
       header: "45px minmax(150px, 2fr) 45px 45px 45px 45px 70px 50px 50px",
       columns: 9,
       showLogo: true,
+      showWDL: true,
+      showGoals: true,
       showGoalDiff: true,
       showForm: false,
       fontSize: "13px",
@@ -75,6 +83,8 @@ const ClassificationTable = ({
         "50px minmax(180px, 2fr) 40px 40px 40px 40px 75px 50px 50px 120px",
       columns: 10,
       showLogo: true,
+      showWDL: true,
+      showGoals: true,
       showGoalDiff: true,
       showForm: true,
       fontSize: "15px",
@@ -107,14 +117,7 @@ const ClassificationTable = ({
         userSelect: "none",
         fontSize: currentLayout.fontSize,
       }}
-      onMouseEnter={(e) => {
-        if (clickable) {
-          e.currentTarget.style.color = theme.colors.accent[300];
-        }
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.color = theme.colors.text.inverse;
-      }}
+      className={clickable ? "classification-header-cell" : undefined}
     >
       {label}
       {clickable && <SortIcon field={field} />}
@@ -149,14 +152,22 @@ const ClassificationTable = ({
         <div style={{ textAlign: "center" }}>POS</div>
 
         <div style={{ paddingLeft: layout === "xs" ? "4px" : "8px" }}>
-          {layout === "xs" ? "TEAM" : "EQUIPA"}
+          EQUIPA
         </div>
 
         <HeaderCell field="matches_played" label="J" />
-        <HeaderCell field="wins" label="V" />
-        <HeaderCell field="draws" label="E" />
-        <HeaderCell field="losses" label="D" />
-        <HeaderCell field="goals_for" label={layout === "xs" ? "G" : "GOLOS"} />
+
+        {currentLayout.showWDL && (
+          <>
+            <HeaderCell field="wins" label="V" />
+            <HeaderCell field="draws" label="E" />
+            <HeaderCell field="losses" label="D" />
+          </>
+        )}
+
+        {currentLayout.showGoals && (
+          <HeaderCell field="goals_for" label="GOLOS" />
+        )}
 
         {currentLayout.showGoalDiff && (
           <HeaderCell field="goal_difference" label="DG" />
