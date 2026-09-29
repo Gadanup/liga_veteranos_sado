@@ -3,9 +3,9 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 import { supabase } from "../../../lib/supabase";
-import { Box, Container, Typography, Grid } from "@mui/material";
-import { theme } from "../../../styles/theme.js";
+import { Box, Container, Grid } from "@mui/material";
 import dayjs from "dayjs";
+import { useHorizontalSwipe } from "../../../hooks/useHorizontalSwipe";
 
 // Components
 import CalendarHeader from "../../../components/features/liga/calendario/CalendarHeader";
@@ -135,6 +135,18 @@ const LeagueFixturesContent = () => {
     // Don't update week yet, let readAllMatches handle it
   };
 
+  // Swipe across the matches to move between matchweeks on a phone.
+  const goToAdjacentWeek = (offset) => {
+    const weeks = Object.keys(fixturesByWeek);
+    const target = weeks[weeks.indexOf(currentWeek) + offset];
+    if (target) handleWeekChange(target);
+  };
+
+  const swipeHandlers = useHorizontalSwipe({
+    onSwipeLeft: () => goToAdjacentWeek(1),
+    onSwipeRight: () => goToAdjacentWeek(-1),
+  });
+
   useEffect(() => {
     if (selectedSeason) {
       readAllMatches(selectedSeason);
@@ -169,23 +181,6 @@ const LeagueFixturesContent = () => {
           />
         )}
 
-        {/* Current Week Title */}
-        {currentWeek && (
-          <Typography
-            variant="h3"
-            align="center"
-            sx={{
-              color: theme.colors.text.primary,
-              fontWeight: "bold",
-              fontSize: "48px",
-              marginBottom: 4,
-              opacity: 0.3,
-            }}
-          >
-            Jornada {currentWeek}
-          </Typography>
-        )}
-
         {/* Loading State */}
         {loading ? (
           <LoadingSkeleton message="A carregar jogos..." />
@@ -197,7 +192,7 @@ const LeagueFixturesContent = () => {
           <>
             {/* Matches Grid */}
             {currentWeek && fixturesByWeek[currentWeek] && (
-              <Grid container spacing={3}>
+              <Grid container spacing={3} {...swipeHandlers}>
                 {fixturesByWeek[currentWeek].map((match, index) => (
                   <Grid
                     item

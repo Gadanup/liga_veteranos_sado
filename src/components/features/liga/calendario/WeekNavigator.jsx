@@ -1,147 +1,117 @@
-import React from "react";
-import { Box, IconButton } from "@mui/material";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import React, { useEffect, useRef } from "react";
+import { Box, useMediaQuery } from "@mui/material";
 import { theme } from "../../../../styles/theme.js";
 
 /**
+ * Matchweeks are numbers in the league and in the cup group stage, but the cup
+ * also has "Semifinal", "Final" and similar. Only the numeric ones get the
+ * short J-prefix; anything else is shown as it comes.
+ */
+const formatWeekLabel = (week) =>
+  /^\d+$/.test(String(week)) ? `J${week}` : String(week);
+
+/**
  * WeekNavigator Component
- * Navigation for switching between match weeks
+ * Navigation for switching between match weeks.
+ *
+ * Mobile: a horizontally scrollable strip of weeks, current one centred.
+ * Desktop: the same strip, wrapped.
  *
  * @param {Array} weekList - List of available weeks
  * @param {string} currentWeek - Currently selected week
  * @param {Function} onWeekChange - Callback when week changes
  */
 const WeekNavigator = ({ weekList, currentWeek, onWeekChange }) => {
-  const isMobile = window.innerWidth <= 768;
+  // Same 768px threshold the rest of the calendar uses, but reactive — it used
+  // to read window.innerWidth during render, which never updated on rotation.
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const currentWeekIndex = weekList.indexOf(currentWeek);
-  const previousWeek = weekList[currentWeekIndex - 1] || null;
-  const nextWeek = weekList[currentWeekIndex + 1] || null;
+  const stripRef = useRef(null);
+  const activeRef = useRef(null);
 
-  if (isMobile) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        mb={4}
-        sx={{
-          backgroundColor: theme.colors.background.card,
-          padding: "16px",
-          borderRadius: "12px",
-          boxShadow: theme.components.card.shadow,
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={2}>
-          <IconButton
-            onClick={() => previousWeek && onWeekChange(previousWeek)}
-            disabled={!previousWeek}
-            sx={{
-              backgroundColor: previousWeek
-                ? theme.colors.primary[600]
-                : theme.colors.neutral[200],
-              color: previousWeek ? "white" : theme.colors.neutral[600],
-              width: 40,
-              height: 40,
-              "&:hover": {
-                backgroundColor: previousWeek
-                  ? theme.colors.primary[700]
-                  : theme.colors.neutral[200],
-              },
-              "&:disabled": {
-                backgroundColor: theme.colors.neutral[200],
-                color: theme.colors.neutral[600],
-              },
-            }}
-          >
-            <ChevronLeft />
-          </IconButton>
+  // Keep the selected week in view without scrolling the page itself.
+  useEffect(() => {
+    const strip = stripRef.current;
+    const active = activeRef.current;
+    if (!strip || !active) return;
 
-          <Box
-            sx={{
-              backgroundColor: theme.colors.primary[600],
-              color: "white",
-              padding: "12px 24px",
-              borderRadius: "12px",
-              fontWeight: "bold",
-              fontSize: "16px",
-            }}
-          >
-            Jornada {currentWeek}
-          </Box>
+    strip.scrollTo({
+      left: active.offsetLeft - strip.clientWidth / 2 + active.clientWidth / 2,
+      behavior: "smooth",
+    });
+  }, [currentWeek, weekList.length]);
 
-          <IconButton
-            onClick={() => nextWeek && onWeekChange(nextWeek)}
-            disabled={!nextWeek}
-            sx={{
-              backgroundColor: nextWeek
-                ? theme.colors.primary[600]
-                : theme.colors.neutral[200],
-              color: nextWeek ? "white" : theme.colors.neutral[600],
-              width: 40,
-              height: 40,
-              "&:hover": {
-                backgroundColor: nextWeek
-                  ? theme.colors.primary[700]
-                  : theme.colors.neutral[200],
-              },
-              "&:disabled": {
-                backgroundColor: theme.colors.neutral[200],
-                color: theme.colors.neutral[600],
-              },
-            }}
-          >
-            <ChevronRight />
-          </IconButton>
-        </Box>
-      </Box>
-    );
-  }
-
-  // Desktop Navigation
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      mb={4}
+      mb={3}
       sx={{
         backgroundColor: theme.colors.background.card,
-        padding: "16px",
         borderRadius: "12px",
         boxShadow: theme.components.card.shadow,
+        overflow: "hidden",
       }}
     >
-      <Box display="flex" gap={1} flexWrap="wrap" justifyContent="center">
-        {weekList.map((week) => (
-          <Box
-            key={week}
-            onClick={() => onWeekChange(week)}
-            sx={{
-              backgroundColor:
-                currentWeek === week
+      <Box
+        ref={stripRef}
+        sx={{
+          display: "flex",
+          gap: 1,
+          padding: "12px",
+          justifyContent: isMobile ? "flex-start" : "center",
+          flexWrap: isMobile ? "nowrap" : "wrap",
+          overflowX: isMobile ? "auto" : "visible",
+          scrollbarWidth: "none",
+          "&::-webkit-scrollbar": { display: "none" },
+        }}
+      >
+        {weekList.map((week) => {
+          const isCurrent = currentWeek === week;
+
+          return (
+            <Box
+              key={week}
+              ref={isCurrent ? activeRef : null}
+              onClick={() => onWeekChange(week)}
+              role="button"
+              tabIndex={0}
+              aria-current={isCurrent ? "true" : undefined}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onWeekChange(week);
+                }
+              }}
+              sx={{
+                flex: "0 0 auto",
+                minWidth: "48px",
+                minHeight: "44px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 14px",
+                cursor: "pointer",
+                userSelect: "none",
+                fontWeight: "bold",
+                borderRadius: "8px",
+                border: `2px solid ${theme.colors.primary[600]}`,
+                backgroundColor: isCurrent
                   ? theme.colors.primary[600]
                   : theme.colors.background.card,
-              color: currentWeek === week ? "white" : theme.colors.primary[600],
-              border: `2px solid ${theme.colors.primary[600]}`,
-              borderRadius: "8px",
-              padding: "10px 16px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              transition: "all 0.2s ease",
-              minWidth: "50px",
-              textAlign: "center",
-              "&:hover": {
-                backgroundColor:
-                  currentWeek === week
-                    ? theme.colors.primary[600]
-                    : theme.colors.background.secondary,
-              },
-            }}
-          >
-            {week}
-          </Box>
-        ))}
+                color: isCurrent ? "white" : theme.colors.primary[600],
+                transition: "background-color 0.2s ease, color 0.2s ease",
+                "@media (hover: hover)": {
+                  "&:hover": {
+                    backgroundColor: isCurrent
+                      ? theme.colors.primary[600]
+                      : theme.colors.background.secondary,
+                  },
+                },
+              }}
+            >
+              {formatWeekLabel(week)}
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   );
