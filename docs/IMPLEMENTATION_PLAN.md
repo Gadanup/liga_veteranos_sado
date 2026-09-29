@@ -3,7 +3,7 @@
 > The single ordered plan for everything we're improving: fixes, code structure, mobile, UI redesign, database and admin tools.
 > Work through it step by step and reference steps precisely ("let's do step 2.3.1").
 > Details live in the other docs; this file says **what, in which order, and when it's done**:
-> backlog IDs (`B1`, `M3`, `C1`…) → `02_IMPROVEMENTS.md` · screens (§4.x) → `05_SCREEN_SPECS.md` · data entry (`E1`…) → `04_DATA_ENTRY.md`.
+> backlog IDs (`B1`, `M3`, `C1`, `N2`…) → `06_AUDIT_BACKLOG.md` (supersedes `02_IMPROVEMENTS.md`) · screens (§4.x) → `05_SCREEN_SPECS.md` · data entry (`E1`…) → `04_DATA_ENTRY.md`.
 
 ---
 

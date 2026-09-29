@@ -1,7 +1,7 @@
 # Liga Veteranos do Sado — Project rules for Claude
 
 Public site + light admin for the Setúbal veterans football league. Small team, PRs into `main`.
-**Work follows `docs/IMPLEMENTATION_PLAN.md`** (numbered steps, e.g. "step 2.2.1"; tick the checkbox in the same PR). Read `docs/01_APP_OVERVIEW.md` before non-trivial work. Improvement backlog: `docs/02_IMPROVEMENTS.md` (IDs like `M3`, `B1`). Design direction: `docs/03_UI_REDESIGN.md`. Data-entry plan: `docs/04_DATA_ENTRY.md`.
+**Work follows `docs/IMPLEMENTATION_PLAN.md`** (numbered steps, e.g. "step 2.2.1"; tick the checkbox in the same PR). Read `docs/01_APP_OVERVIEW.md` before non-trivial work. Improvement backlog: `docs/06_AUDIT_BACKLOG.md` (IDs like `M3`, `B1`, `N2`; mirrored on Trello) — it supersedes `docs/02_IMPROVEMENTS.md`, which is kept for the original root-cause analysis. Design direction: `docs/03_UI_REDESIGN.md`. Data-entry plan: `docs/04_DATA_ENTRY.md`.
 
 ## This project differs from the Growth-Project defaults
 

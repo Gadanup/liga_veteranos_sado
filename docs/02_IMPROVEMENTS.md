@@ -1,5 +1,12 @@
 # 02 — Improvement Points
 
+> ⚠️ **Superseded by `06_AUDIT_BACKLOG.md` (2026-09-29).**
+> That document carries every item below **plus** the findings of the 2026-09-29 audit, says which
+> ones were re-verified against the current code, and is the version mirrored on the Trello board.
+> **Work from `06` and from Trello.** This file is kept for the original reasoning and the root-cause
+> analysis in §3 ("why mobile keeps breaking"), which `06` references instead of repeating.
+> IDs are the same in both (`M3`, `B1`, `P7`…), so nothing has to be renumbered.
+
 > Prioritised list of what to improve: bugs, mobile, code, structure, performance, security.
 > Each item has an ID so we can say "let's do M3" or "B2".
 > **Nothing in this document has been applied yet.** Every change should be done in its own small PR and checked with `npm run build` + a manual pass on a phone-sized viewport.
