@@ -77,7 +77,7 @@ export const navigationSections = [
     items: [
       {
         label: "Supertaça",
-        href: "/jogos/256",
+        href: "/jogos/437",
         icon: StadiumIcon,
         showWhenClosed: true,
         id: "Supertaça",
