@@ -200,10 +200,20 @@ const CupPage = () => {
         </Box>
 
         {/* Conditional View Rendering */}
+        {/* Both views copy currentSeason into state on mount only, so without a
+            key they keep showing the previous season's data after a switch. */}
         {isLeagueCupMode ? (
-          <LeagueCupView currentSeason={currentSeason} hideHeader={true} />
+          <LeagueCupView
+            key={currentSeason?.id}
+            currentSeason={currentSeason}
+            hideHeader={true}
+          />
         ) : (
-          <KnockoutCupView currentSeason={currentSeason} hideHeader={true} />
+          <KnockoutCupView
+            key={currentSeason?.id}
+            currentSeason={currentSeason}
+            hideHeader={true}
+          />
         )}
       </Container>
     </Box>
