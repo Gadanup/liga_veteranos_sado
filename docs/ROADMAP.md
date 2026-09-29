@@ -81,7 +81,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
-| 2026-09-29 | Docs restructure: `ROADMAP.md` as single status, `README.md`, `reference/`, `archive/`; `/next` skill; backup routine replaces staging | this PR |
+| 2026-09-29 | Docs restructure: `ROADMAP.md` as single status, `README.md`, `reference/`, `archive/`; `/next` skill; backup routine replaces staging | #128 |
 | 2026-09-29 | Calendar matchweek strip, swipe, no giant "Jornada X"; cup week keys independent of screen width (M7, M9, B10) — step 4.2 partial | #127 |
 | 2026-09-29 | robots.txt, sitemap.xml, web manifest (N10) — step 0.3.4 | #126 |
 | 2026-09-29 | `dayjs` declared, 6 unused deps removed, `.npmrc` legacy-peer-deps (D1, N13) — step 0.3.1 | #125 |
