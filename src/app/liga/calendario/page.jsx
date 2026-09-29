@@ -120,7 +120,9 @@ const LeagueFixturesContent = () => {
     const params = new URLSearchParams();
     if (week) params.set("week", week);
     if (season) params.set("season", season);
-    router.push(`/liga/calendario?${params.toString()}`, { scroll: false });
+    // replace, not push: this also runs on load, and a history entry per visit
+    // means the phone back button needs two taps to leave the page.
+    router.replace(`/liga/calendario?${params.toString()}`, { scroll: false });
   };
 
   const handleWeekChange = (newWeek) => {
