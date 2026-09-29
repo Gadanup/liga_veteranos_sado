@@ -14,6 +14,7 @@ import MatchSheetDownload from "../../../components/features/jogos/MatchSheetDow
 import MatchStatistics from "../../../components/features/jogos/MatchStatistics";
 import TeamSquads from "../../../components/features/jogos/TeamSquads";
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
+import ErrorMessage from "../../../components/shared/ErrorMessage";
 import EditMatchDialog from "../../../components/features/jogos/EditMatchDialog";
 
 const MatchPage = () => {
@@ -207,14 +208,14 @@ const MatchPage = () => {
     return <LoadingSkeleton message="A carregar detalhes do jogo..." />;
   }
 
+  // `error` was set but never rendered, and a missing match showed a loading
+  // message that never went away.
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
+
   if (!matchDetails) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <p style={{ color: theme.colors.text.secondary }}>
-          Carregar dados do Jogo
-        </p>
-      </Container>
-    );
+    return <ErrorMessage message="Jogo não encontrado" />;
   }
 
   const isSupercup = matchDetails.competition_type === "Supercup";
