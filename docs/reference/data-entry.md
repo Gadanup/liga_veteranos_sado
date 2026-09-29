@@ -2,7 +2,7 @@
 
 > Season setup, players, transfers, results, suspensions: today almost all of this is done by hand in the Supabase dashboard (plus committing photos to git and redeploying).
 > This doc lists the pain points, then proposes fixes in 3 tiers, so we can start small.
-> **Nothing applied yet.** Items marked 🗄 need a DB change — do those on a staging copy first (see `02_IMPROVEMENTS.md` S4).
+> **Nothing applied yet.** Items marked 🗄 need a DB change — back up schema + data first and ship each with a rollback + verify script (see `CONTRIBUTING.md` §5; no staging project — decision 2026-09-29).
 
 ---
 
@@ -24,8 +24,8 @@
 
 | ID | Item |
 |---|---|
-| E1 | **SQL helpers** (Supabase SQL editor / migration) run by an admin: `start_new_season(new_season_id, description)` — creates the season, copies all non-excluded teams from the current season with the same attributes, flips `is_current`, **and inserts the per-team rows in `league_standings` and `discipline_standings`** (the triggers only update existing rows — forgetting this hides the team from the tables). Returns the old→new team id map. *(Player handling depends on the open question in `01_APP_OVERVIEW.md` §8.)* |
-| E2 | **Remove every season hardcode** from code (`01_APP_OVERVIEW.md` §7) → new season = no deploy. Add `seasons.supercup_match_id`, `seasons.regulation_url`, `seasons.registration_form_url`, `seasons.calendar_url`, `seasons.transfer_window_start/end`. |
+| E1 | **SQL helpers** (Supabase SQL editor / migration) run by an admin: `start_new_season(new_season_id, description)` — creates the season, copies all non-excluded teams from the current season with the same attributes, flips `is_current`, **and inserts the per-team rows in `league_standings` and `discipline_standings`** (the triggers only update existing rows — forgetting this hides the team from the tables). Returns the old→new team id map. *(Player handling depends on the open question in `docs/reference/app-overview.md` §8.)* |
+| E2 | **Remove every season hardcode** from code (`docs/reference/app-overview.md` §7) → new season = no deploy. Add `seasons.supercup_match_id`, `seasons.regulation_url`, `seasons.registration_form_url`, `seasons.calendar_url`, `seasons.transfer_window_start/end`. |
 | E3 | **Quick result entry** in the edit dialog: score steppers (− / +), and for each goal a player picker **filtered to the scoring team**, with search (MUI `Autocomplete`), sorted by who played/scored before. Warning chip when *goal events ≠ score*. |
 | E4 | Show **all** registered players in the event picker (don't hide currently-suspended ones — mark them instead). |
 | E5 | **Photo pipeline script**: `npm run photos:optimize` → resizes every PNG in `public/team_photos` to 400 px WebP. One-off 116 MB → ~10 MB. |
@@ -103,5 +103,5 @@ And a project `CLAUDE.md` with this app's real stack and conventions (Next.js Ap
 ## 6. Suggested order
 
 1. E2 + E5 + E3/E4 (no DB change, immediate relief).
-2. On a staging copy: E7 + E8 (+ backfill) → switch screens to read from them → then E10, E11.
+2. After a backup (schema + data): E7 + E8 (+ backfill) → switch screens to read from them → then E10, E11.
 3. Admin area screens in the order they'll be needed next: **Nova época** + **Jogadores** (before registrations open) → **Calendário import/generate** → **Transferências** (before the January window) → the rest.

@@ -1,10 +1,10 @@
 # 03 — UI / Design Proposal
 
-> **Detailed, implementable specs for every screen and component are in [`05_SCREEN_SPECS.md`](05_SCREEN_SPECS.md).** This file is the overview/direction.
+> **Detailed, implementable specs for every screen and component are in [`docs/reference/screen-specs.md`](screen-specs.md).** This file is the overview/direction.
 > The site has no end-user accounts (only admins log in), so nothing here is personalised per visitor.
 
 > Goal: turn the site from "a set of pages with purple gradients" into something that looks and feels like a **modern football app** (FotMob / OneFootball / SofaScore style), mobile-first, while keeping the league's identity (purple + gold, logo).
-> This is a proposal to discuss — nothing applied yet. Best applied page by page together with the mobile pass (`02_IMPROVEMENTS.md` §3).
+> This is a proposal to discuss — nothing applied yet. Best applied page by page together with the mobile pass (`docs/archive/02_IMPROVEMENTS.md` §3).
 
 ---
 
@@ -137,5 +137,5 @@ Each one gets the variants it needs and no `isMobile` prop — responsiveness vi
 ## 7. How to proceed
 
 1. Build `theme/theme.js` + the component library on one page (Classificação + Início) → review together on a phone.
-2. If approved, roll out page by page in the order of `02_IMPROVEMENTS.md` §7.
+2. If approved, roll out page by page in the order of `docs/archive/02_IMPROVEMENTS.md` §7.
 3. Optional: I can produce a clickable HTML mockup of the home + standings + match page first, so you and your friend can react to the look before any code changes.

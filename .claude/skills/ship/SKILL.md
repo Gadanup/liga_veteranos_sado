@@ -9,12 +9,12 @@ Follow `CONTRIBUTING.md` exactly. Only commit/push/open a PR when the user asked
 
 ## 1. Branch
 - If on `main` (or on an unrelated branch): `git fetch origin` → `git switch -c <type>/<step>-<desc> origin/main` → `git branch --unset-upstream` (so the first push creates the remote branch instead of targeting `main`).
-- Name: `<type>/<plan-step>-<short-description>` — types `feat fix refactor ui db docs chore test`; step from `docs/IMPLEMENTATION_PLAN.md` when applicable.
+- Name: `<type>/<plan-step>-<short-description>` — types `feat fix refactor ui db docs chore test`; step from `docs/ROADMAP.md` when applicable.
 
 ## 2. Checks before committing
 - `npm run build` passes; `npm run lint` shows no new warnings; `npm test` passes (if configured).
 - Never stage: `.env*`, `supabase/.temp`, unrelated modified files (ask if unsure). Stage explicit paths, not `git add -A`.
-- If the change completes a plan step, tick its checkbox in `docs/IMPLEMENTATION_PLAN.md`.
+- Update `docs/ROADMAP.md` in the same commit/PR: move the finished item from **NOW** (or NEXT/LATER) to the top of **DONE** as `| YYYY-MM-DD | what | #<PR> |` (fill the PR number after `gh pr create` with a follow-up commit, or write "this PR"). Never tick status anywhere else.
 
 ## 3. Commit
 Conventional Commits: `<type>(<scope>): <subject>` — imperative, lowercase, no period, ≤ 72 chars. Body explains why; footer `Plan: x.y.z` / `Refs: B1`. Split unrelated changes into separate commits. Use a heredoc for the message and end with the Co-Authored-By line required by the session.

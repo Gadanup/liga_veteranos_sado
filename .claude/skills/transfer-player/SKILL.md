@@ -7,7 +7,7 @@ description: Register a mid-season player transfer in Liga Veteranos do Sado —
 
 You produce SQL + a short impact report. **Never run writes against Supabase** (production). The user runs the SQL.
 
-## Current model (until `player_registrations` from `docs/04_DATA_ENTRY.md` E7 exists)
+## Current model (until `player_registrations` from `docs/reference/data-entry.md` E7 exists)
 
 - `players.team_id` = new team (season-specific `teams.id`)
 - `players."previousClub"` = old team id — **only one is stored**

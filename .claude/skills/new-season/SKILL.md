@@ -12,12 +12,12 @@ You generate SQL and a checklist. **Never execute writes against Supabase** — 
 - New season id (= start year, e.g. `2026`) and description (e.g. `2026/2027`).
 - Cup format this season: knockout or League Cup (`cup_group_stage`).
 - Teams leaving / joining / renamed compared with the current season.
-- Players carry-over: **this league creates new player rows each season** (confirmed 2026-09-27, see `docs/01_APP_OVERVIEW.md` §8). Old-season rows must stay untouched — they hold that season's squads and events.
+- Players carry-over: **this league creates new player rows each season** (confirmed 2026-09-27, see `docs/reference/app-overview.md` §8). Old-season rows must stay untouched — they hold that season's squads and events.
 - Players leaving each team (or "none, I'll fix later").
 
 ## 2. Generate SQL (one transaction, reviewed)
 
-Read `docs/01_APP_OVERVIEW.md` §4 for columns. Template:
+Read `docs/reference/app-overview.md` §4 for columns. Template:
 
 ```sql
 begin;
@@ -67,7 +67,7 @@ commit;
 
 - [ ] New teams: logo in `public/team_logos/`, row inserted.
 - [ ] Jokers marked (max 2 per team, see `JokersInfoCard`).
-- [ ] Code hardcodes (until `02_IMPROVEMENTS.md` C7 is done) — grep and list each with file:line:
+- [ ] Code hardcodes (until `docs/archive/02_IMPROVEMENTS.md` C7 is done) — grep and list each with file:line:
   `grep -rnE "20[0-9]{2}/(20)?[0-9]{2}|jogos/[0-9]+|season === 20" src`
   (nav "Época", PDF header in `MatchSheetDownload.jsx`, Supertaça link in `navigationConfig.js`, documentation page + `QuickActionsGrid.jsx` files, `SorteioHeader.jsx`).
 - [ ] New documents in `public/docs/` (regulation, registration form, calendar).

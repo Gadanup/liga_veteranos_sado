@@ -6,7 +6,7 @@
 
 ## Plan step / backlog
 
-<!-- e.g. Plan 0.2.1 · B1   (docs/IMPLEMENTATION_PLAN.md · docs/02_IMPROVEMENTS.md) -->
+<!-- e.g. Step 0.2.1 · B1   (docs/ROADMAP.md · docs/backlog.md) -->
 
 ## Type
 
@@ -32,7 +32,7 @@
 
 - [ ] No database changes
 - [ ] SQL: `docs/db/NN_….sql` (+ rollback `docs/db/NN_…_rollback.sql`)
-- [ ] Applied to staging
+- [ ] Backup taken first (schema → `supabase/schema.sql`, data → private folder)
 - [ ] Applied to production on: <!-- YYYY-MM-DD, after review -->
 - [ ] `src/types/database.types.ts` regenerated
 
@@ -45,7 +45,7 @@
 - [ ] Tested on a real phone via the Vercel Preview URL
 - [ ] Checked at 360 / 390 / 768 / 1440 px (UI changes)
 - [ ] No hardcoded season, no `window.innerWidth`, UI strings in `constants/const.js` (new code)
-- [ ] Step ticked in `docs/IMPLEMENTATION_PLAN.md`
+- [ ] `docs/ROADMAP.md` updated (item moved from NOW to DONE with this PR's number)
 
 ## Notes for the reviewer
 

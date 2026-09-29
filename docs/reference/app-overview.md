@@ -185,7 +185,7 @@ page.jsx ("use client")
 
 ## 8. Open questions (to confirm)
 
-1. ~~How are players carried to a new season?~~ **Answered (2026-09-27): a NEW player row is created every season** — players per season: 2024 → 309 rows, 2025 → 261 rows, plus 41 rows with `team_id = null`. So the same person has one `players` row per season (no link between them; career stats across seasons are not possible today — see `04_DATA_ENTRY.md` E7/E9). Original question: Given `teams` is per-season and `players.team_id` points at a season-specific team row: do you (a) create new player rows each season, or (b) update `team_id` to the new season's team row? The answer changes what old-season squads/goalscorers show and the migration plan in `04_DATA_ENTRY.md`.
+1. ~~How are players carried to a new season?~~ **Answered (2026-09-27): a NEW player row is created every season** — players per season: 2024 → 309 rows, 2025 → 261 rows, plus 41 rows with `team_id = null`. So the same person has one `players` row per season (no link between them; career stats across seasons are not possible today — see `docs/reference/data-entry.md` E7/E9). Original question: Given `teams` is per-season and `players.team_id` points at a season-specific team row: do you (a) create new player rows each season, or (b) update `team_id` to the new season's team row? The answer changes what old-season squads/goalscorers show and the migration plan in `docs/reference/data-entry.md`.
 2. ~~RLS policies~~ **Checked** — see §6 and `docs/db/`.
 3. ~~Where is it deployed?~~ **Answered: Vercel.** Env vars `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` must exist in Vercel (Production + Preview) before `src/lib/supabase.ts` reads from env (S2). Staging Supabase project: none yet.
 4. ~~Generated Supabase types~~ **Done** → `src/types/database.types.ts`; RLS / grants / triggers dump → `docs/db/`. See "How to generate" below.
@@ -198,3 +198,30 @@ npx supabase gen types typescript --project-id dmsocybvdzdzafpemybt --schema pub
 ```
 > In Windows PowerShell 5.1 `>` writes UTF-16 — use Git Bash, or pipe to `Out-File -Encoding utf8`.
 > Re-run the second command after every schema change. After `login`, Claude can run the generation itself.
+
+---
+
+## 9. Target code structure (created progressively, not moved all at once)
+
+Agreed 2026-09-27 (was `IMPLEMENTATION_PLAN.md` §1.1). New or rewritten code goes here; old `components/features/**` and `hooks/**` are deleted **as each page is rewritten** (Phase 4 in `docs/ROADMAP.md`), never in bulk.
+
+```
+src/
+  app/                    ← routes only (thin pages), incl. app/admin/**
+  api/                    ← Supabase calls + React Query keys, one file per domain
+    queryKeys.js  seasons.js  matches.js  standings.js  teams.js  players.js
+    events.js  discipline.js  cup.js  history.js  storage.js
+  components/
+    ui/                   ← shared kit (screen-specs §3): TeamBadge, MatchCard, StandingsTable…
+    layout/               ← AppShell, TopBar, BottomNav, Sidebar, MoreSheet, PageHeader
+  constants/  const.js (PT strings)  enum.js (competition, event types, rounds)  site.js
+  hooks/                  ← app-level: useSelectedSeason, useIsAdmin, useGetCurrentSeason  (+ test/)
+  lib/        supabase.ts  queryClient.js
+  modules/<feature>/      ← home, standings, fixtures, match, team, scorers, discipline,
+    components/ hooks/      cup, gallery, history, info, admin/{seasons,players,transfers,
+                            fixtures,results,discipline}
+  theme/      theme.js  (createTheme, screen-specs §1.1)
+  types/      database.types.ts  (generated, reference only)
+  utils/      pure logic (+ test/)
+```
+Already in place: `api/seasons.js`, `hooks/useGetCurrentSeason.js`, `hooks/useHorizontalSwipe.js`, `utils/season.js`, `constants/site.js`.

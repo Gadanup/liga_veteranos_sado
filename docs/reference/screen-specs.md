@@ -1,7 +1,7 @@
 # 05 — Screen Specs (implementation guide for the redesign)
 
-> Detailed spec of every screen and shared component from `03_UI_REDESIGN.md`, precise enough to implement one screen per PR.
-> Reads with: `02_IMPROVEMENTS.md` (mobile/code items), `04_DATA_ENTRY.md` (admin flows).
+> Detailed spec of every screen and shared component from `docs/reference/design-direction.md`, precise enough to implement one screen per PR.
+> Reads with: `docs/archive/02_IMPROVEMENTS.md` (mobile/code items), `docs/reference/data-entry.md` (admin flows).
 > The app has **no end-user accounts** — only admins log in. Every screen is public and identical for all visitors.
 
 ---
@@ -24,7 +24,7 @@ Every data page reads the season from `?epoca=<id>` (fallback: season with `is_c
 > Today some pages use `?season=`. Keep reading `season` as an alias so old shared links keep working.
 
 ### Data hooks
-Names follow `useGet<Data>` (see `02_IMPROVEMENTS.md` C1/C2). Until React Query is approved they can be plain hooks with the same signature — screens don't change when the implementation does.
+Names follow `useGet<Data>` (see `docs/archive/02_IMPROVEMENTS.md` C1/C2). Until React Query is approved they can be plain hooks with the same signature — screens don't change when the implementation does.
 
 ### States every screen must implement
 - **Loading** → skeleton shaped like the content (never a full-page spinner after first paint).
@@ -385,7 +385,7 @@ Date group header: "Domingo, 13 de outubro"
 
 **Desktop**: same list; cards in a 2-column grid (`md`) / 3-column (`lg`) inside each date group.
 
-**States**: EmptyState "Ainda não há jogos para a época 2025/26" (admin: + "Criar jogo" / "Importar calendário" buttons, see `04_DATA_ENTRY.md`).
+**States**: EmptyState "Ainda não há jogos para a época 2025/26" (admin: + "Criar jogo" / "Importar calendário" buttons, see `docs/reference/data-entry.md`).
 
 **Admin**: edit/delete icons on cards → `EditMatchDialog` (fixture fields: teams, date, time, jornada/round, campo) and `DeleteMatchDialog` (keep the existing warning when the match already has a result).
 
@@ -424,7 +424,7 @@ Ficha:
 
 **Penalties**: under the score "(4 – 3 g.p.)" caption; winner name bold.
 
-**Admin**: bottom sticky bar (above BottomNav) "Editar jogo" → `MatchResultForm` in `ResponsiveDialog` (spec in `04_DATA_ENTRY.md` E3: score steppers, goals per team with player autocomplete, cards, warning if goal events ≠ score).
+**Admin**: bottom sticky bar (above BottomNav) "Editar jogo" → `MatchResultForm` in `ResponsiveDialog` (spec in `docs/reference/data-entry.md` E3: score steppers, goals per team with player autocomplete, cards, warning if goal events ≠ score).
 
 **Metadata**: `generateMetadata` → title "Sado 2–1 Pontes · Jornada 6" for WhatsApp previews.
 
@@ -434,7 +434,7 @@ Ficha:
 
 ### 4.5 Equipa — `/equipas/[slug]?epoca=`
 **Data**: `useGetTeam(slug, seasonId)`, `useGetTeamMatches(teamId)`, `useGetSquad(teamId)`, `useGetStandings(seasonId)` (position), `useGetTopScorers(seasonId, { teamId })`.
-Slug: today `short_name` URL-encoded; move to a real slug with E9 (`04_DATA_ENTRY.md`) — spec works with either.
+Slug: today `short_name` URL-encoded; move to a real slug with E9 (`docs/reference/data-entry.md`) — spec works with either.
 
 **Mobile**
 ```
