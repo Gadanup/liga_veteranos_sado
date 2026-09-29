@@ -208,7 +208,7 @@ const TeamInfoCards = ({ teamData, nextGame }) => {
                     variant="body2"
                     sx={{ color: theme.colors.text.secondary }}
                   >
-                    {nextGame.home_team.stadium_name}
+                    {nextGame.stadium_name || nextGame.home_team.stadium_name}
                   </Typography>
                 </Box>
               </Box>

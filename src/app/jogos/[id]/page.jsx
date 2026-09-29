@@ -71,7 +71,7 @@ const MatchPage = () => {
           `
           id, competition_type, week, round, home_goals, away_goals,
           home_penalties, away_penalties, match_date, match_time,
-          match_sheet, season,
+          match_sheet, season, stadium_name,
           home_team:teams!matches_home_team_id_fkey (id, short_name, logo_url, stadium_name),
           away_team:teams!matches_away_team_id_fkey (id, short_name, logo_url)
         `

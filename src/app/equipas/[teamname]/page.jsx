@@ -133,6 +133,7 @@ const TeamPageContent = ({ params }) => {
           competition_type,
           round,
           week,
+          stadium_name,
           home_team:teams!matches_home_team_id_fkey (short_name, logo_url, stadium_name),
           away_team:teams!matches_away_team_id_fkey (short_name, logo_url)
         `

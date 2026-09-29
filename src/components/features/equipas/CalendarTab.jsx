@@ -266,7 +266,7 @@ const CalendarTab = ({ teamData, teamFixtures }) => {
                       variant="body2"
                       sx={{ color: theme.colors.text.secondary }}
                     >
-                      {match.home_team.stadium_name}
+                      {match.stadium_name || match.home_team.stadium_name}
                     </Typography>
                   </TableCell>
 

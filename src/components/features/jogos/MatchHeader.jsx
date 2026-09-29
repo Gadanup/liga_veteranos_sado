@@ -300,11 +300,8 @@ const MatchHeader = ({ matchDetails }) => {
                   variant="caption"
                   sx={{ opacity: 0.9, fontSize: "11px" }}
                 >
-                  {matchDetails.competition_type === "Supercup"
-                    ? matchDetails.season === 2024
-                      ? "Campo António Henrique de Matos"
-                      : "Campo Municipal da Bela Vista"
-                    : matchDetails.home_team.stadium_name}
+                  {matchDetails.stadium_name ||
+                    matchDetails.home_team.stadium_name}
                 </Typography>
               </Box>
             </Box>
@@ -496,11 +493,8 @@ const MatchHeader = ({ matchDetails }) => {
                     variant="body1"
                     sx={{ color: "white", opacity: 0.9 }}
                   >
-                    {matchDetails.competition_type === "Supercup"
-                      ? matchDetails.season === 2024
-                        ? "Estádio: Campo António Henrique de Matos"
-                        : "Estádio: Campo Municipal da Bela Vista"
-                      : matchDetails.home_team.stadium_name}
+                    {matchDetails.stadium_name ||
+                      matchDetails.home_team.stadium_name}
                   </Typography>
                 </Box>
               </Box>
