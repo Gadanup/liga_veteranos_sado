@@ -28,7 +28,8 @@ const CalendarHeader = ({
   isAdmin,
   onCreateMatch,
 }) => {
-  const isMobile = window.innerWidth <= 768;
+  // Read during render, window.innerWidth never updated on rotation.
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   return (
     <Box

@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { supabase } from "../../../lib/supabase";
 import { useTheme } from "../../../components/ThemeWrapper";
 
@@ -17,8 +18,6 @@ const Classification = () => {
   const [seasons, setSeasons] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState(1200);
   const [sortBy, setSortBy] = useState("points");
   const [sortOrder, setSortOrder] = useState("desc");
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
@@ -27,29 +26,12 @@ const Classification = () => {
   const router = useRouter();
   const theme = useTheme();
 
-  // Check viewport size with debounce
-  const updateViewportDimensions = useCallback(() => {
-    setViewportWidth(window.innerWidth);
-    setIsMobile(window.innerWidth <= 768);
-  }, []);
-
-  useEffect(() => {
-    // Initial check
-    updateViewportDimensions();
-
-    // Debounced resize handler
-    let timeoutId;
-    const handleResize = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(updateViewportDimensions, 150);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [updateViewportDimensions]);
+  // This page used to keep the viewport width in state, updated from a
+  // debounced resize listener, and compare it against 768 and 900 by hand.
+  // The theme owns those boundaries now, and useMediaQuery re-renders on its
+  // own — no listener, no state, and correct on the first paint.
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
+  const isDesktop = useMediaQuery((t) => t.breakpoints.up("md"));
 
   // Fetch seasons
   useEffect(() => {
@@ -338,8 +320,8 @@ const Classification = () => {
   const currentSeasonData = seasons.find((s) => s.id === selectedSeason);
 
   // Determine if legend should show based on viewport
-  const showLegend = viewportWidth >= 900;
-  const showStats = viewportWidth >= 900;
+  const showLegend = isDesktop;
+  const showStats = isDesktop;
 
   return (
     <div
@@ -397,7 +379,6 @@ const Classification = () => {
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSort={handleSort}
-            viewportWidth={viewportWidth}
           />
           {showStats && (
             <ClassificationStats
