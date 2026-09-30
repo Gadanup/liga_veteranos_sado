@@ -22,11 +22,22 @@ const TeamHeader = ({ teamData, selectedSeason }) => {
         overflow: "hidden",
       }}
     >
-      <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-        <Grid container spacing={3} alignItems="center">
+      <CardContent sx={{ p: { xs: 2, md: 4 } }}>
+        <Grid container spacing={{ xs: 2, md: 3 }} alignItems="center">
           {/* Team Logo and Info */}
           <Grid item xs={12} md={8}>
-            <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
+            {/* Side by side, the logo left the name about 143px, so a name like
+                "União Desportiva e Recreativa das Pontes" wrapped over six
+                lines. Stacked on xs, it gets the full width. */}
+            <Box
+              display="flex"
+              sx={{
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: "center",
+                textAlign: { xs: "center", sm: "left" },
+                gap: { xs: 1.5, sm: 3 },
+              }}
+            >
               {/* Team Logo Circle */}
               <Box
                 sx={{
@@ -58,7 +69,8 @@ const TeamHeader = ({ teamData, selectedSeason }) => {
                   sx={{
                     fontWeight: theme.typography.fontWeight.bold,
                     mb: 1,
-                    fontSize: { xs: "1.75rem", md: "2.125rem" },
+                    fontSize: { xs: "1.375rem", sm: "1.75rem", md: "2.125rem" },
+                    lineHeight: 1.2,
                   }}
                 >
                   {teamData.name}
@@ -79,7 +91,13 @@ const TeamHeader = ({ teamData, selectedSeason }) => {
                 />
 
                 {/* Stadium Info */}
-                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  mb={1}
+                  sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
+                >
                   <Stadium sx={{ fontSize: 20 }} />
                   <Typography variant="body1">
                     {teamData.stadium_name}
@@ -87,7 +105,12 @@ const TeamHeader = ({ teamData, selectedSeason }) => {
                 </Box>
 
                 {/* Founded Date */}
-                <Box display="flex" alignItems="center" gap={1}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
+                >
                   <CalendarToday sx={{ fontSize: 20 }} />
                   <Typography variant="body1">
                     Fundado: {new Date(teamData.founded).toLocaleDateString()}
