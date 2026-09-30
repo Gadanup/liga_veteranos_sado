@@ -310,3 +310,23 @@ export const theme = {
     },
   },
 };
+
+/**
+ * A brand colour with an alpha channel, so a translucent shade can still come
+ * from the tokens instead of a hand-written rgba triple:
+ *   withAlpha(theme.colors.accent[500], 0.2)
+ */
+export const withAlpha = (hex, alpha) => {
+  const value = String(hex).replace("#", "");
+  const full =
+    value.length === 3
+      ? value
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : value;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
