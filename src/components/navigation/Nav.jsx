@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, CssBaseline, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { useIsAdmin } from "../../hooks/admin/useIsAdmin";
 import NavAppBar from "./NavAppBar";
 import NavDrawer from "./NavDrawer";
@@ -52,8 +52,6 @@ export default function Nav({ onDrawerToggle }) {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-
       <NavAppBar
         open={open}
         isMobile={isMobile}

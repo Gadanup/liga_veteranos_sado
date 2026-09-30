@@ -1,11 +1,9 @@
-"use client";
 import localFont from "next/font/local";
 import { Barlow_Condensed, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
-import Nav from "../components/navigation/Nav";
-import { ThemeWrapper } from "../components/ThemeWrapper";
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import AppProviders from "./AppProviders";
+import AppShell from "./AppShell";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "../constants/site";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,54 +31,61 @@ const body = Source_Sans_3({
   display: "swap",
 });
 
+/**
+ * This layout is a server component, which is the whole point: a client
+ * component cannot export metadata, so until now the served HTML had no
+ * title, no description and no Open Graph tags at all — the title was set by
+ * `document.title` in an effect, which no crawler and no link unfurler runs.
+ * Links pasted into WhatsApp showed the bare URL.
+ */
+export const metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    locale: "pt_PT",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/logo/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Emblema da Liga de Futebol Veteranos do Sado",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/logo/og.jpg"],
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // The crest's deep navy, so the phone's browser chrome matches the app bar.
+  themeColor: "#0C1F33",
+};
+
 export default function RootLayout({ children }) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const pathname = usePathname();
-
-  const handleDrawerToggle = (isOpen) => {
-    setDrawerOpen(isOpen);
-  };
-
-  useEffect(() => {
-    // Check if the screen size is mobile
-    const handleResize = () => setIsMobile(window.innerWidth <= 599);
-    handleResize(); // Initial check on load
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    const mainContent = document.querySelector(".main-content");
-    if (mainContent) {
-      if (isMobile) {
-        mainContent.style.marginLeft = "0px";
-        mainContent.style.marginTop = "64px";
-        mainContent.style.padding = "0px";
-      } else {
-        mainContent.style.marginLeft = drawerOpen ? "240px" : "64px";
-        mainContent.style.marginTop = "64px";
-        mainContent.style.padding = "16px";
-      }
-    }
-  }, [drawerOpen, isMobile]);
-
-  useEffect(() => {
-    document.title = "Liga Veteranos do Sado";
-  }, []);
-
-  // Check if current route is admin login
-  const isAdminLogin = pathname === "/admin/login";
-
   return (
     <html lang="pt" suppressHydrationWarning>
       <body
         className={`${display.variable} ${body.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-background`}
       >
-        <ThemeWrapper>
-          {!isAdminLogin && <Nav onDrawerToggle={handleDrawerToggle} />}
-          <div className={isAdminLogin ? "" : "main-content"}>{children}</div>
-        </ThemeWrapper>
+        <AppProviders>
+          <AppShell>{children}</AppShell>
+        </AppProviders>
       </body>
     </html>
   );
