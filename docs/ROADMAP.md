@@ -80,6 +80,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-10-01 | Hotfix: league calendar crashed ("useMediaQuery is not defined", regression from #145); ESLint `no-undef` now fails the build on any undefined name | this PR |
 | 2026-09-30 | Security headers, `poweredByHeader` off, admin check no longer case-sensitive, env-var build failure documented (N6, S3, N12) — step 0.3.4 | #136 |
 | 2026-09-30 | `Footer.jsx` and `useCupMatches` deleted, `/taca/sorteio` redirects, unused import dropped (D2, D3) — step 0.3.2 | #135 |
 | 2026-09-30 | `jspdf` loads on click: `/jogos/[id]` 335 kB → 224 kB (P3) — step 0.3.3 | #134 |
