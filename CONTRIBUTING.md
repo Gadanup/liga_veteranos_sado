@@ -5,6 +5,23 @@ Applies to everyone (and to Claude — see `.claude/skills/ship/`).
 
 ---
 
+## 0. Before your first build
+
+Copy `.env.example` to `.env.local` and fill in the two Supabase values from the
+dashboard (Project Settings → API).
+
+**Without them `npm run build` fails**, and not with an obvious message:
+`src/lib/supabase.ts` throws while the module is evaluated, so the build dies
+during "Collecting page data" with `Failed to collect page data for /`. That is
+fail-fast working as intended, not a bug — but it looks like a broken build the
+first time you meet it. The same two variables must exist in Vercel for
+**Production and Preview**, or the deploy fails the same way.
+
+`npm install` needs no flag: `.npmrc` pins `legacy-peer-deps=true`, because
+`react-brackets` declares a peer dependency on React 17 while the app runs 18.
+
+---
+
 ## 1. Workflow
 
 ```

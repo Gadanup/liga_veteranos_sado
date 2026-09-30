@@ -26,12 +26,16 @@ export const useIsAdmin = (requireAuth = false) => {
 
       setUser(user);
 
-      // Check if user is in admin whitelist
+      // Check if user is in admin whitelist.
+      // The read_own_admin_row policy already restricts this to the caller's
+      // own row, matching on lower(email) at both ends, so no client-side
+      // filter is needed — and the .eq("email", user.email) that used to be
+      // here failed whenever the stored email differed in case.
       const { data, error } = await supabase
         .from("admin_users")
         .select("email")
-        .eq("email", user.email)
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       if (data && !error) {
         setIsAdmin(true);
