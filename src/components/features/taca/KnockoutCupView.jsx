@@ -10,7 +10,6 @@ import dayjs from "dayjs";
 import CupHeader from "../../../components/features/taca/sorteio/CupHeader";
 import CupBracket from "../../../components/features/taca/sorteio/CupBracket";
 import CupMobileView from "../../../components/features/taca/sorteio/CupMobileView";
-import CupNote from "../../../components/features/taca/sorteio/CupNote";
 
 // Shared components
 import SeasonSelector from "../../../components/features/taca/shared/SeasonSelector";
@@ -296,9 +295,6 @@ const KnockoutCupView = ({
         ) : (
           <CupBracket bracketData={bracketData} isMobile={isMobile} />
         )}
-
-        {/* Note */}
-        <CupNote />
       </Container>
     </Box>
   );
