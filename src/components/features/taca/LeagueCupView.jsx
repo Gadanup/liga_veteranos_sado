@@ -49,7 +49,7 @@ const LeagueCupView = ({
   const [groupMatches, setGroupMatches] = useState({});
   const [finalFourMatches, setFinalFourMatches] = useState([]);
   const [loading, setLoading] = useState(true);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   // Fetch all seasons for season selector
   useEffect(() => {

@@ -7,6 +7,7 @@ import {
   MenuItem,
   FormControl,
   Chip,
+  useMediaQuery,
 } from "@mui/material";
 import { EmojiEvents, Add, CalendarToday } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
@@ -32,7 +33,9 @@ const CupCalendarHeader = ({
   isGroupStageMode = false,
   activeFilter = "all",
 }) => {
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  // Read during render, window.innerWidth never updated on rotation — and
+  // the typeof guard existed only because it also ran during SSR.
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   // Get filter label
   const getFilterLabel = () => {

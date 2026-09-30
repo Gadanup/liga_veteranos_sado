@@ -26,7 +26,7 @@ const CupPage = () => {
   const [currentSeason, setCurrentSeason] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   // Fetch all seasons on mount
   useEffect(() => {

@@ -40,7 +40,7 @@ const KnockoutCupView = ({
     final: [],
   });
   const [loading, setLoading] = useState(true);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   // Placeholder rounds
   const placeholderRounds = {

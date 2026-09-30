@@ -4,6 +4,14 @@ import { EmojiEvents } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme";
 
 /**
+ * Not a layout breakpoint, and deliberately not in the theme scale: the group
+ * table simply stops fitting below about 375px — the narrowest phone still in
+ * common use — so a couple of columns shrink. The theme's breakpoints are
+ * layout tiers; this is a "does the content fit" threshold for one table.
+ */
+const NARROW_PHONE = "(max-width: 375px)";
+
+/**
  * GroupStandingsTable Component
  * Displays the standings table for a specific group
  *
@@ -12,7 +20,7 @@ import { theme } from "../../../../styles/theme";
  * @param {boolean} isMobile - Whether the view is mobile
  */
 const GroupStandingsTable = ({ standings, groupName, isMobile }) => {
-  const isVerySmallMobile = useMediaQuery("(max-width: 375px)");
+  const isVerySmallMobile = useMediaQuery(NARROW_PHONE);
 
   // Determine qualification status
   const getQualificationStyle = (position) => {
