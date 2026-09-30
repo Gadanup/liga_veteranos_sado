@@ -10,7 +10,6 @@ import { theme } from "../../../styles/theme.js";
 import CupHeader from "../../../components/features/taca/sorteio/CupHeader";
 import CupBracket from "../../../components/features/taca/sorteio/CupBracket";
 import CupMobileView from "../../../components/features/taca/sorteio/CupMobileView";
-import CupNote from "../../../components/features/taca/sorteio/CupNote";
 import { useCupMatches } from "../../../hooks/taca/sorteio/useCupMatches";
 
 const Cup = () => {
@@ -64,9 +63,6 @@ const Cup = () => {
             isMobile={isMobile}
           />
         )}
-
-        {/* Note */}
-        <CupNote />
       </Container>
     </Box>
   );
