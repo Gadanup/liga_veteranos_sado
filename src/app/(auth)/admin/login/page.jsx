@@ -81,7 +81,7 @@ const AdminLogin = () => {
         top: 0, // Add this
         left: 0, // Add this
         display: "flex",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: "linear-gradient(135deg, #14334A 0%, #0C1F33 100%)",
         overflow: "hidden",
       }}
     >
@@ -150,7 +150,7 @@ const AdminLogin = () => {
                 width: 80,
                 height: 80,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, #14334A 0%, #0C1F33 100%)",
                 mb: 2,
                 boxShadow: "0 4px 20px rgba(102, 126, 234, 0.4)",
               }}
@@ -161,7 +161,7 @@ const AdminLogin = () => {
               variant={isMobile ? "h5" : "h4"}
               sx={{
                 fontWeight: 800,
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, #14334A 0%, #0C1F33 100%)",
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -206,7 +206,7 @@ const AdminLogin = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Login sx={{ color: "#667eea" }} />
+                    <Login sx={{ color: "#14334A" }} />
                   </InputAdornment>
                 ),
               }}
@@ -238,7 +238,7 @@ const AdminLogin = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Shield sx={{ color: "#667eea" }} />
+                    <Shield sx={{ color: "#14334A" }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -283,7 +283,7 @@ const AdminLogin = () => {
               variant="contained"
               disabled={loading}
               sx={{
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: "linear-gradient(135deg, #14334A 0%, #0C1F33 100%)",
                 borderRadius: "12px",
                 padding: "14px",
                 fontSize: "16px",
@@ -293,7 +293,7 @@ const AdminLogin = () => {
                 transition: "all 0.3s",
                 "&:hover": {
                   background:
-                    "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
+                    "linear-gradient(135deg, #0C1F33 0%, #14334A 100%)",
                   boxShadow: "0 6px 20px rgba(102, 126, 234, 0.6)",
                   transform: "translateY(-2px)",
                 },
@@ -312,7 +312,7 @@ const AdminLogin = () => {
               onClick={() => router.push("/")}
               sx={{
                 textTransform: "none",
-                color: "#667eea",
+                color: "#14334A",
                 fontWeight: 600,
                 "&:hover": {
                   backgroundColor: "rgba(102, 126, 234, 0.08)",

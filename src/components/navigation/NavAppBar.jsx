@@ -45,13 +45,13 @@ const NavAppBar = ({
       open={open}
       sx={{
         background: open
-          ? "rgba(90, 62, 140, 0.85)"
-          : "linear-gradient(135deg, #6B4BA1 0%, #8B5FBF 50%, #6B4BA1 100%)",
+          ? "rgba(15, 41, 65, 0.85)"
+          : "linear-gradient(135deg, #14334A 0%, #2C5474 50%, #14334A 100%)",
         backdropFilter: open ? "blur(20px)" : "none",
         boxShadow: open
-          ? "0 8px 32px rgba(107, 75, 161, 0.4)"
-          : "0 4px 20px rgba(107, 75, 161, 0.3)",
-        borderBottom: open ? "1px solid rgba(255, 215, 0, 0.2)" : "none",
+          ? "0 8px 32px rgba(20, 51, 74, 0.4)"
+          : "0 4px 20px rgba(20, 51, 74, 0.3)",
+        borderBottom: open ? "1px solid rgba(197, 148, 76, 0.2)" : "none",
       }}
     >
       <Toolbar
@@ -69,8 +69,8 @@ const NavAppBar = ({
               backdropFilter: "blur(10px)",
               border: "1px solid rgba(255, 255, 255, 0.2)",
               "&:hover": {
-                background: "rgba(255, 215, 0, 0.2)",
-                borderColor: "#FFD700",
+                background: "rgba(197, 148, 76, 0.2)",
+                borderColor: "#C5944C",
                 transform: "scale(1.05)",
               },
               transition: "all 0.3s",
@@ -87,9 +87,9 @@ const NavAppBar = ({
                 alignItems: "center",
                 gap: 1,
                 padding: "6px 16px",
-                background: "rgba(255, 215, 0, 0.15)",
+                background: "rgba(197, 148, 76, 0.15)",
                 borderRadius: "20px",
-                border: "1px solid rgba(255, 215, 0, 0.3)",
+                border: "1px solid rgba(197, 148, 76, 0.3)",
               }}
             >
               <Box
@@ -97,8 +97,8 @@ const NavAppBar = ({
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: "#FFD700",
-                  boxShadow: "0 0 10px #FFD700",
+                  background: "#C5944C",
+                  boxShadow: "0 0 10px #C5944C",
                   animation: "pulse 2s infinite",
                   "@keyframes pulse": {
                     "0%, 100%": { opacity: 1 },
@@ -109,7 +109,7 @@ const NavAppBar = ({
               <Typography
                 variant="caption"
                 sx={{
-                  color: "#FFD700",
+                  color: "#C5944C",
                   fontWeight: 600,
                   fontSize: "11px",
                   textTransform: "uppercase",
@@ -141,17 +141,17 @@ const NavAppBar = ({
                 borderRadius: "14px",
                 padding: isMobile ? "6px" : "8px",
                 background:
-                  "linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%)",
+                  "linear-gradient(135deg, rgba(197, 148, 76, 0.2) 0%, rgba(166, 112, 68, 0.2) 100%)",
                 backdropFilter: "blur(10px)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                border: "2px solid rgba(255, 215, 0, 0.3)",
-                boxShadow: "0 8px 24px rgba(255, 215, 0, 0.2)",
+                border: "2px solid rgba(197, 148, 76, 0.3)",
+                boxShadow: "0 8px 24px rgba(197, 148, 76, 0.2)",
                 transition: "all 0.3s",
                 "&:hover": {
                   transform: "translateY(-2px) rotate(5deg)",
-                  boxShadow: "0 12px 32px rgba(255, 215, 0, 0.3)",
+                  boxShadow: "0 12px 32px rgba(197, 148, 76, 0.3)",
                 },
               }}
             >
@@ -173,10 +173,10 @@ const NavAppBar = ({
                   letterSpacing: "0.5px",
                   fontSize: isMobile ? "0.9rem" : "1.2rem",
                   background:
-                    "linear-gradient(135deg, #FFFFFF 0%, #FFD700 100%)",
+                    "linear-gradient(135deg, #FFFFFF 0%, #C5944C 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  textShadow: "0 2px 10px rgba(255, 215, 0, 0.3)",
+                  textShadow: "0 2px 10px rgba(197, 148, 76, 0.3)",
                 }}
               >
                 {isMobile ? "Veteranos do Sado" : "Liga Veteranos do Sado"}
@@ -185,7 +185,7 @@ const NavAppBar = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "rgba(255, 215, 0, 0.8)",
+                    color: "rgba(197, 148, 76, 0.8)",
                     fontSize: "10px",
                     fontWeight: 600,
                     textTransform: "uppercase",
@@ -210,11 +210,11 @@ const NavAppBar = ({
                   gap: 1.5,
                   padding: "10px 16px",
                   background:
-                    "linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%)",
+                    "linear-gradient(135deg, rgba(197, 148, 76, 0.15) 0%, rgba(166, 112, 68, 0.15) 100%)",
                   backdropFilter: "blur(10px)",
                   borderRadius: "12px",
-                  border: "2px solid rgba(255, 215, 0, 0.3)",
-                  boxShadow: "0 4px 16px rgba(255, 215, 0, 0.2)",
+                  border: "2px solid rgba(197, 148, 76, 0.3)",
+                  boxShadow: "0 4px 16px rgba(197, 148, 76, 0.2)",
                   height: "48px",
                 }}
               >
@@ -224,11 +224,11 @@ const NavAppBar = ({
                     height: 36,
                     borderRadius: "50%",
                     background:
-                      "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                      "linear-gradient(135deg, #C5944C 0%, #A67044 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 4px 12px rgba(255, 215, 0, 0.4)",
+                    boxShadow: "0 4px 12px rgba(197, 148, 76, 0.4)",
                     position: "relative",
                     "&::after": {
                       content: '""',
@@ -239,18 +239,18 @@ const NavAppBar = ({
                       height: 10,
                       background: "#4ade80",
                       borderRadius: "50%",
-                      border: "2px solid #5A3E8C",
+                      border: "2px solid #0F2941",
                       boxShadow: "0 0 8px #4ade80",
                     },
                   }}
                 >
-                  <Person sx={{ fontSize: 20, color: "#6B4BA1" }} />
+                  <Person sx={{ fontSize: 20, color: "#14334A" }} />
                 </Box>
                 <Box>
                   <Typography
                     variant="caption"
                     sx={{
-                      color: "#FFD700",
+                      color: "#C5944C",
                       fontSize: "9px",
                       display: "block",
                       lineHeight: 1,
@@ -300,10 +300,10 @@ const NavAppBar = ({
                   boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
                   "&:hover": {
                     background:
-                      "linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 165, 0, 0.3) 100%)",
-                    borderColor: "#FFD700",
+                      "linear-gradient(135deg, rgba(197, 148, 76, 0.3) 0%, rgba(166, 112, 68, 0.3) 100%)",
+                    borderColor: "#C5944C",
                     transform: "translateY(-2px)",
-                    boxShadow: "0 6px 20px rgba(255, 215, 0, 0.4)",
+                    boxShadow: "0 6px 20px rgba(197, 148, 76, 0.4)",
                   },
                   transition: "all 0.3s",
                 }}

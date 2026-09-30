@@ -22,8 +22,8 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.enteringScreen,
   }),
   overflowX: "hidden",
-  background: "linear-gradient(180deg, #6B4BA1 0%, #5A3E8C 100%)",
-  borderRight: "2px solid rgba(255, 215, 0, 0.2)",
+  background: "linear-gradient(180deg, #14334A 0%, #0F2941 100%)",
+  borderRight: "2px solid rgba(197, 148, 76, 0.2)",
 });
 
 const closedMixin = (theme) => ({
@@ -36,8 +36,8 @@ const closedMixin = (theme) => ({
   [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
-  background: "linear-gradient(180deg, #6B4BA1 0%, #5A3E8C 100%)",
-  borderRight: "2px solid rgba(255, 215, 0, 0.2)",
+  background: "linear-gradient(180deg, #14334A 0%, #0F2941 100%)",
+  borderRight: "2px solid rgba(197, 148, 76, 0.2)",
 });
 
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -95,13 +95,13 @@ const NavDrawer = ({
                   borderRadius: "12px",
                   padding: "6px",
                   background:
-                    "linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%)",
+                    "linear-gradient(135deg, rgba(197, 148, 76, 0.2) 0%, rgba(166, 112, 68, 0.2) 100%)",
                   backdropFilter: "blur(10px)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  border: "2px solid rgba(255, 215, 0, 0.3)",
-                  boxShadow: "0 8px 24px rgba(255, 215, 0, 0.2)",
+                  border: "2px solid rgba(197, 148, 76, 0.3)",
+                  boxShadow: "0 8px 24px rgba(197, 148, 76, 0.2)",
                 }}
               >
                 <img
@@ -122,7 +122,7 @@ const NavDrawer = ({
                     fontSize: "0.95rem",
                     lineHeight: 1.2,
                     background:
-                      "linear-gradient(135deg, #FFFFFF 0%, #FFD700 100%)",
+                      "linear-gradient(135deg, #FFFFFF 0%, #C5944C 100%)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
                   }}
@@ -132,7 +132,7 @@ const NavDrawer = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "rgba(255, 215, 0, 0.8)",
+                    color: "rgba(197, 148, 76, 0.8)",
                     fontSize: "9px",
                     fontWeight: 600,
                     textTransform: "uppercase",
@@ -160,13 +160,13 @@ const NavDrawer = ({
                 borderRadius: "12px",
                 padding: "6px",
                 background:
-                  "linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%)",
+                  "linear-gradient(135deg, rgba(197, 148, 76, 0.2) 0%, rgba(166, 112, 68, 0.2) 100%)",
                 backdropFilter: "blur(10px)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                border: "2px solid rgba(255, 215, 0, 0.3)",
-                boxShadow: "0 8px 24px rgba(255, 215, 0, 0.2)",
+                border: "2px solid rgba(197, 148, 76, 0.3)",
+                boxShadow: "0 8px 24px rgba(197, 148, 76, 0.2)",
               }}
             >
               <img
@@ -187,8 +187,8 @@ const NavDrawer = ({
       <Box
         sx={{
           height: "3px",
-          background: "linear-gradient(90deg, #FFD700 0%, #FFA500 100%)",
-          boxShadow: "0 2px 10px rgba(255, 215, 0, 0.5)",
+          background: "linear-gradient(90deg, #C5944C 0%, #A67044 100%)",
+          boxShadow: "0 2px 10px rgba(197, 148, 76, 0.5)",
         }}
       />
 
@@ -210,14 +210,14 @@ const NavDrawer = ({
                     width: 3,
                     height: 14,
                     background:
-                      "linear-gradient(180deg, #FFD700 0%, #FFA500 100%)",
+                      "linear-gradient(180deg, #C5944C 0%, #A67044 100%)",
                     borderRadius: "2px",
                   }}
                 />
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "#FFD700",
+                    color: "#C5944C",
                     fontWeight: 700,
                     fontSize: "10px",
                     textTransform: "uppercase",
@@ -239,7 +239,7 @@ const NavDrawer = ({
             {index < navigationSections.length - 1 && (
               <Divider
                 sx={{
-                  borderColor: "rgba(255, 215, 0, 0.1)",
+                  borderColor: "rgba(197, 148, 76, 0.1)",
                   my: open ? 0.5 : 1,
                   mx: open ? 2 : 1,
                 }}
@@ -252,7 +252,7 @@ const NavDrawer = ({
       {/* Social Links - Bottom of Drawer */}
       <Box
         sx={{
-          borderTop: "2px solid rgba(255, 215, 0, 0.2)",
+          borderTop: "2px solid rgba(197, 148, 76, 0.2)",
           background: "rgba(0, 0, 0, 0.2)",
           backdropFilter: "blur(10px)",
         }}
@@ -270,14 +270,14 @@ const NavDrawer = ({
               sx={{
                 width: 3,
                 height: 12,
-                background: "linear-gradient(180deg, #FFD700 0%, #FFA500 100%)",
+                background: "linear-gradient(180deg, #C5944C 0%, #A67044 100%)",
                 borderRadius: "2px",
               }}
             />
             <Typography
               variant="caption"
               sx={{
-                color: "rgba(255, 215, 0, 0.9)",
+                color: "rgba(197, 148, 76, 0.9)",
                 fontSize: "9px",
                 fontWeight: 700,
                 textTransform: "uppercase",

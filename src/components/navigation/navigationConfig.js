@@ -152,6 +152,6 @@ export const socialLinks = [
     name: "Email",
     icon: "email",
     url: "mailto:ligadeveteranosdosado@outlook.pt", // Replace with actual email
-    color: "#FFD700",
+    color: "#C5944C",
   },
 ];

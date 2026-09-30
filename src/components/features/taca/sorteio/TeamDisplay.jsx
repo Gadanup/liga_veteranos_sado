@@ -33,7 +33,7 @@ export const createCustomTeamDisplay = (side, matchId, router, isMobile) => {
         border: `2px solid ${
           isWinner && hasScore
             ? theme.colors.accent[500]
-            : "rgba(107, 75, 161, 0.2)"
+            : "rgba(20, 51, 74, 0.2)"
         }`,
         transition: "all 0.3s ease",
         boxShadow:

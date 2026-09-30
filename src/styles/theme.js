@@ -108,12 +108,12 @@ export const theme = {
       primary: "#ffffff", // Pure white
       secondary: "#fafafa", // Very light gray
       tertiary: "#f7f5fc", // Very light purple tint
-      sidebar: "#6b4ba1", // Your main purple
+      sidebar: "#14334a", // Your main purple
       card: "#ffffff", // White cards
       cardHover: "#f7f5fc", // Light purple on hover
-      overlay: "rgba(107, 75, 161, 0.8)", // Purple overlay
+      overlay: "rgba(20, 51, 74, 0.8)", // Purple overlay
       gradient:
-        "linear-gradient(135deg, #6b4ba1 0%, #8f73c2 50%, #dbcef3 100%)",
+        "linear-gradient(135deg, #14334a 0%, #2c5474 50%, #c6d3e0 100%)",
     },
 
     // Text colors - optimized for readability
@@ -123,30 +123,30 @@ export const theme = {
       tertiary: "#9ca3af", // Light gray for tertiary text
       inverse: "#ffffff", // White text on dark backgrounds
       muted: "#d1d5db", // Muted text
-      accent: "#6b4ba1", // Purple text for emphasis
-      gold: "#ffd700", // Gold text for special elements
+      accent: "#14334a", // Purple text for emphasis
+      gold: "#c5944c", // Gold text for special elements
     },
 
     // Border colors
     border: {
       primary: "#e5e7eb", // Light gray borders
       secondary: "#d1d5db", // Medium gray borders
-      focus: "#ffd700", // Gold focus borders
+      focus: "#c5944c", // Gold focus borders
       error: "#ef4444", // Red error borders
-      purple: "#dbcef3", // Light purple borders
+      purple: "#c6d3e0", // Light purple borders
     },
 
     // Sports-specific colors (harmonized with your theme)
     sports: {
       win: "#22c55e", // Green for wins
-      draw: "#ffd700", // Orange for draws
+      draw: "#c5944c", // Orange for draws
       loss: "#ef4444", // Red for losses
-      home: "#6b4ba1", // Your purple for home team
+      home: "#14334a", // Your purple for home team
       away: "#64748b", // Slate gray for away team
       goals: "#10b981", // Emerald for goals
       cards: "#f59e0b", // Amber for yellow cards
       redCard: "#ef4444", // Red for red cards
-      points: "#ffd700", // Gold for points highlighting
+      points: "#c5944c", // Gold for points highlighting
     },
 
     // Additional themed colors
@@ -285,28 +285,28 @@ export const theme = {
     card: {
       padding: "1.5rem",
       borderRadius: "0.75rem",
-      shadow: "0 4px 6px -1px rgba(107, 75, 161, 0.1)",
-      hoverShadow: "0 10px 15px -3px rgba(107, 75, 161, 0.2)",
+      shadow: "0 4px 6px -1px rgba(20, 51, 74, 0.1)",
+      hoverShadow: "0 10px 15px -3px rgba(20, 51, 74, 0.2)",
     },
     table: {
       headerBg: "#f7f5fc",
       stripedBg: "#fafafa",
-      borderColor: "#dbcef3",
+      borderColor: "#c6d3e0",
       hoverBg: "#f7f5fc",
     },
     navbar: {
-      background: "#6b4ba1",
-      hoverBackground: "rgba(255, 215, 0, 0.1)",
-      activeBackground: "rgba(255, 215, 0, 0.2)",
+      background: "#14334a",
+      hoverBackground: "rgba(197, 148, 76, 0.1)",
+      activeBackground: "rgba(197, 148, 76, 0.2)",
       textColor: "#ffffff",
-      hoverTextColor: "#ffd700",
+      hoverTextColor: "#c5944c",
     },
     sidebar: {
-      background: "#6b4ba1",
+      background: "#14334a",
       hoverBackground: "rgba(255, 255, 255, 0.1)",
-      activeBackground: "rgba(255, 215, 0, 0.15)",
+      activeBackground: "rgba(197, 148, 76, 0.15)",
       textColor: "#ffffff",
-      activeTextColor: "#ffd700",
+      activeTextColor: "#c5944c",
     },
   },
 };

@@ -15,8 +15,8 @@ const NavSection = ({ section, open, selectedItem, onItemClick }) => {
   };
 
   const getListItemStyles = (itemId) => ({
-    backgroundColor: selectedItem === itemId ? "#5A3E8C" : "inherit",
-    color: selectedItem === itemId ? "#FFD700" : "white",
+    backgroundColor: selectedItem === itemId ? "#0F2941" : "inherit",
+    color: selectedItem === itemId ? "#C5944C" : "white",
   });
 
   return (
@@ -47,7 +47,7 @@ const NavSection = ({ section, open, selectedItem, onItemClick }) => {
                   minWidth: 0,
                   mr: open ? 3 : "auto",
                   justifyContent: "center",
-                  color: selectedItem === item.id ? "#FFD700" : "white",
+                  color: selectedItem === item.id ? "#C5944C" : "white",
                 }}
               >
                 <Icon />
@@ -58,7 +58,7 @@ const NavSection = ({ section, open, selectedItem, onItemClick }) => {
                     sx={{
                       fontSize: open ? "inherit" : "0.75rem",
                       textAlign: open ? "left" : "center",
-                      color: selectedItem === item.id ? "#FFD700" : "white",
+                      color: selectedItem === item.id ? "#C5944C" : "white",
                     }}
                   >
                     {displayLabel}
