@@ -15,6 +15,28 @@ import CreateCupMatchDialog from "../../../components/features/taca/calendario/C
 import LoadingSkeleton from "../../../components/shared/LoadingSkeleton";
 import EmptyState from "../../../components/shared/EmptyState";
 
+// matches.round for a knockout cup is the number of teams left, not a
+// matchweek: "8" is the round of 16, "1" is the final. Same names as the
+// bracket in components/features/taca/sorteio/CupBracket.jsx.
+const KNOCKOUT_ROUND_LABELS = {
+  8: "Oitavos de Final",
+  4: "Quartos de Final",
+  2: "Semifinais",
+  1: "Final",
+};
+
+/**
+ * In a group-stage season a number is a group matchweek (J1, J2…) and the
+ * Final Four rounds come through as text ("Semi 1", "Final"). In a knockout
+ * season every number is a round instead.
+ */
+const makeCupLabelFormatter = (isGroupStageMode) => (week) => {
+  const key = String(week);
+  if (!/^\d+$/.test(key)) return key;
+  if (isGroupStageMode) return `J${key}`;
+  return KNOCKOUT_ROUND_LABELS[Number(key)] || key;
+};
+
 const CupCalendarContent = () => {
   const [fixturesByWeek, setFixturesByWeek] = useState({});
   const [currentWeek, setCurrentWeek] = useState(null);
@@ -201,6 +223,7 @@ const CupCalendarContent = () => {
             weekList={weekList}
             currentWeek={currentWeek}
             onWeekChange={handleWeekChange}
+            formatLabel={makeCupLabelFormatter(isGroupStageMode)}
           />
         )}
 

@@ -18,7 +18,7 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 | Item | Owner | Details |
 |---|---|---|
 | Insert the 2026/27 league (and cup group) fixtures — season starts 17/10 | Claudio | Generated SQL from the draw file, reviewed, run in SQL Editor |
-| Quick fixes: cup calendar labels for knockout rounds show "J1"…"J8" (Final looks like "Jornada 1"); match page not-found/error state not reset; `start_year/end_year` in cup views (B14) | Claudio | [`backlog.md`](backlog.md) B14, B11 · regression from #127 |
+| Quick fix: `start_year/end_year` in cup views (B14) | Claudio | [`backlog.md`](backlog.md) B14 · the two #127/#122 regressions in this row were taken by Ricardo |
 | *free slot* | Ricardo | pick from NEXT |
 
 ---
@@ -81,6 +81,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-09-30 | Cup knockout rounds labelled "Oitavos de Final"…"Final" instead of "J8"…"J1" — regression from #127 | #130 |
 | 2026-09-29 | Docs restructure: `ROADMAP.md` as single status, `README.md`, `reference/`, `archive/`; `/next` skill; backup routine replaces staging | #128 |
 | 2026-09-29 | Calendar matchweek strip, swipe, no giant "Jornada X"; cup week keys independent of screen width (M7, M9, B10) — step 4.2 partial | #127 |
 | 2026-09-29 | robots.txt, sitemap.xml, web manifest (N10) — step 0.3.4 | #126 |
