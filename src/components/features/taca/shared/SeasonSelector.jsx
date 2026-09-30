@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 import { theme } from "../../../../styles/theme";
 
 /**
@@ -18,7 +18,9 @@ const SeasonSelector = ({
   onSeasonChange,
   showLabel = true,
 }) => {
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  // Read during render, window.innerWidth never updated on rotation — and
+  // the typeof guard existed only because it also ran during SSR.
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   if (!seasons || seasons.length === 0) {
     return null;

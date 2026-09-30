@@ -34,7 +34,7 @@ const CupGoalscorers = () => {
   const [teamFilter, setTeamFilter] = useState("");
   const [viewMode, setViewMode] = useState("podium");
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   const { goalscorers, teams, loading } = useCupGoalscorersData(selectedSeason);
 
