@@ -1,5 +1,13 @@
 import React from "react";
-import { Card, CardContent, Box, Typography, Grid, Chip } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  Grid,
+  Chip,
+  useMediaQuery,
+} from "@mui/material";
 import {
   EmojiEvents,
   CalendarToday,
@@ -8,6 +16,7 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { theme } from "../../../styles/theme.js";
+import { formatMatchTime } from "../../../utils/matchTime";
 
 /**
  * MatchHeader Component
@@ -17,7 +26,9 @@ import { theme } from "../../../styles/theme.js";
  * @param {Object} matchDetails - Match information
  */
 const MatchHeader = ({ matchDetails }) => {
-  const isMobile = window.innerWidth <= 768;
+  // Same 768px threshold as the rest of the app, but reactive: read during
+  // render, window.innerWidth never updated on rotation or resize.
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const getTeamStyles = (
     homeGoals,
@@ -109,7 +120,7 @@ const MatchHeader = ({ matchDetails }) => {
                   sx={{
                     fontWeight: "bold",
                     textAlign: "center",
-                    fontSize: "12px",
+                    fontSize: "14px",
                     ...getTeamStyles(
                       matchDetails.home_goals,
                       matchDetails.away_goals,
@@ -158,19 +169,19 @@ const MatchHeader = ({ matchDetails }) => {
                   <>
                     <Typography
                       variant="caption"
-                      sx={{ fontSize: "10px", opacity: 0.8 }}
+                      sx={{ fontSize: "12px", opacity: 0.85 }}
                     >
                       ({matchDetails.home_penalties})
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{ fontWeight: "bold", fontSize: "12px" }}
+                      sx={{ fontWeight: "bold", fontSize: "14px" }}
                     >
                       VS
                     </Typography>
                     <Typography
                       variant="caption"
-                      sx={{ fontSize: "10px", opacity: 0.8 }}
+                      sx={{ fontSize: "12px", opacity: 0.85 }}
                     >
                       ({matchDetails.away_penalties})
                     </Typography>
@@ -178,7 +189,7 @@ const MatchHeader = ({ matchDetails }) => {
                 ) : (
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: "bold", fontSize: "12px" }}
+                    sx={{ fontWeight: "bold", fontSize: "14px" }}
                   >
                     VS
                   </Typography>
@@ -228,7 +239,7 @@ const MatchHeader = ({ matchDetails }) => {
                   sx={{
                     fontWeight: "bold",
                     textAlign: "center",
-                    fontSize: "12px",
+                    fontSize: "14px",
                     ...getTeamStyles(
                       matchDetails.home_goals,
                       matchDetails.away_goals,
@@ -258,7 +269,7 @@ const MatchHeader = ({ matchDetails }) => {
                 </Typography>
                 <AccessTime sx={{ fontSize: 16, ml: 1 }} />
                 <Typography variant="body2" sx={{ fontSize: "14px" }}>
-                  {matchDetails.match_time}
+                  {formatMatchTime(matchDetails.match_time)}
                 </Typography>
               </Box>
 
@@ -273,7 +284,7 @@ const MatchHeader = ({ matchDetails }) => {
                       fontStyle: "italic",
                       mt: 0.5,
                       opacity: 0.9,
-                      fontSize: "11px",
+                      fontSize: "13px",
                       display: "block",
                     }}
                   >
@@ -298,7 +309,7 @@ const MatchHeader = ({ matchDetails }) => {
                 <Stadium sx={{ fontSize: 16 }} />
                 <Typography
                   variant="caption"
-                  sx={{ opacity: 0.9, fontSize: "11px" }}
+                  sx={{ opacity: 0.9, fontSize: "13px" }}
                 >
                   {matchDetails.stadium_name ||
                     matchDetails.home_team.stadium_name}
@@ -321,8 +332,9 @@ const MatchHeader = ({ matchDetails }) => {
                     src={matchDetails.home_team.logo_url}
                     alt={matchDetails.home_team.short_name}
                     style={{
-                      width: "160px",
-                      height: "160px",
+                      width: "min(160px, 30vw)",
+                      height: "auto",
+                      aspectRatio: "1",
                       objectFit: "contain",
                       marginBottom: "16px",
                     }}
@@ -394,7 +406,7 @@ const MatchHeader = ({ matchDetails }) => {
                 >
                   <AccessTime sx={{ fontSize: 20 }} />
                   <Typography variant="h6">
-                    {matchDetails.match_time}
+                    {formatMatchTime(matchDetails.match_time)}
                   </Typography>
                 </Box>
 
@@ -425,8 +437,9 @@ const MatchHeader = ({ matchDetails }) => {
                     src={matchDetails.away_team.logo_url}
                     alt={matchDetails.away_team.short_name}
                     style={{
-                      width: "160px",
-                      height: "160px",
+                      width: "min(160px, 30vw)",
+                      height: "auto",
+                      aspectRatio: "1",
                       objectFit: "contain",
                       marginBottom: "16px",
                     }}

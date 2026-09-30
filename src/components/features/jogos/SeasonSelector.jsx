@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 import { theme } from "../../../styles/theme.js";
 
 /**
@@ -11,7 +11,9 @@ import { theme } from "../../../styles/theme.js";
  * @param {Function} onSeasonChange - Callback when season changes
  */
 const SeasonSelector = ({ seasons, selectedSeason, onSeasonChange }) => {
-  const isMobile = window.innerWidth <= 768;
+  // Same 768px threshold as the rest of the app, but reactive: read during
+  // render, window.innerWidth never updated on rotation or resize.
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return (
     <Box display="flex" justifyContent="flex-end" mb={3}>

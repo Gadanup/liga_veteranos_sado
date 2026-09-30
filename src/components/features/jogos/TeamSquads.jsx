@@ -8,6 +8,7 @@ import {
   Avatar,
   Collapse,
   IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { theme } from "../../../styles/theme.js";
@@ -29,7 +30,9 @@ const TeamSquads = ({
 }) => {
   const [homeSquadExpanded, setHomeSquadExpanded] = useState(false);
   const [awaySquadExpanded, setAwaySquadExpanded] = useState(false);
-  const isMobile = window.innerWidth <= 768;
+  // Same 768px threshold as the rest of the app, but reactive: read during
+  // render, window.innerWidth never updated on rotation or resize.
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const TeamSquadCard = ({ team, players, expanded, setExpanded }) => (
     <Card sx={{ borderRadius: "16px", height: "100%" }}>
