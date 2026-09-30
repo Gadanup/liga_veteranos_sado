@@ -5,6 +5,7 @@ import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 import { supabase } from "../../../lib/supabase";
 import { Box, Container, Grid } from "@mui/material";
 import dayjs from "dayjs";
+import { resolveSeasonFromUrl } from "../../../utils/season";
 import { useHorizontalSwipe } from "../../../hooks/useHorizontalSwipe";
 
 // Components
@@ -58,17 +59,18 @@ const CupCalendarContent = () => {
 
       if (!error && data) {
         setSeasons(data);
-        const current = data.find((s) => s.is_current);
-        if (current) {
-          setSelectedSeason(current.id);
-          setCurrentSeason(current);
-        } else if (data.length > 0) {
-          setSelectedSeason(data[0].id);
-          setCurrentSeason(data[0]);
+        // See the league calendar: the season came from is_current every time,
+        // so back-navigation and shared links lost it.
+        const season = resolveSeasonFromUrl(data, searchParams.get("season"));
+        if (season) {
+          setSelectedSeason(season.id);
+          setCurrentSeason(season);
         }
       }
     };
     fetchSeasons();
+    // Only on mount — see the league calendar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch matches
