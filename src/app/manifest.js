@@ -9,14 +9,11 @@ export default function manifest() {
     start_url: "/",
     display: "standalone",
     // Same tokens as tailwind.config.js (nav / background).
-    background_color: "#F3F2F5",
-    theme_color: "#4C3780",
+    background_color: "#EEF1F5",
+    theme_color: "#0C1F33",
     icons: [
-      {
-        src: "/logo/logo_new.png",
-        sizes: "373x283",
-        type: "image/png",
-      },
+      { src: "/logo/icon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/logo/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
   };
 }

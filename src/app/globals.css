@@ -8,6 +8,11 @@
   h3,
   h4 {
     @apply font-bold;
+    font-family: var(--font-display), sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body), system-ui, sans-serif;
   }
 
   h1 {
