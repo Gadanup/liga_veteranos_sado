@@ -50,12 +50,15 @@ const AdminLogin = () => {
       return;
     }
 
-    // Check if user is in admin whitelist
+    // Check if user is in admin whitelist. The read_own_admin_row policy
+    // already restricts this to the caller's own row and matches on
+    // lower(email), so filtering by the typed address here only added a
+    // case-sensitivity bug.
     const { data: adminData, error: adminError } = await supabase
       .from("admin_users")
       .select("email")
-      .eq("email", email)
-      .single();
+      .limit(1)
+      .maybeSingle();
 
     if (adminError || !adminData) {
       // User authenticated but not an admin - sign them out

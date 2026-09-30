@@ -27,9 +27,8 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 
 1. **Backup routine setup** — someone runs `npx supabase link --project-ref dmsocybvdzdzafpemybt` once; then first `supabase/schema.sql` (git) + data dump (private folder). Replaces the staging project (see Decisions). — *owner: Claudio*
 2. **Phase 0 leftovers — queries**: match page loads every player of every season (B4); one suspensions query per calendar page instead of per card (P7 + N7); suspended players hidden from the event editor for old matches (B5). Step 0.2.4b / 0.2.5.
-3. **Phase 0 leftovers — cleanup**: lazy-load `jspdf` (P3, 0.3.3); delete `Footer.jsx` + legacy `/taca/sorteio` + unused import (D2, D3, 0.3.2); security headers in `next.config.mjs` (N6); case-insensitive admin email check (S3); document the missing-env-var build failure (N12).
-4. **Server layout + metadata** (N2 → step 1.3.2 brought forward): page titles and WhatsApp link previews. Needs Q5 (OG image).
-5. **Phase 1 tooling**: Vitest (1.2.1) → React Query (1.2.2) → `useSelectedSeason` (1.2.3) → constants (1.2.4) → domain utils with tests (1.2.5).
+3. **Server layout + metadata** (N2 → step 1.3.2 brought forward): page titles and WhatsApp link previews. Needs Q5 (OG image).
+4. **Phase 1 tooling**: Vitest (1.2.1) → React Query (1.2.2) → `useSelectedSeason` (1.2.3) → constants (1.2.4) → domain utils with tests (1.2.5).
 
 ---
 
@@ -81,6 +80,9 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-09-30 | Security headers, `poweredByHeader` off, admin check no longer case-sensitive, env-var build failure documented (N6, S3, N12) — step 0.3.4 | #136 |
+| 2026-09-30 | `Footer.jsx` and `useCupMatches` deleted, `/taca/sorteio` redirects, unused import dropped (D2, D3) — step 0.3.2 | #135 |
+| 2026-09-30 | `jspdf` loads on click: `/jogos/[id]` 335 kB → 224 kB (P3) — step 0.3.3 | #134 |
 | 2026-09-30 | Team page mobile pass: calendar as stacked rows (no horizontal scroll), header name full width, page chrome trimmed — step 4.5 partial | #133 |
 | 2026-09-30 | Stale hardcoded "qualificou-se automaticamente" note removed from the cup bracket (C7 partial) | #132 |
 | 2026-09-30 | Cup knockout rounds labelled "Oitavos de Final"…"Final" instead of "J8"…"J1" — regression from #127 | #130 |
