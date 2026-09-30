@@ -5,6 +5,7 @@ import { useIsAdmin } from "../../../hooks/admin/useIsAdmin";
 import { supabase } from "../../../lib/supabase";
 import { Box, Container, Grid } from "@mui/material";
 import dayjs from "dayjs";
+import { resolveSeasonFromUrl } from "../../../utils/season";
 import { useHorizontalSwipe } from "../../../hooks/useHorizontalSwipe";
 
 // Components
@@ -36,15 +37,17 @@ const LeagueFixturesContent = () => {
 
       if (!error && data) {
         setSeasons(data);
-        const currentSeason = data.find((s) => s.is_current);
-        if (currentSeason) {
-          setSelectedSeason(currentSeason.id);
-        } else if (data.length > 0) {
-          setSelectedSeason(data[0].id);
-        }
+        // The season used to be taken from is_current every time, so coming
+        // back from a match — or opening a shared link — always snapped to the
+        // current season and recomputed the matchweek with it.
+        const season = resolveSeasonFromUrl(data, searchParams.get("season"));
+        if (season) setSelectedSeason(season.id);
       }
     };
     fetchSeasons();
+    // Only on mount: later season changes go through handleSeasonChange, and
+    // re-running this on every searchParams change would fight updateURL.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch matches
