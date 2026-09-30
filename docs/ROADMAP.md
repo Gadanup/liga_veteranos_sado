@@ -81,6 +81,9 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-09-30 | Team page mobile pass: calendar as stacked rows (no horizontal scroll), header name full width, page chrome trimmed — step 4.5 partial | #133 |
+| 2026-09-30 | Stale hardcoded "qualificou-se automaticamente" note removed from the cup bracket (C7 partial) | #132 |
+| 2026-09-30 | Cup knockout rounds labelled "Oitavos de Final"…"Final" instead of "J8"…"J1" — regression from #127 | #130 |
 | 2026-09-30 | Match page mobile pass: reactive breakpoints, readable type at 360px, error state resets (M5 minimal, B11 follow-up) | #131 |
 | 2026-09-29 | Docs restructure: `ROADMAP.md` as single status, `README.md`, `reference/`, `archive/`; `/next` skill; backup routine replaces staging | #128 |
 | 2026-09-29 | Calendar matchweek strip, swipe, no giant "Jornada X"; cup week keys independent of screen width (M7, M9, B10) — step 4.2 partial | #127 |

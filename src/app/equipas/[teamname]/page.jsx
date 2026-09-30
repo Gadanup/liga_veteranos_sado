@@ -188,10 +188,13 @@ const TeamPageContent = ({ params }) => {
     <Box
       sx={{
         minHeight: "100vh",
-        padding: theme.spacing.lg,
+        // A flat lg padding plus the Container gutters plus each card's own
+        // padding left only 247px of content on a 375px screen.
+        px: { xs: 1, md: theme.spacing.lg },
+        py: { xs: 2, md: theme.spacing.lg },
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: { xs: 0, sm: 2 } }}>
         {/* Season and Team Selectors */}
         {seasons.length > 0 && allTeams.length > 0 && (
           <TeamSelectors
