@@ -1,32 +1,36 @@
 // theme.js
 export const theme = {
   colors: {
-    // Primary colors - based on #6b4ba1 (main purple)
+    // Primary colors - navy, sampled from the league crest (#14334a is the
+    // median of ~44k blue pixels in it; #0c1f33 is the darkest dominant).
     primary: {
-      50: "#f7f5fc", // Very light purple
-      100: "#efebf8", // Light purple
-      200: "#e2d9f2", // Lighter purple
-      300: "#dbcef3", // Your specified lighter color
-      400: "#b199d6", // Medium-light purple
-      500: "#8f73c2", // Medium purple
-      600: "#6b4ba1", // Your main color
-      700: "#5a3d87", // Darker purple
-      800: "#4a326f", // Dark purple
-      900: "#3b2858", // Very dark purple
+      50: "#f2f5f8", // Very light navy tint
+      100: "#e2e9f0", // Light navy tint
+      200: "#c6d3e0",
+      300: "#9db2c8",
+      400: "#5f7f9e",
+      500: "#2c5474",
+      600: "#14334a", // Main navy
+      700: "#0f2941",
+      800: "#0c1f33", // App bar / deepest panels
+      900: "#071626",
     },
 
-    // Gold/Yellow colors - based on #ffd700 (hover effects)
+    // Gold, sampled from the crest's frame and lettering (#c5944c is the
+    // median of ~21k gold pixels). Never use it as text on white: it only
+    // reaches ~2.4:1. As a fill with dark text on it, or as text on the navy,
+    // it clears AA comfortably.
     accent: {
-      50: "#fffef7", // Very light gold
-      100: "#fffaeb", // Light gold
-      200: "#fff3c4", // Lighter gold
-      300: "#ffe89d", // Light-medium gold
-      400: "#ffdc76", // Medium gold
-      500: "#ffd700", // Your main gold color
-      600: "#e6c200", // Darker gold
-      700: "#ccad00", // Dark gold
-      800: "#b39900", // Very dark gold
-      900: "#998500", // Deep gold
+      50: "#fdfaf4",
+      100: "#faf3e4",
+      200: "#f2e2c1",
+      300: "#e8c37a", // Light gold (highlights)
+      400: "#d9ab60",
+      500: "#c5944c", // Main gold
+      600: "#a67044", // Dark gold
+      700: "#8a5c38",
+      800: "#6e482c",
+      900: "#523521",
     },
 
     // Complementary colors - cool blues and teals to balance the warm purples/golds
@@ -146,24 +150,27 @@ export const theme = {
     },
 
     // Additional themed colors
+    // The key names still say "purple" because they are read in ~40 files;
+    // renaming them is a separate mechanical change (C11), not a rebrand.
     themed: {
-      lightPurple: "#dbcef3", // Your specified light purple
-      mainPurple: "#6b4ba1", // Your main purple
-      hoverGold: "#ffd700", // Your hover gold
-      darkPurple: "#4a326f", // Darker version of main
-      softGold: "#fff3c4", // Soft gold background
-      purpleGradient: "linear-gradient(135deg, #6b4ba1 0%, #8f73c2 100%)",
-      goldGradient: "linear-gradient(135deg, #ffd700 0%, #ffdc76 100%)",
+      lightPurple: "#c6d3e0", // Light navy tint
+      mainPurple: "#14334a", // Main navy
+      hoverGold: "#c5944c", // Crest gold
+      darkPurple: "#0c1f33", // Deep navy
+      softGold: "#f2e2c1", // Soft gold background
+      purpleGradient: "linear-gradient(135deg, #14334a 0%, #0f2941 100%)",
+      goldGradient: "linear-gradient(135deg, #c5944c 0%, #e8c37a 100%)",
       heroGradient:
-        "linear-gradient(135deg, #6b4ba1 0%, #8f73c2 50%, #ffd700 100%)",
+        "linear-gradient(135deg, #0c1f33 0%, #14334a 55%, #c5944c 100%)",
     },
   },
 
   // Typography
   typography: {
     fontFamily: {
-      primary: "var(--font-geist-sans)",
-      mono: "var(--font-geist-mono)",
+      primary: "var(--font-body), system-ui, sans-serif",
+      display: "var(--font-display), var(--font-body), sans-serif",
+      mono: "var(--font-geist-mono), monospace",
     },
     fontSize: {
       xs: "0.75rem", // 12px

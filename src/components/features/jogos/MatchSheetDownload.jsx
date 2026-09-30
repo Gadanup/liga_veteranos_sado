@@ -28,7 +28,8 @@ const MatchSheetDownload = ({
 
     // Add logo
     const img = new Image();
-    img.src = "/logo/logo.png";
+    // jsPDF addImage takes PNG or JPEG, not WebP.
+    img.src = "/logo/icon-192.png";
     doc.addImage(img, "PNG", 10, 10, 20, 20);
 
     // Header
