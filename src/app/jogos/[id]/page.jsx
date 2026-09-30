@@ -64,6 +64,9 @@ const MatchPage = () => {
     if (!id || !selectedSeason) return;
 
     setLoading(true);
+    // Clear the previous attempt: without this a single failure left the page
+    // stuck on the error state for every match opened afterwards.
+    setError(null);
     try {
       // Fetch match details
       const { data: matchData, error } = await supabase

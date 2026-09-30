@@ -24,6 +24,7 @@ import {
   FormControl,
   InputLabel,
   Chip,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Close,
@@ -76,7 +77,9 @@ const EditMatchDialog = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const isMobile = window.innerWidth <= 768;
+  // Same 768px threshold as the rest of the app, but reactive: read during
+  // render, window.innerWidth never updated on rotation or resize.
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Event type mapping
   const eventTypes = {

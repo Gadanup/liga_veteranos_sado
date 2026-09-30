@@ -6,6 +6,7 @@ import {
   Typography,
   Grid,
   Divider,
+  useMediaQuery,
 } from "@mui/material";
 import { SportsSoccer, Shield } from "@mui/icons-material";
 import { theme } from "../../../styles/theme.js";
@@ -28,7 +29,9 @@ const MatchStatistics = ({
   matchEvents,
   playersData,
 }) => {
-  const isMobile = window.innerWidth <= 768;
+  // Same 768px threshold as the rest of the app, but reactive: read during
+  // render, window.innerWidth never updated on rotation or resize.
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const getGoalscorers = (teamId) => {
     const isHomeTeam = teamId === matchDetails.home_team.id;
