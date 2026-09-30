@@ -192,7 +192,7 @@ const ClassificationRow = ({
     <div
       onClick={() =>
         router.push(
-          `/equipas/${team.teams.short_name}?season=${selectedSeason}`
+          `/equipas/${encodeURIComponent(team.teams.short_name)}?season=${selectedSeason}`
         )
       }
       style={{

@@ -105,6 +105,15 @@ const MatchPage = () => {
         if (supercupData) setSupercupMatches(supercupData);
       }
 
+      // Four eq clauses rather than two in.(…) ones: this is the exact shape
+      // already in use in EditMatchDialog, so the camelCase column inside or()
+      // is known to work.
+      const homeId = matchData.home_team.id;
+      const awayId = matchData.away_team.id;
+      const squadFilter =
+        `team_id.eq.${homeId},team_id.eq.${awayId},` +
+        `previousClub.eq.${homeId},previousClub.eq.${awayId}`;
+
       // Fetch players, events, suspensions in parallel
       const [
         playersResult,
@@ -112,14 +121,23 @@ const MatchPage = () => {
         suspensionsResult,
         currentPlayersResult,
       ] = await Promise.allSettled([
+        // Both teams' players, including anyone who left one of them earlier
+        // this season — previousClub is what puts a transferred player back in
+        // the squad he belonged to at the time. This used to fetch every
+        // player of every season (600+ rows) and filter client-side.
         supabase
           .from("players")
-          .select("id, name, photo_url, joker, team_id, previousClub"),
+          .select("id, name, photo_url, joker, team_id, previousClub")
+          .or(squadFilter),
         supabase
           .from("match_events")
           .select("event_type, player_id")
           .eq("match_id", matchData.id),
-        supabase.from("suspensions").select("player_id").eq("active", true),
+        supabase
+          .from("suspensions")
+          .select("player_id")
+          .eq("active", true)
+          .eq("season", matchData.season),
         supabase
           .from("players")
           .select("id, name, photo_url, joker, team_id")
