@@ -30,11 +30,6 @@
   p {
     @apply text-sm;
   }
-
-  /* Add these styles */
-  .main-content {
-    transition: margin-left 0.3s ease;
-  }
 }
 
 /* Standings row hover. Guarded so touch devices don't keep a tapped row
