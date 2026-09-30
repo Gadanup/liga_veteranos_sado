@@ -22,6 +22,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { navigationSections } from "./navigationConfig";
 import SocialLinks from "./SocialLinks";
+import { theme as tokens, withAlpha } from "../../styles/theme";
 
 const NavMobileModal = ({
   open,
@@ -58,7 +59,7 @@ const NavMobileModal = ({
             bottom: 0,
             display: "flex",
             flexDirection: "column",
-            background: "linear-gradient(135deg, #6B4BA1 0%, #5A3E8C 100%)",
+            background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[700]} 100%)`,
             overflowY: "auto",
           }}
         >
@@ -68,9 +69,9 @@ const NavMobileModal = ({
               position: "sticky",
               top: 0,
               zIndex: 10,
-              background: "rgba(90, 62, 140, 0.95)",
+              background: withAlpha(tokens.colors.primary[700], 0.95),
               backdropFilter: "blur(10px)",
-              borderBottom: "2px solid rgba(255, 215, 0, 0.3)",
+              borderBottom: `2px solid ${withAlpha(tokens.colors.accent[500], 0.3)}`,
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
             }}
           >
@@ -150,14 +151,14 @@ const NavMobileModal = ({
                       width: 4,
                       height: 20,
                       background:
-                        "linear-gradient(180deg, #FFD700 0%, #FFA500 100%)",
+                        `linear-gradient(180deg, ${tokens.colors.accent[500]} 0%, ${tokens.colors.accent[600]} 100%)`,
                       borderRadius: "2px",
                     }}
                   />
                   <Typography
                     variant="subtitle2"
                     sx={{
-                      color: "#FFD700",
+                      color: tokens.colors.accent[500],
                       fontWeight: 700,
                       fontSize: "13px",
                       textTransform: "uppercase",
@@ -195,11 +196,11 @@ const NavMobileModal = ({
                             gap: 2,
                             transition: "all 0.2s",
                             "&:hover": {
-                              background: "rgba(255, 215, 0, 0.15)",
+                              background: withAlpha(tokens.colors.accent[500], 0.15),
                               transform: "translateX(4px)",
                             },
                             "&:active": {
-                              background: "rgba(255, 215, 0, 0.25)",
+                              background: withAlpha(tokens.colors.accent[500], 0.25),
                             },
                           }}
                         >
@@ -209,14 +210,14 @@ const NavMobileModal = ({
                               height: 40,
                               borderRadius: "10px",
                               background:
-                                "linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%)",
+                                `linear-gradient(135deg, ${withAlpha(tokens.colors.accent[500], 0.2)} 0%, ${withAlpha(tokens.colors.accent[600], 0.2)} 100%)`,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
                               flexShrink: 0,
                             }}
                           >
-                            <Icon sx={{ fontSize: 20, color: "#FFD700" }} />
+                            <Icon sx={{ fontSize: 20, color: tokens.colors.accent[500] }} />
                           </Box>
                           <Typography
                             sx={{
@@ -266,14 +267,14 @@ const NavMobileModal = ({
                     width: 4,
                     height: 20,
                     background:
-                      "linear-gradient(180deg, #FFD700 0%, #FFA500 100%)",
+                      `linear-gradient(180deg, ${tokens.colors.accent[500]} 0%, ${tokens.colors.accent[600]} 100%)`,
                     borderRadius: "2px",
                   }}
                 />
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    color: "#FFD700",
+                    color: tokens.colors.accent[500],
                     fontWeight: 700,
                     fontSize: "13px",
                     textTransform: "uppercase",
@@ -305,9 +306,9 @@ const NavMobileModal = ({
                 position: "sticky",
                 bottom: 0,
                 zIndex: 10,
-                background: "rgba(90, 62, 140, 0.95)",
+                background: withAlpha(tokens.colors.primary[700], 0.95),
                 backdropFilter: "blur(10px)",
-                borderTop: "2px solid rgba(255, 215, 0, 0.3)",
+                borderTop: `2px solid ${withAlpha(tokens.colors.accent[500], 0.3)}`,
                 p: 2,
               }}
             >
@@ -344,14 +345,14 @@ const NavMobileModal = ({
                       height: 44,
                       borderRadius: "50%",
                       background:
-                        "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                        `linear-gradient(135deg, ${tokens.colors.accent[500]} 0%, ${tokens.colors.accent[600]} 100%)`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                     }}
                   >
-                    <Login sx={{ fontSize: 22, color: "#6B4BA1" }} />
+                    <Login sx={{ fontSize: 22, color: tokens.colors.primary[600] }} />
                   </Box>
                   <Box flex={1}>
                     <Typography
@@ -380,8 +381,8 @@ const NavMobileModal = ({
                   <Box
                     sx={{
                       background:
-                        "linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%)",
-                      border: "2px solid rgba(255, 215, 0, 0.3)",
+                        `linear-gradient(135deg, ${withAlpha(tokens.colors.accent[500], 0.15)} 0%, ${withAlpha(tokens.colors.accent[600], 0.15)} 100%)`,
+                      border: `2px solid ${withAlpha(tokens.colors.accent[500], 0.3)}`,
                       borderRadius: "12px",
                       padding: "16px",
                       mb: 2,
@@ -393,18 +394,18 @@ const NavMobileModal = ({
                           width: 44,
                           height: 44,
                           background:
-                            "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                            `linear-gradient(135deg, ${tokens.colors.accent[500]} 0%, ${tokens.colors.accent[600]} 100%)`,
                         }}
                       >
-                        <Person sx={{ fontSize: 24, color: "#6B4BA1" }} />
+                        <Person sx={{ fontSize: 24, color: tokens.colors.primary[600] }} />
                       </Avatar>
                       <Box flex={1}>
                         <Chip
                           label="Administrador"
                           size="small"
                           sx={{
-                            background: "#FFD700",
-                            color: "#6B4BA1",
+                            background: tokens.colors.accent[500],
+                            color: tokens.colors.primary[600],
                             fontWeight: 700,
                             fontSize: "10px",
                             height: "20px",

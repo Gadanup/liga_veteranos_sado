@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { Menu, ChevronLeft, Login, Logout, Person } from "@mui/icons-material";
 import { useGetCurrentSeason } from "../../hooks/useGetCurrentSeason";
+import { theme, withAlpha } from "../../styles/theme";
 
 const AppBar = styled(MuiAppBar)(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -45,13 +46,13 @@ const NavAppBar = ({
       open={open}
       sx={{
         background: open
-          ? "rgba(90, 62, 140, 0.85)"
-          : "linear-gradient(135deg, #6B4BA1 0%, #8B5FBF 50%, #6B4BA1 100%)",
+          ? withAlpha(theme.colors.primary[700], 0.85)
+          : `linear-gradient(135deg, ${theme.colors.primary[600]} 0%, ${theme.colors.primary[500]} 50%, ${theme.colors.primary[600]} 100%)`,
         backdropFilter: open ? "blur(20px)" : "none",
         boxShadow: open
-          ? "0 8px 32px rgba(107, 75, 161, 0.4)"
-          : "0 4px 20px rgba(107, 75, 161, 0.3)",
-        borderBottom: open ? "1px solid rgba(255, 215, 0, 0.2)" : "none",
+          ? `0 8px 32px ${withAlpha(theme.colors.primary[600], 0.4)}`
+          : `0 4px 20px ${withAlpha(theme.colors.primary[600], 0.3)}`,
+        borderBottom: open ? `1px solid ${withAlpha(theme.colors.accent[500], 0.2)}` : "none",
       }}
     >
       <Toolbar
@@ -69,8 +70,8 @@ const NavAppBar = ({
               backdropFilter: "blur(10px)",
               border: "1px solid rgba(255, 255, 255, 0.2)",
               "&:hover": {
-                background: "rgba(255, 215, 0, 0.2)",
-                borderColor: "#FFD700",
+                background: withAlpha(theme.colors.accent[500], 0.2),
+                borderColor: theme.colors.accent[500],
                 transform: "scale(1.05)",
               },
               transition: "all 0.3s",
@@ -87,9 +88,9 @@ const NavAppBar = ({
                 alignItems: "center",
                 gap: 1,
                 padding: "6px 16px",
-                background: "rgba(255, 215, 0, 0.15)",
+                background: withAlpha(theme.colors.accent[500], 0.15),
                 borderRadius: "20px",
-                border: "1px solid rgba(255, 215, 0, 0.3)",
+                border: `1px solid ${withAlpha(theme.colors.accent[500], 0.3)}`,
               }}
             >
               <Box
@@ -97,8 +98,8 @@ const NavAppBar = ({
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: "#FFD700",
-                  boxShadow: "0 0 10px #FFD700",
+                  background: theme.colors.accent[500],
+                  boxShadow: `0 0 10px ${theme.colors.accent[500]}`,
                   animation: "pulse 2s infinite",
                   "@keyframes pulse": {
                     "0%, 100%": { opacity: 1 },
@@ -109,7 +110,7 @@ const NavAppBar = ({
               <Typography
                 variant="caption"
                 sx={{
-                  color: "#FFD700",
+                  color: theme.colors.accent[500],
                   fontWeight: 600,
                   fontSize: "11px",
                   textTransform: "uppercase",
@@ -141,17 +142,17 @@ const NavAppBar = ({
                 borderRadius: "14px",
                 padding: isMobile ? "6px" : "8px",
                 background:
-                  "linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 165, 0, 0.2) 100%)",
+                  `linear-gradient(135deg, ${withAlpha(theme.colors.accent[500], 0.2)} 0%, ${withAlpha(theme.colors.accent[600], 0.2)} 100%)`,
                 backdropFilter: "blur(10px)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                border: "2px solid rgba(255, 215, 0, 0.3)",
-                boxShadow: "0 8px 24px rgba(255, 215, 0, 0.2)",
+                border: `2px solid ${withAlpha(theme.colors.accent[500], 0.3)}`,
+                boxShadow: `0 8px 24px ${withAlpha(theme.colors.accent[500], 0.2)}`,
                 transition: "all 0.3s",
                 "&:hover": {
                   transform: "translateY(-2px) rotate(5deg)",
-                  boxShadow: "0 12px 32px rgba(255, 215, 0, 0.3)",
+                  boxShadow: `0 12px 32px ${withAlpha(theme.colors.accent[500], 0.3)}`,
                 },
               }}
             >
@@ -173,10 +174,10 @@ const NavAppBar = ({
                   letterSpacing: "0.5px",
                   fontSize: isMobile ? "0.9rem" : "1.2rem",
                   background:
-                    "linear-gradient(135deg, #FFFFFF 0%, #FFD700 100%)",
+                    `linear-gradient(135deg, #FFFFFF 0%, ${theme.colors.accent[500]} 100%)`,
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  textShadow: "0 2px 10px rgba(255, 215, 0, 0.3)",
+                  textShadow: `0 2px 10px ${withAlpha(theme.colors.accent[500], 0.3)}`,
                 }}
               >
                 {isMobile ? "Veteranos do Sado" : "Liga Veteranos do Sado"}
@@ -185,7 +186,7 @@ const NavAppBar = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "rgba(255, 215, 0, 0.8)",
+                    color: withAlpha(theme.colors.accent[500], 0.8),
                     fontSize: "10px",
                     fontWeight: 600,
                     textTransform: "uppercase",
@@ -210,11 +211,11 @@ const NavAppBar = ({
                   gap: 1.5,
                   padding: "10px 16px",
                   background:
-                    "linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.15) 100%)",
+                    `linear-gradient(135deg, ${withAlpha(theme.colors.accent[500], 0.15)} 0%, ${withAlpha(theme.colors.accent[600], 0.15)} 100%)`,
                   backdropFilter: "blur(10px)",
                   borderRadius: "12px",
-                  border: "2px solid rgba(255, 215, 0, 0.3)",
-                  boxShadow: "0 4px 16px rgba(255, 215, 0, 0.2)",
+                  border: `2px solid ${withAlpha(theme.colors.accent[500], 0.3)}`,
+                  boxShadow: `0 4px 16px ${withAlpha(theme.colors.accent[500], 0.2)}`,
                   height: "48px",
                 }}
               >
@@ -224,11 +225,11 @@ const NavAppBar = ({
                     height: 36,
                     borderRadius: "50%",
                     background:
-                      "linear-gradient(135deg, #FFD700 0%, #FFA500 100%)",
+                      `linear-gradient(135deg, ${theme.colors.accent[500]} 0%, ${theme.colors.accent[600]} 100%)`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    boxShadow: "0 4px 12px rgba(255, 215, 0, 0.4)",
+                    boxShadow: `0 4px 12px ${withAlpha(theme.colors.accent[500], 0.4)}`,
                     position: "relative",
                     "&::after": {
                       content: '""',
@@ -239,18 +240,18 @@ const NavAppBar = ({
                       height: 10,
                       background: "#4ade80",
                       borderRadius: "50%",
-                      border: "2px solid #5A3E8C",
+                      border: `2px solid ${theme.colors.primary[700]}`,
                       boxShadow: "0 0 8px #4ade80",
                     },
                   }}
                 >
-                  <Person sx={{ fontSize: 20, color: "#6B4BA1" }} />
+                  <Person sx={{ fontSize: 20, color: theme.colors.primary[600] }} />
                 </Box>
                 <Box>
                   <Typography
                     variant="caption"
                     sx={{
-                      color: "#FFD700",
+                      color: theme.colors.accent[500],
                       fontSize: "9px",
                       display: "block",
                       lineHeight: 1,
@@ -300,10 +301,10 @@ const NavAppBar = ({
                   boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
                   "&:hover": {
                     background:
-                      "linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(255, 165, 0, 0.3) 100%)",
-                    borderColor: "#FFD700",
+                      `linear-gradient(135deg, ${withAlpha(theme.colors.accent[500], 0.3)} 0%, ${withAlpha(theme.colors.accent[600], 0.3)} 100%)`,
+                    borderColor: theme.colors.accent[500],
                     transform: "translateY(-2px)",
-                    boxShadow: "0 6px 20px rgba(255, 215, 0, 0.4)",
+                    boxShadow: `0 6px 20px ${withAlpha(theme.colors.accent[500], 0.4)}`,
                   },
                   transition: "all 0.3s",
                 }}

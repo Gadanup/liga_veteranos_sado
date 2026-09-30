@@ -1363,7 +1363,7 @@ const EnhancedDisciplineModal = ({
                         sx={{
                           backgroundColor: status.warning
                             ? "rgba(239, 68, 68, 0.1)"
-                            : "rgba(107, 75, 161, 0.1)",
+                            : "rgba(20, 51, 74, 0.1)",
                           color: status.color,
                           fontWeight: 600,
                           fontSize: "14px",

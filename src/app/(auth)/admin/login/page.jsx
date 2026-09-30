@@ -21,6 +21,7 @@ import {
   Shield,
   SportsSoccer,
 } from "@mui/icons-material";
+import { theme as tokens, withAlpha } from "../../../../styles/theme";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -81,7 +82,7 @@ const AdminLogin = () => {
         top: 0, // Add this
         left: 0, // Add this
         display: "flex",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[800]} 100%)`,
         overflow: "hidden",
       }}
     >
@@ -150,7 +151,7 @@ const AdminLogin = () => {
                 width: 80,
                 height: 80,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[800]} 100%)`,
                 mb: 2,
                 boxShadow: "0 4px 20px rgba(102, 126, 234, 0.4)",
               }}
@@ -161,7 +162,7 @@ const AdminLogin = () => {
               variant={isMobile ? "h5" : "h4"}
               sx={{
                 fontWeight: 800,
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[800]} 100%)`,
                 backgroundClip: "text",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -206,7 +207,7 @@ const AdminLogin = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Login sx={{ color: "#667eea" }} />
+                    <Login sx={{ color: tokens.colors.primary[600] }} />
                   </InputAdornment>
                 ),
               }}
@@ -238,7 +239,7 @@ const AdminLogin = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Shield sx={{ color: "#667eea" }} />
+                    <Shield sx={{ color: tokens.colors.primary[600] }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -283,7 +284,7 @@ const AdminLogin = () => {
               variant="contained"
               disabled={loading}
               sx={{
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                background: `linear-gradient(135deg, ${tokens.colors.primary[600]} 0%, ${tokens.colors.primary[800]} 100%)`,
                 borderRadius: "12px",
                 padding: "14px",
                 fontSize: "16px",
@@ -293,7 +294,7 @@ const AdminLogin = () => {
                 transition: "all 0.3s",
                 "&:hover": {
                   background:
-                    "linear-gradient(135deg, #764ba2 0%, #667eea 100%)",
+                    `linear-gradient(135deg, ${tokens.colors.primary[800]} 0%, ${tokens.colors.primary[600]} 100%)`,
                   boxShadow: "0 6px 20px rgba(102, 126, 234, 0.6)",
                   transform: "translateY(-2px)",
                 },
@@ -312,7 +313,7 @@ const AdminLogin = () => {
               onClick={() => router.push("/")}
               sx={{
                 textTransform: "none",
-                color: "#667eea",
+                color: tokens.colors.primary[600],
                 fontWeight: 600,
                 "&:hover": {
                   backgroundColor: "rgba(102, 126, 234, 0.08)",
