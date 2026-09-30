@@ -156,7 +156,7 @@ const NavAppBar = ({
               }}
             >
               <img
-                src="/logo/logo.png"
+                src="/logo/logo.webp"
                 alt="Logo"
                 style={{
                   width: "100%",

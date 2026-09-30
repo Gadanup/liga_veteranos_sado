@@ -94,7 +94,7 @@ const NavMobileModal = ({
                   }}
                 >
                   <img
-                    src="/logo/logo.png"
+                    src="/logo/logo.webp"
                     alt="Logo"
                     style={{
                       width: "100%",

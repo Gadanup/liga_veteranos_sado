@@ -7,15 +7,16 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // Same crest palette as src/styles/theme.js.
       colors: {
-        nav: "#4C3780",
-        background: "#F3F2F5",
-        primary: "#6B4BA1",
+        nav: "#0C1F33",
+        background: "#EEF1F5",
+        primary: "#14334A",
         secondary: "#FFFFFF",
-        accent: "#54A3D5",
-        btn: "#865DC1",
-        btn_hover: "#A584E0",
-        text: "#333333",
+        accent: "#C5944C",
+        btn: "#14334A",
+        btn_hover: "#2C5474",
+        text: "#16232F",
       },
     },
   },
