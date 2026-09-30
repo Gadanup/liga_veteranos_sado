@@ -2,7 +2,6 @@ import React from "react";
 import { Card, CardContent, Box, Typography } from "@mui/material";
 import { Download } from "@mui/icons-material";
 import dayjs from "dayjs";
-import jsPDF from "jspdf";
 import { theme } from "../../../styles/theme.js";
 import { formatSeasonShort } from "../../../utils/season";
 
@@ -22,6 +21,9 @@ const MatchSheetDownload = ({
   suspendedPlayerIds,
 }) => {
   const generatePDF = async () => {
+    // Loaded on click: bundled at module level it put /jogos/[id] at 335 kB
+    // first-load JS against 216 kB for comparable routes.
+    const { default: jsPDF } = await import("jspdf");
     const doc = new jsPDF();
 
     // Add logo
@@ -251,7 +253,10 @@ const MatchSheetDownload = ({
               ) {
                 window.open(matchDetails.match_sheet, "_blank");
               } else {
-                generatePDF();
+                // Now that jspdf arrives over the network, the chunk can fail.
+                generatePDF().catch((error) => {
+                  console.error("Erro ao gerar a ficha de jogo:", error);
+                });
               }
             }}
             sx={{
