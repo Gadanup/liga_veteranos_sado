@@ -7,6 +7,7 @@ import {
   MenuItem,
   Chip,
   FormControl,
+  useMediaQuery,
 } from "@mui/material";
 import { EventAvailable, Add, CalendarToday } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
