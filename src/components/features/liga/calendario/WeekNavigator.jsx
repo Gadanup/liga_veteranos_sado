@@ -3,11 +3,14 @@ import { Box, useMediaQuery } from "@mui/material";
 import { theme } from "../../../../styles/theme.js";
 
 /**
- * Matchweeks are numbers in the league and in the cup group stage, but the cup
- * also has "Semifinal", "Final" and similar. Only the numeric ones get the
- * short J-prefix; anything else is shown as it comes.
+ * Default: a number is a matchweek, so it gets the short J-prefix that lets the
+ * strip fit on a phone. Anything else is shown as it comes.
+ *
+ * The cup knockout also keys on numbers ("8", "4", "2", "1" are rounds, not
+ * matchweeks), so /taca/calendario passes its own formatter — see
+ * formatCupRoundLabel there.
  */
-const formatWeekLabel = (week) =>
+const defaultWeekLabel = (week) =>
   /^\d+$/.test(String(week)) ? `J${week}` : String(week);
 
 /**
@@ -21,7 +24,12 @@ const formatWeekLabel = (week) =>
  * @param {string} currentWeek - Currently selected week
  * @param {Function} onWeekChange - Callback when week changes
  */
-const WeekNavigator = ({ weekList, currentWeek, onWeekChange }) => {
+const WeekNavigator = ({
+  weekList,
+  currentWeek,
+  onWeekChange,
+  formatLabel = defaultWeekLabel,
+}) => {
   // Same 768px threshold the rest of the calendar uses, but reactive — it used
   // to read window.innerWidth during render, which never updated on rotation.
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -108,7 +116,7 @@ const WeekNavigator = ({ weekList, currentWeek, onWeekChange }) => {
                 },
               }}
             >
-              {formatWeekLabel(week)}
+              {formatLabel(week)}
             </Box>
           );
         })}
