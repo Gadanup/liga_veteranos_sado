@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import ClassificationRow from "./ClassificationRow";
 
 /**
@@ -21,22 +22,14 @@ const ClassificationTable = ({
   sortBy,
   sortOrder,
   onSort,
-  viewportWidth = 1200, // Pass this from parent
 }) => {
-  // Determine layout based on viewport width
-  const getLayout = () => {
-    if (viewportWidth < 600) {
-      return "xs"; // Mobile
-    } else if (viewportWidth < 900) {
-      return "sm"; // Tablet portrait / Small window
-    } else if (viewportWidth < 1200) {
-      return "md"; // Tablet landscape / Medium window
-    } else {
-      return "lg"; // Desktop
-    }
-  };
-
-  const layout = getLayout();
+  // The layout used to be picked by comparing a viewportWidth prop against
+  // 600/900/1200 — the theme's own breakpoints, written out a second time and
+  // fed by a resize listener in the page. They come from the theme now.
+  const isXs = useMediaQuery((t) => t.breakpoints.only("xs"));
+  const isSm = useMediaQuery((t) => t.breakpoints.only("sm"));
+  const isMd = useMediaQuery((t) => t.breakpoints.only("md"));
+  const layout = isXs ? "xs" : isSm ? "sm" : isMd ? "md" : "lg";
 
   // Define grid templates for different layouts
   const gridTemplates = {

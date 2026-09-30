@@ -19,7 +19,7 @@ const Discipline = () => {
   const [currentTeamId, setCurrentTeamId] = useState(null);
   const [punishmentEvents, setPunishmentEvents] = useState([]);
   const router = useRouter();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   const { disciplineData, loading } = useDisciplineData(selectedSeason);
 

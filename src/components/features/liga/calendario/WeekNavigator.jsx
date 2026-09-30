@@ -32,7 +32,7 @@ const WeekNavigator = ({
 }) => {
   // Same 768px threshold the rest of the calendar uses, but reactive — it used
   // to read window.innerWidth during render, which never updated on rotation.
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   const stripRef = useRef(null);
   const activeRef = useRef(null);
