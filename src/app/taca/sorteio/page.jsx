@@ -1,71 +1,15 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "../../../lib/supabase";
-import { Box, Container, Typography, useMediaQuery } from "@mui/material";
-import { EmojiEvents, SportsSoccer } from "@mui/icons-material";
-import { theme } from "../../../styles/theme.js";
+import { redirect } from "next/navigation";
 
-// Components
-import CupHeader from "../../../components/features/taca/sorteio/CupHeader";
-import CupBracket from "../../../components/features/taca/sorteio/CupBracket";
-import CupMobileView from "../../../components/features/taca/sorteio/CupMobileView";
-import { useCupMatches } from "../../../hooks/taca/sorteio/useCupMatches";
-
-const Cup = () => {
-  const router = useRouter();
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const { matches, bracketData, loading } = useCupMatches();
-
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="80vh"
-        flexDirection="column"
-        gap={2}
-        sx={{ backgroundColor: theme.colors.background.secondary }}
-      >
-        <EmojiEvents
-          sx={{
-            fontSize: 60,
-            color: theme.colors.primary[600],
-            animation: "bounce 2s infinite",
-            "@keyframes bounce": {
-              "0%, 20%, 50%, 80%, 100%": { transform: "translateY(0)" },
-              "40%": { transform: "translateY(-10px)" },
-              "60%": { transform: "translateY(-5px)" },
-            },
-          }}
-        />
-        <Typography variant="h6" sx={{ color: theme.colors.text.secondary }}>
-          A carregar eliminatórias da taça...
-        </Typography>
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{ minHeight: "100vh", paddingY: 3 }}>
-      <Container maxWidth="xl">
-        {/* Header */}
-        <CupHeader />
-
-        {/* Content */}
-        {isMobile ? (
-          <CupMobileView bracketData={bracketData} router={router} />
-        ) : (
-          <CupBracket
-            bracketData={bracketData}
-            router={router}
-            isMobile={isMobile}
-          />
-        )}
-      </Container>
-    </Box>
-  );
-};
-
-export default Cup;
+/**
+ * The 2024 knockout bracket used to be rendered here, from a hook with the
+ * season and a match id hardcoded. /taca renders the same bracket for any
+ * knockout season, so this route is a duplicate implementation.
+ *
+ * Old links land on /taca and the 2024 bracket is one pick away in the season
+ * selector. The season is not carried over because /taca does not read it from
+ * the URL yet — that is step 1.2.3 (useSelectedSeason, C3); once it does, this
+ * should become /taca?epoca=2024.
+ */
+export default function CupDrawRedirect() {
+  redirect("/taca");
+}
