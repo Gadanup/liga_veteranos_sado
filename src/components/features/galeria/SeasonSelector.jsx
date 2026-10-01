@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { theme } from "../../../styles/theme.js";
 
 /**
@@ -10,17 +11,9 @@ import { theme } from "../../../styles/theme.js";
  * @param {Function} onSeasonChange - Callback when season is changed
  */
 const SeasonSelector = ({ seasons, selectedSeason, onSeasonChange }) => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  // Was a resize listener keeping the answer in state, which meant the first
+  // paint always used the desktop branch.
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   return (
     <div

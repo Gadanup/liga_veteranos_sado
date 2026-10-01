@@ -6,6 +6,7 @@ import {
   FormControl,
   Avatar,
   Chip,
+  useMediaQuery,
 } from "@mui/material";
 import { CalendarToday, Groups } from "@mui/icons-material";
 import { theme } from "../../../styles/theme.js";
@@ -29,7 +30,8 @@ const TeamSelectors = ({
   selectedTeam,
   onTeamChange,
 }) => {
-  const isMobile = window.innerWidth <= 768;
+  // Read during render, window.innerWidth never updated on rotation.
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   return (
     <Box
