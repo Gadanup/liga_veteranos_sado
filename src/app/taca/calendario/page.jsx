@@ -7,6 +7,7 @@ import { Box, Container, Grid } from "@mui/material";
 import dayjs from "dayjs";
 import { resolveSeasonFromUrl } from "../../../utils/season";
 import { useHorizontalSwipe } from "../../../hooks/useHorizontalSwipe";
+import { useActiveSuspensions } from "../../../hooks/useActiveSuspensions";
 
 // Components
 import CupCalendarHeader from "../../../components/features/taca/calendario/CupCalendarHeader";
@@ -49,6 +50,8 @@ const CupCalendarContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAdmin } = useIsAdmin(false);
+  // One query per page instead of one per match card.
+  const { suspensionsByTeam } = useActiveSuspensions(selectedSeason);
   // Fetch seasons
   useEffect(() => {
     const fetchSeasons = async () => {
@@ -259,6 +262,7 @@ const CupCalendarContent = () => {
                     <CupMatchCard
                       match={match}
                       isAdmin={isAdmin}
+                      suspensionsByTeam={suspensionsByTeam}
                       onUpdate={() => fetchCupMatches(selectedSeason)}
                     />
                   </Grid>

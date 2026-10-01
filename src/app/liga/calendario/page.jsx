@@ -7,6 +7,7 @@ import { Box, Container, Grid } from "@mui/material";
 import dayjs from "dayjs";
 import { resolveSeasonFromUrl } from "../../../utils/season";
 import { useHorizontalSwipe } from "../../../hooks/useHorizontalSwipe";
+import { useActiveSuspensions } from "../../../hooks/useActiveSuspensions";
 
 // Components
 import CalendarHeader from "../../../components/features/liga/calendario/CalendarHeader";
@@ -26,6 +27,8 @@ const LeagueFixturesContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAdmin } = useIsAdmin(false);
+  // One query per page instead of one per match card.
+  const { suspensionsByTeam } = useActiveSuspensions(selectedSeason);
 
   // Fetch seasons
   useEffect(() => {
@@ -214,6 +217,7 @@ const LeagueFixturesContent = () => {
                     <MatchCard
                       match={match}
                       isAdmin={isAdmin}
+                      suspensionsByTeam={suspensionsByTeam}
                       onUpdate={() => readAllMatches(selectedSeason)}
                     />
                   </Grid>
