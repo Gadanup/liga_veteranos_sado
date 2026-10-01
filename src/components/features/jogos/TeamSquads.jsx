@@ -32,7 +32,7 @@ const TeamSquads = ({
   const [awaySquadExpanded, setAwaySquadExpanded] = useState(false);
   // Same 768px threshold as the rest of the app, but reactive: read during
   // render, window.innerWidth never updated on rotation or resize.
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   const TeamSquadCard = ({ team, players, expanded, setExpanded }) => (
     <Card sx={{ borderRadius: "16px", height: "100%" }}>

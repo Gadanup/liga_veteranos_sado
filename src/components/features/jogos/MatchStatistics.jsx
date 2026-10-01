@@ -31,7 +31,7 @@ const MatchStatistics = ({
 }) => {
   // Same 768px threshold as the rest of the app, but reactive: read during
   // render, window.innerWidth never updated on rotation or resize.
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
   const getGoalscorers = (teamId) => {
     const isHomeTeam = teamId === matchDetails.home_team.id;
