@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -35,45 +35,20 @@ import EditMatchDialog from "./EditMatchDialog";
  * @param {boolean} isAdmin - Whether user has admin privileges
  * @param {Function} onUpdate - Callback when match is updated/deleted
  */
-const MatchCard = ({ match, isAdmin, onUpdate }) => {
+const MatchCard = ({ match, isAdmin, onUpdate, suspensionsByTeam = {} }) => {
   const router = useRouter();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [suspendedPlayers, setSuspendedPlayers] = useState({
-    home: [],
-    away: [],
-  });
+  // Comes from one query per page now; this card used to run its own.
+  const suspendedPlayers = useMemo(
+    () => ({
+      home: suspensionsByTeam[match.home_team_id] ?? [],
+      away: suspensionsByTeam[match.away_team_id] ?? [],
+    }),
+    [suspensionsByTeam, match.home_team_id, match.away_team_id]
+  );
   const [anchorEl, setAnchorEl] = useState(null);
   const [popoverTeam, setPopoverTeam] = useState(null);
-
-  // Fetch suspended players for both teams
-  useEffect(() => {
-    const fetchSuspendedPlayers = async () => {
-      const { data: suspensions, error } = await supabase
-        .from("suspensions")
-        .select(`player_id, players!inner (name, team_id)`)
-        .eq("active", true)
-        .eq("season", match.season)
-        .in("players.team_id", [match.home_team_id, match.away_team_id]);
-
-      if (!error && suspensions) {
-        const homeSuspended = suspensions
-          .filter((s) => s.players.team_id === match.home_team_id)
-          .map((s) => s.players.name);
-
-        const awaySuspended = suspensions
-          .filter((s) => s.players.team_id === match.away_team_id)
-          .map((s) => s.players.name);
-
-        setSuspendedPlayers({
-          home: homeSuspended,
-          away: awaySuspended,
-        });
-      }
-    };
-
-    fetchSuspendedPlayers();
-  }, [match]);
 
   const handleSuspensionClick = (event, team) => {
     event.stopPropagation();
