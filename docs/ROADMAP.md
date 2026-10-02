@@ -36,13 +36,10 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 
 | Question | Blocks | Who answers |
 |---|---|---|
-| Q1 — Double yellow (`event_type` 5): 1 red (20 pts), 2 yellows (10 pts) or nothing? Retroactive? | B16 | League / regulation |
-| Q2 — Does the Supertaça count for the discipline table? | N5 | League / regulation |
-| Q3 — Do cup yellows count towards 3 yellows = suspension? | B7 | League / regulation |
 | Q5 — Is there a 1200×630 league image for link previews? | N2 | Claudio |
 | Q6 — Does the registration form collect consent to publish photo and name? | N3 | League |
 
-*Answered:* Q4 domain = `https://liga-veteranos-sado.vercel.app` · Q7 public sign-ups are off (done in 0.1.2).
+*Answered:* Q1 double yellow counts as a red, 20 pts, current season onwards (B16) · Q2 yes, the Supertaça counts — cards already did, `matches_played` did not (N5) · Q3 yes, cup yellows count (regulation, Discipline art. 1: "no jogo seguinte (taça ou liga)") (B7) · Q4 domain = `https://liga-veteranos-sado.vercel.app` · Q7 public sign-ups are off (done in 0.1.2).
 
 ---
 
