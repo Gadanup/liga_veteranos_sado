@@ -135,13 +135,21 @@ const EditMatchDialog = ({
             !home.find((h) => h.id === p.id)
         );
 
-        // Filter out suspended players and sort by name
-        const homeFiltered = home
-          .filter((p) => !suspendedPlayerIds.includes(p.id))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        const awayFiltered = away
-          .filter((p) => !suspendedPlayerIds.includes(p.id))
-          .sort((a, b) => a.name.localeCompare(b.name));
+        // Suspended players stay in the list, marked (B5). They used to be
+        // filtered out, which made old matches impossible to correct: the
+        // suspensions query matches `active = true`, which is a *current*
+        // state, so a player suspended today was missing from the editor of a
+        // match played weeks before that suspension existed.
+        //
+        // Recording what happened is this dialog's job, not validating it. If
+        // a suspended player did take the field, the league has to be able to
+        // enter it — and then punish the team for it.
+        const homeFiltered = [...home].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        const awayFiltered = [...away].sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
 
         setHomePlayers(homeFiltered);
         setAwayPlayers(awayFiltered);
@@ -566,6 +574,17 @@ const EditMatchDialog = ({
                             <Typography variant="body2">
                               {player.name}
                             </Typography>
+                            {suspendedPlayerIds.includes(player.id) && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: theme.colors.error[600],
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Suspenso
+                              </Typography>
+                            )}
                           </Box>
                         </MenuItem>
                       ))}
@@ -588,6 +607,17 @@ const EditMatchDialog = ({
                             <Typography variant="body2">
                               {player.name}
                             </Typography>
+                            {suspendedPlayerIds.includes(player.id) && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: theme.colors.error[600],
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Suspenso
+                              </Typography>
+                            )}
                           </Box>
                         </MenuItem>
                       ))}
