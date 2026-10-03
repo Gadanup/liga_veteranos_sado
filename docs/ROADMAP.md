@@ -17,7 +17,7 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 
 | Item | Owner | Details |
 |---|---|---|
-| Insert the 2026/27 league (and cup group) fixtures — season starts 17/10 | Claudio | Generated SQL from the draw file, reviewed, run in SQL Editor |
+| Insert the 2026/27 **cup group** fixtures — season starts 17/10 | Claudio | The league is in: 182 matches across 26 matchweeks, verified in the DB on 2026-10-03. `competition_type = 'Cup'` still has 0 matches for 2026. |
 | Quick fix: `start_year/end_year` in cup views (B14) | Claudio | [`backlog.md`](backlog.md) B14 · the two #127/#122 regressions in this row were taken by Ricardo |
 | *free slot* | Ricardo | pick from NEXT |
 
@@ -25,10 +25,11 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 
 ## ⏭️ NEXT (in order)
 
-1. **Backup routine setup** — someone runs `npx supabase link --project-ref dmsocybvdzdzafpemybt` once; then first `supabase/schema.sql` (git) + data dump (private folder). Replaces the staging project (see Decisions). — *owner: Claudio*
-2. **Phase 0 leftovers — queries**: match page loads every player of every season (B4); one suspensions query per calendar page instead of per card (P7 + N7); suspended players hidden from the event editor for old matches (B5). Step 0.2.4b / 0.2.5.
-3. **Server layout + metadata** (N2 → step 1.3.2 brought forward): page titles and WhatsApp link previews. Needs Q5 (OG image).
-4. **Phase 1 tooling**: Vitest (1.2.1) → React Query (1.2.2) → `useSelectedSeason` (1.2.3) → constants (1.2.4) → domain utils with tests (1.2.5).
+1. **Backup routine setup** — `npx supabase link` is done; what remains is the first `supabase/schema.sql` (git) + data dump (private folder). **Blocks parts 2 and 3 of `db/06_discipline_rules.sql`**, which is where most of the discipline work pays off. Replaces the staging project (see Decisions). — *owner: Claudio*
+2. **Vercel preview deployments are failing** — every preview since at least #149, including PRs already merged. Reproduced locally: with `.env.local` removed, `npm run build` fails on 15 pages with `Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY`, thrown during prerender. Most likely the Supabase vars are set for **Production** only and not **Preview** in the Vercel project. Until this is fixed, the "tested on a real phone" check cannot be met by any PR — which is the check that catches mobile regressions. — *owner: Claudio*
+3. **Apply the SQL already merged** — `db/04_indexes.sql` (#151, biggest win for the least risk) and part 1 of `db/06_discipline_rules.sql` (#152). Parts 2 and 3 wait for item 1.
+4. **Phase 0 leftovers — queries**: suspended players hidden from the event editor for old matches (B5). Step 0.2.4b. *(B4 done in #138; P7 + N7 in #150.)*
+5. **Phase 1 tooling**: Vitest (1.2.1) → React Query (1.2.2) → `useSelectedSeason` (1.2.3) → constants (1.2.4) → domain utils with tests (1.2.5). **Vitest before any Phase 4 redesign** — the app has no tests, and #145 shipped a crash to production because nothing caught an undefined name.
 
 ---
 
@@ -36,10 +37,9 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 
 | Question | Blocks | Who answers |
 |---|---|---|
-| Q5 — Is there a 1200×630 league image for link previews? | N2 | Claudio |
 | Q6 — Does the registration form collect consent to publish photo and name? | N3 | League |
 
-*Answered:* Q1 double yellow counts as a red, 20 pts, current season onwards (B16) · Q2 yes, the Supertaça counts — cards already did, `matches_played` did not (N5) · Q3 yes, cup yellows count (regulation, Discipline art. 1: "no jogo seguinte (taça ou liga)") (B7) · Q4 domain = `https://liga-veteranos-sado.vercel.app` · Q7 public sign-ups are off (done in 0.1.2).
+*Answered:* Q1 double yellow counts as a red, 20 pts, current season onwards (B16) · Q2 yes, the Supertaça counts — cards already did, `matches_played` did not (N5) · Q3 yes, cup yellows count (regulation, Discipline art. 1: "no jogo seguinte (taça ou liga)") (B7) · Q4 domain = `https://liga-veteranos-sado.vercel.app` · Q5 yes, `public/logo/og.jpg` (in #140) · Q7 public sign-ups are off (done in 0.1.2).
 
 ---
 
@@ -68,7 +68,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 - **4.5** Equipa + Equipas (§4.5, §4.12) · **4.6** Marcadores (§4.6) · **4.7** Disciplina (§4.7, C4) · **4.8** Taça (§4.8) · **4.9** Galeria, Histórico, Informação, Login
 
 ### Phase 5 — Polish
-- **5.1** PWA icons 192/512 + theme-color (M10) · **5.2** OG images per page · **5.3** dark mode · **5.4** Server Components + revalidate (P4) · **5.5** remove Tailwind / old theme / old components (C11, D4) · **5.6** Fechar época, computed winners (E11) · **5.7** branch cleanup (D5)
+- ~~**5.1** PWA icons 192/512 + theme-color (M10)~~ *(done in #140)* · **5.2** OG images per page · **5.3** dark mode · **5.4** Server Components + revalidate (P4) · **5.5** remove Tailwind / old theme / old components (C11, D4) · **5.6** Fechar época, computed winners (E11) · **5.7** branch cleanup (D5)
 - *Optional:* staging Supabase project (S4) — only if the project grows or DB changes get riskier.
 
 ---
@@ -78,8 +78,16 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 | Date | What | PR / ref |
 |---|---|---|
 | 2026-10-03 | Disciplina: adding a punishment refetches instead of reloading the browser (which silently reset the season); the page reads only the selected season's players — step 4.7 partial | #153 |
+| 2026-10-03 | Discipline SQL written against the regulation, **not yet applied**: read-only detection views (the 3-yellow rule reproduces 46 of 46 suspensions of 2025) and the corrected calculation — double yellow as a red, 25 pts per suspension game, Supertaça in `matches_played`, `seasons.discipline_locked` so closed seasons are never recalculated. Answers Q1, Q2, Q3 — step 3.7.1 (E10), N5, B16, B7 | #152 |
+| 2026-10-02 | The 17 missing indexes (N11), **not yet applied** — 40 foreign keys had no supporting index; `teams` was scanned 4.3M times for 42 rows — step 2.4.1 | #151 |
+| 2026-10-01 | One suspensions query per calendar page instead of one per match card (P7, N7) — step 0.2.5 | #150 |
 | 2026-10-01 | **M1 closed** — every breakpoint now comes from the theme: Equipas, Galeria and Jogos converted, finishing step 1.3.4 (Liga #145, Taça #146) | #149 |
 | 2026-09-30 | Hotfix: league calendar crashed ("useMediaQuery is not defined", regression from #145); ESLint `no-undef` now fails the build on any undefined name | #148 |
+| 2026-09-30 | Photos for the new Pontes and Sado players 2026/27 | #147 |
+| 2026-09-30 | Server layout with real page metadata and WhatsApp link previews; CSS offsets replace the DOM margin hack; `CssBaseline` moved off `Nav`, so the login page finally gets it (M2, N9, N2, P6) — step 1.3.2 | #144 |
+| 2026-09-30 | **Rebrand to the crest's navy and gold**, with a real MUI theme behind it: theme mounted mirroring the old look, then the palette and fonts switched, nav colours read from tokens (M1, C11 partial, closes M10, answers Q5) — step 1.3.1 | #139, #140, #141, #142, #143 |
+| 2026-09-30 | Match page fetches only the two squads instead of every player of every season (B4, B8) | #138 |
+| 2026-09-30 | Calendars keep the season on back-navigation — `?week=10&season=2025` no longer rewrites itself to the current season (precursor to C3 / step 1.2.3) | #137 |
 | 2026-09-30 | Security headers, `poweredByHeader` off, admin check no longer case-sensitive, env-var build failure documented (N6, S3, N12) — step 0.3.4 | #136 |
 | 2026-09-30 | `Footer.jsx` and `useCupMatches` deleted, `/taca/sorteio` redirects, unused import dropped (D2, D3) — step 0.3.2 | #135 |
 | 2026-09-30 | `jspdf` loads on click: `/jogos/[id]` 335 kB → 224 kB (P3) — step 0.3.3 | #134 |
@@ -88,6 +96,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 | 2026-09-30 | Cup knockout rounds labelled "Oitavos de Final"…"Final" instead of "J8"…"J1" — regression from #127 | #130 |
 | 2026-09-30 | Match page mobile pass: reactive breakpoints, readable type at 360px, error state resets (M5 minimal, B11 follow-up) | #131 |
 | 2026-09-29 | Docs restructure: `ROADMAP.md` as single status, `README.md`, `reference/`, `archive/`; `/next` skill; backup routine replaces staging | #128 |
+| 2026-09-29 | `/sync-trello` skill — Trello as a read-only mirror of this file (follow-up to #128, which it missed by a minute) | #129 |
 | 2026-09-29 | Calendar matchweek strip, swipe, no giant "Jornada X"; cup week keys independent of screen width (M7, M9, B10) — step 4.2 partial | #127 |
 | 2026-09-29 | robots.txt, sitemap.xml, web manifest (N10) — step 0.3.4 | #126 |
 | 2026-09-29 | `dayjs` declared, 6 unused deps removed, `.npmrc` legacy-peer-deps (D1, N13) — step 0.3.1 | #125 |
