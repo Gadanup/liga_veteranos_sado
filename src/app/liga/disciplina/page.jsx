@@ -21,7 +21,7 @@ const Discipline = () => {
   const router = useRouter();
   const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
-  const { disciplineData, loading } = useDisciplineData(selectedSeason);
+  const { disciplineData, loading, refetch } = useDisciplineData(selectedSeason);
 
   // Fetch seasons
   useEffect(() => {
@@ -78,11 +78,13 @@ const Discipline = () => {
     setPunishmentEvents([]);
   };
 
+  // Refetch after a punishment is added or removed. This used to call
+  // window.location.reload(), which besides being slow reset the page to the
+  // current season: the selected season lives in state and nowhere in the
+  // URL, so an admin working on a past season was thrown back to the present
+  // on every punishment.
   const handleDataUpdate = async () => {
-    // Refetch discipline data after changes
-    await fetchPunishmentEvents(currentTeamId);
-    // This will trigger a re-render of the discipline data
-    window.location.reload(); // Simple solution, or you can implement a more elegant refresh
+    await Promise.all([fetchPunishmentEvents(currentTeamId), refetch()]);
   };
 
   if (loading && seasons.length === 0) {
