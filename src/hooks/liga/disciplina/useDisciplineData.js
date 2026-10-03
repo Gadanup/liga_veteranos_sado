@@ -1,21 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../../lib/supabase";
 
 /**
  * Custom hook to fetch and process discipline data
  *
  * @param {number} seasonId - Selected season ID
- * @returns {Object} - { disciplineData, loading }
+ * @returns {Object} - { disciplineData, loading, refetch }
+ *
+ * `refetch` exists so the page can pick up a new punishment without
+ * reloading the browser. It does not raise `loading`, so the table keeps
+ * showing the previous numbers for the moment it takes to fetch instead of
+ * replacing them with a spinner behind the open modal.
  */
 export const useDisciplineData = (seasonId) => {
   const [disciplineData, setDisciplineData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!seasonId) return;
+  const fetchDisciplineData = useCallback(
+    async ({ showLoading = true } = {}) => {
+      if (!seasonId) return;
 
-    const fetchDisciplineData = async () => {
-      setLoading(true);
+      if (showLoading) setLoading(true);
 
       // Fetch discipline standings
       const { data, error } = await supabase
@@ -82,10 +87,14 @@ export const useDisciplineData = (seasonId) => {
         return acc;
       }, {});
 
-      // Fetch all players
+      // Fetch the players of THIS season only. `players` has no season
+      // column — the season comes from the player's team — so the filter
+      // goes through an inner join on teams. Before, this read all 651
+      // players of every season to use the ~40 of one.
       const { data: players, error: playersError } = await supabase
         .from("players")
-        .select(`id, name, team_id`);
+        .select(`id, name, team_id, teams!inner (season)`)
+        .eq("teams.season", seasonId);
 
       if (playersError) {
         console.error("Error fetching players:", playersError);
@@ -171,10 +180,18 @@ export const useDisciplineData = (seasonId) => {
 
       setDisciplineData(sortedData);
       setLoading(false);
-    };
+    },
+    [seasonId]
+  );
 
+  useEffect(() => {
     fetchDisciplineData();
-  }, [seasonId]);
+  }, [fetchDisciplineData]);
 
-  return { disciplineData, loading };
+  const refetch = useCallback(
+    () => fetchDisciplineData({ showLoading: false }),
+    [fetchDisciplineData]
+  );
+
+  return { disciplineData, loading, refetch };
 };
