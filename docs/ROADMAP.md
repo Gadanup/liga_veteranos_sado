@@ -77,6 +77,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-10-05 | Vercel deploys unblocked: Node pinned to 24.x (`engines`) after Vercel discontinued Node 20 — every deploy since #149 (01/10) had failed | this PR |
 | 2026-10-03 | Disciplina: adding a punishment refetches instead of reloading the browser (which silently reset the season); the page reads only the selected season's players — step 4.7 partial | #153 |
 | 2026-10-01 | **M1 closed** — every breakpoint now comes from the theme: Equipas, Galeria and Jogos converted, finishing step 1.3.4 (Liga #145, Taça #146) | #149 |
 | 2026-09-30 | Hotfix: league calendar crashed ("useMediaQuery is not defined", regression from #145); ESLint `no-undef` now fails the build on any undefined name | #148 |
