@@ -20,7 +20,7 @@
 --   PARTE 0  verificacao, so SELECT
 --   PARTE 1  jogadores — 20 caminhos, renomeacoes 1:1 confirmadas no git
 --   PARTE 2  treinador do Botafogo — PRECISA DE CONFIRMACAO (ver nota)
---   PARTE 3  lista das fotos apagadas sem substituto — DECISAO DA DIRECAO
+--   PARTE 3  limpar os caminhos sem ficheiro (photo_url = null)
 --   PARTE 4  verificacao final, so SELECT
 -- =====================================================================
 
@@ -135,44 +135,87 @@ where manager_photo_url = '/team_photos/amarelos/treinador/nunoChagas.png';
 
 
 -- ---------------------------------------------------------------------
--- PARTE 3 — Fotos apagadas sem substituto (DECISAO, nada a correr)
+-- PARTE 3 — Limpar os caminhos que ja nao tem ficheiro
 -- ---------------------------------------------------------------------
--- 29 caminhos (39 linhas de players) ficaram sem ficheiro. O site nao
--- quebra — o Avatar do MUI mostra o fallback — mas o avatar fica vazio.
+-- As fotos de quem saiu das equipas foram apagadas de proposito, para
+-- libertar espaco. Ficam 39 caminhos a apontar para ficheiros que nao
+-- existem: 29 apagados neste PR e 10 que ja estavam mortos antes.
+-- O site nao quebra — o Avatar do MUI mostra o fallback — mas convem a
+-- base de dados nao apontar para o vazio, senao cada pagina destas
+-- continua a pedir ao browser um ficheiro que da 404.
 --
--- Epoca atual (2026/27), o unico caso:
---   /team_photos/pontes/carlao.jpg      Carlos Coelho (Pontes)
+-- Ao contrario das PARTES 1 e 2, esta apaga informacao: os caminhos
+-- antigos deixam de estar na base de dados e nao se reconstroem com
+-- SQL. Fazer o dump dos dados antes (CLAUDE.md § Safety).
 --
--- Epocas antigas (2024/2025), por pasta:
---   aguiassaogabriel/  albertZe, celestinoTavares
---   azeda/             norbertoMunelessa
---   botafogo/          abilioDiniz, carlosGalo, carlosPinela,
---                      diegoSalatiel, fabioVicente, miguelRosario,
---                      pauloMoura, rafaelFerreira, ruiDias
---   pontes/            filipeGalinho, filipePacheco, jailtonFurtado,
---                      joaquimOliveira, luisRodrigues, marioEspada,
---                      pauloBorges, pedroGomes, rafaelSantos,
---                      sergioCarvalho
---   sportclubesado/    brunoCosta, brunoLuz, joaoBaltazar, joaoMonteiro,
---                      ruiRojao, tiagoCortez
---
--- Tres opcoes, por ordem de preferencia:
---   1. repor o PNG antigo no repositorio (reverter a eliminacao no git)
---      — mantem o historico intacto;
---   2. carregar uma foto nova na pasta certa e actualizar o photo_url;
---   3. aceitar o avatar vazio e por photo_url = null, para a base de
---      dados deixar de apontar para ficheiros que nao existem:
---
--- update public.players
--- set photo_url = null
--- where photo_url in ( ... os caminhos acima ... );
---
+-- *** UM CASO A VER PRIMEIRO: /team_photos/pontes/carlao.jpg ***
+-- E o Carlos Coelho, e ele esta inscrito nas Pontes na epoca ATUAL
+-- (2026/27), por isso a foto dele provavelmente foi apagada por engano.
+-- Ou se repoe o ficheiro, ou se carrega uma foto nova — nao deve
+-- simplesmente passar a null como os outros. Esta fora da lista abaixo.
+begin;
+
+-- 3a) Caminhos apagados neste PR (28 caminhos, sem o carlao.jpg).
+--     Todos de epocas antigas (2024/2025).
+update public.players
+set photo_url = null
+where photo_url in (
+  '/team_photos/aguiassaogabriel/albertZe.png',
+  '/team_photos/aguiassaogabriel/celestinoTavares.png',
+  '/team_photos/azeda/norbertoMunelessa.png',
+  '/team_photos/botafogo/abilioDiniz.png',
+  '/team_photos/botafogo/carlosGalo.png',
+  '/team_photos/botafogo/carlosPinela.png',
+  '/team_photos/botafogo/diegoSalatiel.png',
+  '/team_photos/botafogo/fabioVicente.png',
+  '/team_photos/botafogo/miguelRosario.png',
+  '/team_photos/botafogo/pauloMoura.png',
+  '/team_photos/botafogo/rafaelFerreira.png',
+  '/team_photos/botafogo/ruiDias.png',
+  '/team_photos/pontes/filipeGalinho.png',
+  '/team_photos/pontes/filipePacheco.png',
+  '/team_photos/pontes/jailtonFurtado.png',
+  '/team_photos/pontes/joaquimOliveira.png',
+  '/team_photos/pontes/luisRodrigues.png',
+  '/team_photos/pontes/marioEspada.png',
+  '/team_photos/pontes/pauloBorges.png',
+  '/team_photos/pontes/pedroGomes.png',
+  '/team_photos/pontes/rafaelSantos.png',
+  '/team_photos/pontes/sergioCarvalho.png',
+  '/team_photos/sportclubesado/brunoCosta.png',
+  '/team_photos/sportclubesado/brunoLuz.png',
+  '/team_photos/sportclubesado/joaoBaltazar.png',
+  '/team_photos/sportclubesado/joaoMonteiro.png',
+  '/team_photos/sportclubesado/ruiRojao.png',
+  '/team_photos/sportclubesado/tiagoCortez.png'
+);
+
+-- 3b) Caminhos que ja estavam mortos antes deste PR — a limpeza e a
+--     mesma, nao foi este PR que os apagou.
+update public.players
+set photo_url = null
+where photo_url in (
+  '/team_photos/aguiassaogabriel/andreFranco.png',
+  '/team_photos/aguiassaogabriel/felicianoMartins.png',
+  '/team_photos/aguiassaogabriel/felipePereira.png',
+  '/team_photos/aguiassaogabriel/jorgeLamancha.png',
+  '/team_photos/curvas/marceloCorreia.png',
+  '/team_photos/curvas/micaelVeiga.png',
+  '/team_photos/curvas/nunoRamos.png',
+  '/team_photos/independente/domingosMoreno.png',
+  '/team_photos/santoovidio/pedroVieira.png',
+  '/team_photos/santosnicolau/celsoJesus.png'
+);
+
+commit;
+
 -- Nota: ha ficheiros com o mesmo nome noutras pastas (por exemplo
 -- amarelos/albertZe.png, idolos/celestinoTavares.png,
 -- aguiassaogabriel/rafaelFerreira.png, azeda/jailtonFurtado.png,
 -- pontes/joaoBaltazar.png, pontes/rafaelSantos.jpg). Podem ser a mesma
 -- pessoa noutra epoca — ou um homonimo. Nao estao na PARTE 1
--- precisamente por isso: confirmar um a um antes de reaproveitar.
+-- precisamente por isso: confirmar um a um antes de reaproveitar, em
+-- vez de deixar a null.
 
 
 -- ---------------------------------------------------------------------

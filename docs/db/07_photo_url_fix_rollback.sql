@@ -2,7 +2,12 @@
 -- Rollback de docs/db/07_photo_url_fix.sql
 -- ---------------------------------------------------------------------
 -- So inverte os UPDATEs de texto das PARTES 1 e 2a. Nao ha nada de
--- esquema para desfazer, e a PARTE 3 nao executa nada.
+-- esquema para desfazer.
+--
+-- A PARTE 3 (photo_url = null) NAO se desfaz com SQL: os caminhos
+-- antigos deixam de existir na base de dados. Repoem-se do dump dos
+-- dados. E por isso que o dump tem de estar feito antes de correr a
+-- PARTE 3.
 --
 -- *** LER ANTES DE CORRER ***
 -- O rollback NAO pode ser um simples "novo -> antigo". As linhas da
