@@ -8,14 +8,16 @@ import {
   Chip,
   Fade,
 } from "@mui/material";
-import { Star, Schedule, CheckCircle, Groups } from "@mui/icons-material";
+import { HowToReg, Schedule, CheckCircle, Groups } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
 
 /**
- * JokersInfoCard Component
- * Displays information about Jokers eligibility and rules
+ * EligibilityInfoCard Component
+ * Displays player eligibility rules for the current season.
+ * Replaces the old Jokers card: the 2026/2027 regulation dropped jokers and
+ * requires every player to be 35 or older when registered.
  */
-const JokersInfoCard = () => {
+const EligibilityInfoCard = () => {
   return (
     <Fade in={true} timeout={1600}>
       <Card
@@ -53,7 +55,9 @@ const JokersInfoCard = () => {
                 justifyContent: "center",
               }}
             >
-              <Star sx={{ fontSize: 36, color: theme.colors.accent[600] }} />
+              <HowToReg
+                sx={{ fontSize: 36, color: theme.colors.accent[600] }}
+              />
             </Box>
             <Box>
               <Typography
@@ -64,13 +68,13 @@ const JokersInfoCard = () => {
                   mb: 0.5,
                 }}
               >
-                Jokers
+                Elegibilidade
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: theme.colors.text.secondary }}
               >
-                Regulamentação especial
+                Inscrição de atletas
               </Typography>
             </Box>
           </Box>
@@ -110,7 +114,8 @@ const JokersInfoCard = () => {
                   mb: 2,
                 }}
               >
-                A idade mínima para inscrição de Jokers é de{" "}
+                As competições são destinadas a atletas masculinos com idade
+                igual ou superior a{" "}
                 <Box
                   component="span"
                   sx={{
@@ -122,23 +127,37 @@ const JokersInfoCard = () => {
                     borderRadius: theme.borderRadius.sm,
                   }}
                 >
-                  33 anos
-                </Box>
-                , limitados a{" "}
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: "bold",
-                    color: theme.colors.accent[600],
-                    backgroundColor: theme.colors.accent[100],
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: theme.borderRadius.sm,
-                  }}
-                >
-                  2 jokers por equipa
+                  35 anos
+                </Box>{" "}
+                no ato da inscrição. Nesta época{" "}
+                <Box component="span" sx={{ fontWeight: "bold" }}>
+                  não existem jokers
                 </Box>
                 .
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: theme.colors.text.primary,
+                  lineHeight: 1.6,
+                }}
+              >
+                Cada equipa pode inscrever no máximo{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    fontWeight: "bold",
+                    color: theme.colors.accent[600],
+                    backgroundColor: theme.colors.accent[100],
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: theme.borderRadius.sm,
+                  }}
+                >
+                  22 atletas
+                </Box>
+                . Atletas federados em futebol de 11, 7, 5, praia ou futsal não
+                podem participar.
               </Typography>
             </Box>
 
@@ -146,7 +165,7 @@ const JokersInfoCard = () => {
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               <Chip
                 icon={<CheckCircle />}
-                label="33+ anos"
+                label="35+ anos"
                 size="small"
                 sx={{
                   backgroundColor: theme.colors.accent[600],
@@ -156,7 +175,7 @@ const JokersInfoCard = () => {
               />
               <Chip
                 icon={<Groups />}
-                label="Max. 2 por equipa"
+                label="Max. 22 atletas"
                 size="small"
                 sx={{
                   backgroundColor: theme.colors.accent[600],
@@ -172,4 +191,4 @@ const JokersInfoCard = () => {
   );
 };
 
-export default JokersInfoCard;
+export default EligibilityInfoCard;
