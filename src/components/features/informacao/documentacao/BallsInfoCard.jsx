@@ -88,7 +88,7 @@ const BallsInfoCard = () => {
               mb: 3,
             }}
           >
-            {/* Brand and Model */}
+            {/* Approved models */}
             <Box mb={2}>
               <Typography
                 variant="body1"
@@ -104,9 +104,8 @@ const BallsInfoCard = () => {
                     color: theme.colors.success[600],
                   }}
                 >
-                  Marca:
-                </Box>{" "}
-                Select
+                  Modelos aprovados:
+                </Box>
               </Typography>
               <Typography
                 variant="body1"
@@ -115,16 +114,9 @@ const BallsInfoCard = () => {
                   mb: 2,
                 }}
               >
-                <Box
-                  component="span"
-                  sx={{
-                    fontWeight: "bold",
-                    color: theme.colors.success[600],
-                  }}
-                >
-                  Modelo:
-                </Box>{" "}
-                Team ou Liga PRO
+                Select Team nº5
+                <br />
+                MKA Tekno Minho nº5
               </Typography>
 
               {/* Warning Alert */}

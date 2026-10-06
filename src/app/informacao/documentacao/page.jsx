@@ -16,12 +16,12 @@ import { theme } from "../../../styles/theme.js";
 import DocumentationHeader from "../../../components/features/informacao/documentacao/DocumentationHeader";
 import QuickActionsGrid from "../../../components/features/informacao/documentacao/QuickActionsGrid";
 import DocumentsGrid from "../../../components/features/informacao/documentacao/DocumentsGrid";
-import JokersInfoCard from "../../../components/features/informacao/documentacao/JokersInfoCard";
+import EligibilityInfoCard from "../../../components/features/informacao/documentacao/EligibilityInfoCard";
 import BallsInfoCard from "../../../components/features/informacao/documentacao/BallsInfoCard";
 import FooterInfo from "../../../components/features/informacao/documentacao/FooterInfo";
 
 const documents = [
-  // Old regulation kept for reference
+  // Old regulations kept for reference
   // {
   //   id: 1,
   //   text: "REGULAMENTO 2024/2025",
@@ -35,17 +35,30 @@ const documents = [
   //   lastUpdated: "15 Set 2024",
   //   priority: "high",
   // },
+  // {
+  //   id: 1,
+  //   text: "REGULAMENTO 2025/2026",
+  //   link: "https://drive.google.com/file/d/1nT7aJWLuh34ArfHtohUx9qxuAjk934tk/view?usp=drive_link",
+  //   icon: "Rule",
+  //   color: theme.colors.primary[500],
+  //   description: "Regulamento oficial da temporada",
+  //   category: "Essencial",
+  //   fileType: "PDF",
+  //   size: "5.6 MB",
+  //   lastUpdated: "17 Set 2025",
+  //   priority: "high",
+  // },
   {
     id: 1,
-    text: "REGULAMENTO 2025/2026",
-    link: "https://drive.google.com/file/d/1nT7aJWLuh34ArfHtohUx9qxuAjk934tk/view?usp=drive_link",
+    text: "REGULAMENTO 2026/2027",
+    link: "/docs/REGULAMENTO_2026-2027.pdf",
     icon: "Rule",
     color: theme.colors.primary[500],
     description: "Regulamento oficial da temporada",
     category: "Essencial",
     fileType: "PDF",
-    size: "5.6 MB",
-    lastUpdated: "17 Set 2025",
+    size: "534 KB",
+    lastUpdated: "06 Out 2026",
     priority: "high",
   },
   {
@@ -152,12 +165,16 @@ export default function Documentacao() {
             </AlertTitle>
             <Box sx={{ mt: 2 }}>
               <p style={{ marginBottom: "8px" }}>
-                • <strong>Jokers:</strong> Idade mínima 33 anos, máximo 2 por
-                equipa
+                • <strong>Idade:</strong> 35 anos ou mais no ato da inscrição —
+                deixaram de existir jokers
               </p>
               <p style={{ marginBottom: "8px" }}>
-                • <strong>Bolas:</strong> 3 bolas oficiais Select obrigatórias
-                para jogos em casa
+                • <strong>Plantel:</strong> máximo 22 atletas; federados em
+                futebol ou futsal não podem jogar
+              </p>
+              <p style={{ marginBottom: "8px" }}>
+                • <strong>Bolas:</strong> 3 bolas oficiais obrigatórias para
+                jogos em casa
               </p>
               <p>
                 • <strong>Documentos:</strong> Fichas de jogo e relatórios
@@ -173,7 +190,7 @@ export default function Documentacao() {
         {/* Information Cards */}
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
-            <JokersInfoCard />
+            <EligibilityInfoCard />
           </Grid>
           <Grid item xs={12} md={6}>
             <BallsInfoCard />
