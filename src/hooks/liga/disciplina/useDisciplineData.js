@@ -93,7 +93,7 @@ export const useDisciplineData = (seasonId) => {
       // players of every season to use the ~40 of one.
       const { data: players, error: playersError } = await supabase
         .from("players")
-        .select(`id, name, team_id, teams!inner (season)`)
+        .select(`id, name, team_id, teams!players_team_id_fkey!inner (season)`)
         .eq("teams.season", seasonId);
 
       if (playersError) {
