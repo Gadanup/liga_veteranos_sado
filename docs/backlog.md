@@ -378,6 +378,18 @@ group by 1, 2 order by 1, 2;
 
 ---
 
+#### `[B20]` Critérios de desempate da liga desatualizados face ao regulamento 2026/2027
+
+`🟠 Alto` `Código` `S` `Risco baixo` · step **0.2.x** · ✅ Verified 2026-10-11
+
+**Problem.** O regulamento 2026/2027 (Competições, art. 22) ordena os empates por confronto direto → diferença de golos → melhor classificado na Taça Disciplina → golos marcados → golos sofridos. A página ordenava por confronto direto (pontos, diferença e **golos fora**) → diferença de golos → golos marcados → jogos realizados. Os golos fora no confronto direto deixaram de ser critério e a Taça Disciplina passou a ser, e não existia no código.
+
+**Evidence.** `src/app/liga/classificacao/page.jsx`, `compareTiedTeams`; `public/docs/REGULAMENTO_2026-2027.pdf` p. 13. Na 1ª jornada de 2026/27 trocava duas posições: Azeda/Sado no 3º-4º e Independente/Sports Cafe no 11º-12º.
+
+**Fix.** Aplicar a ordem do art. 22 em `compareTiedTeams` e ler a posição na Taça Disciplina de `discipline_standings` com a mesma ordenação de `useDisciplineData.js`. Feito no PR #169.
+
+---
+
 #### `[B14]` Cup views pedem colunas `start_year`/`end_year` que não existem
 
 `🟠 Alto` `Código` `S` `Risco baixo` · step **0.2.2** · ✅ Verified 2026-09-29

@@ -23,6 +23,7 @@ const Classification = () => {
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
   const [formData, setFormData] = useState({});
   const [leagueMatches, setLeagueMatches] = useState([]);
+  const [disciplineRank, setDisciplineRank] = useState({});
   const router = useRouter();
   const theme = useTheme();
 
@@ -128,6 +129,16 @@ const Classification = () => {
     setLeagueMatches(matchesList);
     setFormData(buildFormData(matchesList));
 
+    // The Taça Disciplina position is one of the tiebreakers (Regulamento
+    // 2026/2027, Competições art. 22), so the standings need to know it.
+    const { data: disciplineData } = await supabase
+      .from("discipline_standings")
+      .select("team_id, matches_played, calculated_points, excluded")
+      .eq("season", seasonId);
+
+    const rank = buildDisciplineRank(disciplineData || []);
+    setDisciplineRank(rank);
+
     const { data: classificationData, error } = await supabase
       .from("league_standings")
       .select(
@@ -144,12 +155,44 @@ const Classification = () => {
         classificationData,
         sortBy,
         sortOrder,
-        matchesList
+        matchesList,
+        rank
       );
       setClassification(sortedData);
     }
 
     setLoading(false);
+  };
+
+  // Position of each team in the Taça Disciplina, as team_id -> index.
+  // Mirrors the ordering in hooks/liga/disciplina/useDisciplineData.js — the
+  // regulation points at that classification, so the two must agree. Keep
+  // them in sync until the comparison moves to utils/ (step 1.2.5).
+  const buildDisciplineRank = (rows) => {
+    const ordered = [...rows].sort((a, b) => {
+      if (a.excluded && !b.excluded) return 1;
+      if (!a.excluded && b.excluded) return -1;
+
+      const hasMatchesA = a.matches_played > 0;
+      const hasMatchesB = b.matches_played > 0;
+      if (hasMatchesA && !hasMatchesB) return -1;
+      if (!hasMatchesA && hasMatchesB) return 1;
+      if (!hasMatchesA && !hasMatchesB) {
+        return a.calculated_points - b.calculated_points;
+      }
+
+      // Fewer points per match is better (Disciplina, art. 10)
+      return (
+        a.calculated_points / a.matches_played -
+        b.calculated_points / b.matches_played
+      );
+    });
+
+    const rank = {};
+    ordered.forEach((row, index) => {
+      rank[row.team_id] = index;
+    });
+    return rank;
   };
 
   // Build head-to-head stats among a set of tied teams, using only the
@@ -158,7 +201,7 @@ const Classification = () => {
     const idSet = new Set(teamIds);
     const stats = {};
     teamIds.forEach((id) => {
-      stats[id] = { points: 0, goalDiff: 0, awayGoals: 0 };
+      stats[id] = { points: 0, goalDiff: 0 };
     });
 
     matches.forEach((match) => {
@@ -177,7 +220,6 @@ const Classification = () => {
 
       stats[h].goalDiff += hg - ag;
       stats[a].goalDiff += ag - hg;
-      stats[a].awayGoals += ag;
 
       if (hg > ag) {
         stats[h].points += 3;
@@ -192,10 +234,17 @@ const Classification = () => {
     return stats;
   };
 
-  // Resolve order between two teams tied on points using the head-to-head
-  // rules: 1) H2H points, 2) H2H goal difference, 3) H2H away goals.
-  // Falls back to overall goal difference → goals for → matches played.
-  const compareTiedTeams = (a, b, data, matches) => {
+  // Resolve order between two teams level on points, in the order the
+  // Regulamento 2026/2027 sets out (Competições, art. 22):
+  //   1) confronto direto
+  //   2) diferença de golos
+  //   3) melhor classificado na Taça Disciplina
+  //   4) golos marcados
+  //   5) golos sofridos
+  // Beyond that the regulation hands it to the Direção, so the order is
+  // left untouched. Away goals in the head-to-head, used until 2025/2026,
+  // are no longer a criterion.
+  const compareTiedTeams = (a, b, data, matches, rank) => {
     const tiedIds = data
       .filter(
         (t) =>
@@ -203,6 +252,9 @@ const Classification = () => {
       )
       .map((t) => t.team_id);
 
+    // Teams that have not met yet both score zero here, so this falls
+    // through to the goal difference — which is what decides most ties in
+    // the first half of the season.
     if (tiedIds.length > 1 && matches.length) {
       const h2h = computeHeadToHead(tiedIds, matches);
       const sa = h2h[a.team_id];
@@ -210,19 +262,32 @@ const Classification = () => {
       if (sa && sb) {
         if (sa.points !== sb.points) return sb.points - sa.points;
         if (sa.goalDiff !== sb.goalDiff) return sb.goalDiff - sa.goalDiff;
-        if (sa.awayGoals !== sb.awayGoals) return sb.awayGoals - sa.awayGoals;
       }
     }
 
-    // Fallback: overall goal difference → goals for → matches played
     const gdA = a.goals_for - a.goals_against;
     const gdB = b.goals_for - b.goals_against;
     if (gdA !== gdB) return gdB - gdA;
+
+    // Only applied when both teams appear in the Taça Disciplina; a lower
+    // index is a better position there.
+    const rankA = rank?.[a.team_id];
+    const rankB = rank?.[b.team_id];
+    if (rankA != null && rankB != null && rankA !== rankB) {
+      return rankA - rankB;
+    }
+
     if (a.goals_for !== b.goals_for) return b.goals_for - a.goals_for;
-    return b.matches_played - a.matches_played;
+    return a.goals_against - b.goals_against;
   };
 
-  const sortClassification = (data, field, order, matches = leagueMatches) => {
+  const sortClassification = (
+    data,
+    field,
+    order,
+    matches = leagueMatches,
+    rank = disciplineRank
+  ) => {
     return [...data].sort((a, b) => {
       // Excluded teams always go to bottom
       if (a.teams.excluded && !b.teams.excluded) return 1;
@@ -241,7 +306,7 @@ const Classification = () => {
             return order === "desc" ? b.points - a.points : a.points - b.points;
           }
           // If points are equal, use head-to-head tiebreakers
-          return compareTiedTeams(a, b, data, matches);
+          return compareTiedTeams(a, b, data, matches, rank);
 
         case "goals_for":
           valueA = a.goals_for;
@@ -274,7 +339,7 @@ const Classification = () => {
         default:
           // Default sorting: Points → Head-to-head → overall fallbacks
           if (a.points !== b.points) return b.points - a.points;
-          return compareTiedTeams(a, b, data, matches);
+          return compareTiedTeams(a, b, data, matches, rank);
       }
 
       if (order === "desc") {

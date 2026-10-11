@@ -45,7 +45,7 @@ The global CLAUDE.md describes a Vite + React Router + TS template. **This app i
 - `players` has **two** foreign keys to `teams` (`team_id`, `previousClub`): every embed from `players` to `teams` must name the FK (`teams!players_team_id_fkey (…)`), otherwise Supabase returns PGRST201 and the query fails (this emptied the Disciplina page, #168). Same for `matches` → `teams` (home/away FKs).
 - `match_events.event_type`: `1` goal, `2` yellow, `3` red, `4` own goal, `5` double yellow. No `team_id` on events.
 - `league_standings` / `discipline_standings` are **tables** filled by DB triggers (on `matches`, `match_events`, `team_punishments`); `points` and `calculated_points` are generated columns (`wins*3+draws`, `red*20+yellow*5+other_punishments`). Triggers only UPDATE existing rows — each team needs a row per season. Schema: `src/types/database.types.ts`; triggers/policies: `docs/db/`.
-- League standings order: points → H2H points → H2H goal diff → H2H away goals → overall goal diff → goals for. Excluded teams and teams with 0 games go last. Logic in `src/app/liga/classificacao/page.jsx`.
+- League standings order (Regulamento 2026/2027, Competições art. 22): points → H2H points → H2H goal diff → overall goal diff → Taça Disciplina position → goals for → goals against. H2H away goals stopped being a criterion in 2026/2027. Teams that have not met yet tie on H2H, so early in the season the goal difference decides. Excluded teams and teams with 0 games go last. Logic in `src/app/liga/classificacao/page.jsx`.
 - Discipline: 3 yellows = suspension (warning shown at 2, 5, 8…). Suspensions are created/deactivated manually.
 - UI language is **European Portuguese** (Jornada, Época, Taça, Supertaça, Classificação, Golos, Equipa). Code and docs in English.
 
