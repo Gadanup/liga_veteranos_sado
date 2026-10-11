@@ -17,7 +17,7 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 
 | Item | Owner | Details |
 |---|---|---|
-| Insert the 2026/27 league (and cup group) fixtures — season starts 17/10 | Claudio | Generated SQL from the draw file, reviewed, run in SQL Editor |
+| Insert the 2026/27 **cup** fixtures — knockout this season (`cup_group_stage = false`), waiting on the draw | Claudio | League fixtures are in: 182 matches, season opened 10/10, matchweek 1 played. No cup match exists yet. |
 | Quick fix: `start_year/end_year` in cup views (B14) | Claudio | [`backlog.md`](backlog.md) B14 · the two #127/#122 regressions in this row were taken by Ricardo |
 | *free slot* | Ricardo | pick from NEXT |
 
@@ -26,7 +26,7 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 ## ⏭️ NEXT (in order)
 
 1. **Backup routine setup** — someone runs `npx supabase link --project-ref dmsocybvdzdzafpemybt` once; then first `supabase/schema.sql` (git) + data dump (private folder). Replaces the staging project (see Decisions). — *owner: Claudio*
-2. **Phase 0 leftovers — queries**: match page loads every player of every season (B4); one suspensions query per calendar page instead of per card (P7 + N7); suspended players hidden from the event editor for old matches (B5). Step 0.2.4b / 0.2.5.
+2. **Phase 0 leftovers — queries**: match page loads every player of every season (B4); one suspensions query per calendar page instead of per card (P7 + N7). Step 0.2.5. *(B5 closed in #154.)*
 3. **Server layout + metadata** (N2 → step 1.3.2 brought forward): page titles and WhatsApp link previews. Needs Q5 (OG image).
 4. **Phase 1 tooling**: Vitest (1.2.1) → React Query (1.2.2) → `useSelectedSeason` (1.2.3) → constants (1.2.4) → domain utils with tests (1.2.5).
 
@@ -37,9 +37,8 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 | Question | Blocks | Who answers |
 |---|---|---|
 | Q5 — Is there a 1200×630 league image for link previews? | N2 | Claudio |
-| Q6 — Does the registration form collect consent to publish photo and name? | N3 | League |
 
-*Answered:* Q1 double yellow counts as a red, 20 pts, current season onwards (B16) · Q2 yes, the Supertaça counts — cards already did, `matches_played` did not (N5) · Q3 yes, cup yellows count (regulation, Discipline art. 1: "no jogo seguinte (taça ou liga)") (B7) · Q4 domain = `https://liga-veteranos-sado.vercel.app` · Q7 public sign-ups are off (done in 0.1.2).
+*Answered:* Q6 dropped — consent for the photos is the clubs' responsibility, not the site's; photos are shown so people can see who they are playing (N3). · Q1 double yellow counts as a red, 20 pts, current season onwards (B16) · Q2 yes, the Supertaça counts — cards already did, `matches_played` did not (N5) · Q3 yes, cup yellows count (regulation, Discipline art. 1: "no jogo seguinte (taça ou liga)") (B7) · Q4 domain = `https://liga-veteranos-sado.vercel.app` · Q7 public sign-ups are off (done in 0.1.2).
 
 ---
 
@@ -79,6 +78,9 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 |---|---|---|
 | 2026-10-11 | League tiebreakers follow the 2026/2027 regulation (art. 22): head-to-head, goal difference, Taça Disciplina, goals for, goals against — H2H away goals dropped (B20) | #169 |
 | 2026-10-11 | Hotfix: Disciplina page empty for every season — ambiguous `players→teams` embed (PGRST201, from #153) now names `players_team_id_fkey` | #168 |
+| 2026-10-08 | 2026/27 squad photos for every team, renamed to the camelCase convention and resized; new folders for the teams that joined | #155, #158–#163, #165–#167 |
+| 2026-10-06 | Documentação page for 2026/27: regulation served from `public/docs` instead of Google Drive, Jokers card replaced by Elegibilidade (35+, no jokers), official balls updated | #157 |
+| 2026-10-03 | Suspended players shown in the event editor instead of hidden, so old matches can still be edited (B5) — step 0.2.4b | #154 |
 | 2026-10-05 | Vercel deploys unblocked: Node pinned to 24.x (`engines`) after Vercel discontinued Node 20 — every deploy since #149 (01/10) had failed | #156 |
 | 2026-10-03 | Disciplina: adding a punishment refetches instead of reloading the browser (which silently reset the season); the page reads only the selected season's players — step 4.7 partial | #153 |
 | 2026-10-01 | **M1 closed** — every breakpoint now comes from the theme: Equipas, Galeria and Jogos converted, finishing step 1.3.4 (Liga #145, Taça #146) | #149 |
