@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -29,6 +30,56 @@ const MatchHeader = ({ matchDetails }) => {
   // Same 768px threshold as the rest of the app, but reactive: read during
   // render, window.innerWidth never updated on rotation or resize.
   const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
+  const router = useRouter();
+
+  // Logo and name open the team page, the same link the standings use.
+  // The season travels with it so the team page opens on this match's season
+  // instead of the current one.
+  const TeamLink = ({ team, children }) => {
+    if (!team?.short_name) return children;
+
+    const open = () =>
+      router.push(
+        `/equipas/${encodeURIComponent(team.short_name)}` +
+          (matchDetails.season ? `?season=${matchDetails.season}` : "")
+      );
+
+    return (
+      <Box
+        role="link"
+        tabIndex={0}
+        aria-label={`Ver a página do ${team.short_name}`}
+        onClick={open}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            open();
+          }
+        }}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        flex={1}
+        sx={{
+          cursor: "pointer",
+          borderRadius: "12px",
+          p: 0.5,
+          transition: "background-color 0.2s ease",
+          // Hover only where there is a pointer, so a tap does not leave the
+          // block highlighted on a phone.
+          "@media (hover: hover)": {
+            "&:hover": { backgroundColor: theme.colors.background.tertiary },
+          },
+          "&:focus-visible": {
+            outline: `2px solid ${theme.colors.accent[500]}`,
+            outlineOffset: "2px",
+          },
+        }}
+      >
+        {children}
+      </Box>
+    );
+  };
 
   const getTeamStyles = (
     homeGoals,
@@ -99,12 +150,7 @@ const MatchHeader = ({ matchDetails }) => {
               mb={2}
             >
               {/* Home Team */}
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                flex={1}
-              >
+              <TeamLink team={matchDetails.home_team}>
                 <img
                   src={matchDetails.home_team.logo_url}
                   alt={matchDetails.home_team.short_name}
@@ -133,7 +179,7 @@ const MatchHeader = ({ matchDetails }) => {
                 >
                   {matchDetails.home_team.short_name}
                 </Typography>
-              </Box>
+              </TeamLink>
 
               {/* Home Score */}
               <Typography
@@ -218,12 +264,7 @@ const MatchHeader = ({ matchDetails }) => {
               </Typography>
 
               {/* Away Team */}
-              <Box
-                display="flex"
-                flexDirection="column"
-                alignItems="center"
-                flex={1}
-              >
+              <TeamLink team={matchDetails.away_team}>
                 <img
                   src={matchDetails.away_team.logo_url}
                   alt={matchDetails.away_team.short_name}
@@ -252,7 +293,7 @@ const MatchHeader = ({ matchDetails }) => {
                 >
                   {matchDetails.away_team.short_name}
                 </Typography>
-              </Box>
+              </TeamLink>
             </Box>
 
             {/* Date and Time Centered */}
@@ -327,7 +368,7 @@ const MatchHeader = ({ matchDetails }) => {
             {/* Home Team */}
             <Grid item xs={12} sm={4} md={3}>
               <Box textAlign="center">
-                <Box display="flex" flexDirection="column" alignItems="center">
+                <TeamLink team={matchDetails.home_team}>
                   <img
                     src={matchDetails.home_team.logo_url}
                     alt={matchDetails.home_team.short_name}
@@ -357,7 +398,7 @@ const MatchHeader = ({ matchDetails }) => {
                   >
                     {matchDetails.home_team.short_name}
                   </Typography>
-                </Box>
+                </TeamLink>
                 <Typography
                   variant="h2"
                   sx={{
@@ -432,7 +473,7 @@ const MatchHeader = ({ matchDetails }) => {
             {/* Away Team */}
             <Grid item xs={12} sm={4} md={3}>
               <Box textAlign="center">
-                <Box display="flex" flexDirection="column" alignItems="center">
+                <TeamLink team={matchDetails.away_team}>
                   <img
                     src={matchDetails.away_team.logo_url}
                     alt={matchDetails.away_team.short_name}
@@ -462,7 +503,7 @@ const MatchHeader = ({ matchDetails }) => {
                   >
                     {matchDetails.away_team.short_name}
                   </Typography>
-                </Box>
+                </TeamLink>
                 <Typography
                   variant="h2"
                   sx={{

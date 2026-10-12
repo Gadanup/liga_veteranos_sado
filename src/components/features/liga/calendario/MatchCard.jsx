@@ -159,9 +159,6 @@ const MatchCard = ({ match, isAdmin, onUpdate, suspensionsByTeam = {} }) => {
             "&::before": {
               opacity: 1,
             },
-            "& .admin-actions": {
-              opacity: 1,
-            },
           },
           "&::before": {
             content: '""',
@@ -186,8 +183,6 @@ const MatchCard = ({ match, isAdmin, onUpdate, suspensionsByTeam = {} }) => {
               right: 8,
               display: "flex",
               gap: 0.5,
-              opacity: 0,
-              transition: "opacity 0.3s ease",
               zIndex: 10,
             }}
           >
@@ -198,6 +193,10 @@ const MatchCard = ({ match, isAdmin, onUpdate, suspensionsByTeam = {} }) => {
                 setEditDialogOpen(true);
               }}
               sx={{
+                // Always on for admins now, so it has to be thumb-sized on a
+                // phone; the desktop size is unchanged.
+                width: { xs: 44, md: 34 },
+                height: { xs: 44, md: 34 },
                 backgroundColor: "rgba(255,255,255,0.95)",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 "&:hover": {
@@ -217,6 +216,10 @@ const MatchCard = ({ match, isAdmin, onUpdate, suspensionsByTeam = {} }) => {
                 setDeleteDialogOpen(true);
               }}
               sx={{
+                // Always on for admins now, so it has to be thumb-sized on a
+                // phone; the desktop size is unchanged.
+                width: { xs: 44, md: 34 },
+                height: { xs: 44, md: 34 },
                 backgroundColor: "rgba(255,255,255,0.95)",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
                 "&:hover": {
