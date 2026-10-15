@@ -30,7 +30,12 @@ const MatchSheetDownload = ({
     const img = new Image();
     // jsPDF addImage takes PNG or JPEG, not WebP.
     img.src = "/logo/icon-192.png";
-    doc.addImage(img, "PNG", 10, 10, 20, 20);
+    // 15mm at y=9 leaves the crest spanning x 10→25 and y 9→24, which keeps
+    // it clear of both neighbours and roughly centred against the two title
+    // lines (y=15 and y=22). At the previous 20mm from y=10 it ran to x=30
+    // and y=30: "Campeonato" is drawn at exactly (30, 30), so the word
+    // started on the crest's corner, and the rule at y=32 was 2mm away.
+    doc.addImage(img, "PNG", 10, 9, 15, 15);
 
     // Header
     doc.setFontSize(18);
