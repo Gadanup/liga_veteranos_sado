@@ -76,7 +76,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
-| 2026-10-17 | Ficha de jogo: a played match with no uploaded sheet now explains itself instead of opening a blank tab — 50 past matches are in that state | #PRNUM |
+| 2026-10-17 | Ficha de jogo: a played match with no uploaded sheet now explains itself instead of opening a blank tab — 50 past matches are in that state | #175 |
 | 2026-10-15 | Ficha de jogo: crest down to 15mm and lifted 1mm — it used to end exactly where "Campeonato" is drawn and to touch the rule under the header | #174 |
 | 2026-10-11 | League tiebreakers follow the 2026/2027 regulation (art. 22): head-to-head, goal difference, Taça Disciplina, goals for, goals against — H2H away goals dropped (B20) | #169 |
 | 2026-10-11 | Hotfix: Disciplina page empty for every season — ambiguous `players→teams` embed (PGRST201, from #153) now names `players_team_id_fkey` | #168 |
