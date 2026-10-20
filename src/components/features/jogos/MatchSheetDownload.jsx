@@ -1,5 +1,16 @@
-import React from "react";
-import { Card, CardContent, Box, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import { Download } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { theme } from "../../../styles/theme.js";
@@ -20,6 +31,22 @@ const MatchSheetDownload = ({
   currentAwayPlayers,
   suspendedPlayerIds,
 }) => {
+  const [noSheetOpen, setNoSheetOpen] = useState(false);
+
+  // A match counts as played a day after kickoff — that is when the filled-in
+  // official sheet is expected to have been uploaded. Before that the sheet is
+  // generated from the current squads and suspensions, which is what makes it
+  // useful to print; afterwards only the signed paper is the real record.
+  const matchIsPast =
+    Boolean(matchDetails) &&
+    dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day"));
+
+  // `match_sheet` is a link to the scan (today always Google Drive), filled in
+  // by hand in the match editor, and often still empty: as of 2026-10-17, 50
+  // played matches have none — 20 in 2024 and 30 in 2025. It also arrives late
+  // rather than never, so a match can sit without one for days after kickoff.
+  // trim() because a link typed and cleared again leaves a blank string.
+  const hasUploadedSheet = Boolean(matchDetails?.match_sheet?.trim());
   const generatePDF = async () => {
     // Loaded on click: bundled at module level it put /jogos/[id] at 335 kB
     // first-load JS against 216 kB for comparable routes.
@@ -253,11 +280,12 @@ const MatchSheetDownload = ({
 
           <Box
             onClick={() => {
-              if (
-                matchDetails &&
-                dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day"))
-              ) {
+              if (matchIsPast && hasUploadedSheet) {
                 window.open(matchDetails.match_sheet, "_blank");
+              } else if (matchIsPast) {
+                // Nothing to open. This used to call window.open(null), which
+                // leaves a blank tab and no explanation.
+                setNoSheetOpen(true);
               } else {
                 // Now that jspdf arrives over the network, the chunk can fail.
                 generatePDF().catch((error) => {
@@ -284,10 +312,7 @@ const MatchSheetDownload = ({
           >
             <Download sx={{ fontSize: 24 }} />
             <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              {matchDetails &&
-              dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day"))
-                ? "Ficha de Jogo Completa"
-                : "Ficha de Jogo"}
+              {matchIsPast ? "Ficha de Jogo Completa" : "Ficha de Jogo"}
             </Typography>
           </Box>
 
@@ -295,13 +320,36 @@ const MatchSheetDownload = ({
             variant="body2"
             sx={{ color: theme.colors.text.secondary, mt: 2 }}
           >
-            {matchDetails &&
-            dayjs().isAfter(dayjs(matchDetails.match_date).add(1, "day"))
-              ? "Aceda à ficha de jogo oficial preenchida"
-              : "Descarregue a ficha de jogo em formato PDF"}
+            {!matchIsPast
+              ? "Descarregue a ficha de jogo em formato PDF"
+              : hasUploadedSheet
+                ? "Aceda à ficha de jogo oficial preenchida"
+                : "A ficha oficial deste jogo ainda não foi carregada"}
           </Typography>
         </Box>
       </CardContent>
+
+      <Dialog
+        open={noSheetOpen}
+        onClose={() => setNoSheetOpen(false)}
+        aria-labelledby="ficha-nao-carregada"
+      >
+        <DialogTitle id="ficha-nao-carregada">
+          Ficha ainda não carregada
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            A ficha de jogo oficial deste encontro ainda não foi carregada.
+            Assim que a organização a disponibilizar, fica acessível a partir
+            desta página.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNoSheetOpen(false)} sx={{ minHeight: 44 }}>
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 };
