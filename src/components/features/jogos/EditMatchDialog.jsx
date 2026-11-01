@@ -10,7 +10,6 @@ import {
   Typography,
   Grid,
   IconButton,
-  Divider,
   Alert,
   Tabs,
   Tab,
@@ -24,6 +23,7 @@ import {
   FormControl,
   InputLabel,
   Chip,
+  ToggleButton,
   useMediaQuery,
 } from "@mui/material";
 import {
@@ -81,14 +81,23 @@ const EditMatchDialog = ({
   // render, window.innerWidth never updated on rotation or resize.
   const isMobile = useMediaQuery((t) => t.breakpoints.down("md"));
 
-  // Event type mapping
+  // Event type mapping. `short` is what fits under the icon in the picker;
+  // `label` is the full name used in the list of recorded events.
   const eventTypes = {
-    1: { label: "Golo", icon: "⚽", color: theme.colors.sports.goals },
-    2: { label: "Cartão Amarelo", icon: "🟨", color: "#ffcd00" },
-    3: { label: "Cartão Vermelho", icon: "🟥", color: "#ef4444" },
-    4: { label: "Auto-Golo", icon: "⚽", color: theme.colors.error[500] },
-    5: { label: "Duplo Amarelo", icon: "🟨🟥", color: "#ff6b00" },
+    1: { label: "Golo", short: "Golo", color: theme.colors.sports.goals },
+    2: { label: "Cartão Amarelo", short: "Amarelo", color: "#ffcd00" },
+    3: { label: "Cartão Vermelho", short: "Vermelho", color: "#ef4444" },
+    4: {
+      label: "Auto-Golo",
+      short: "Auto-golo",
+      color: theme.colors.error[500],
+    },
+    5: { label: "Duplo Amarelo", short: "Duplo", color: "#ff6b00" },
   };
+
+  // Display order of the picker: goal, then the cards by severity, own goal
+  // last. Not the numeric order of the keys, which puts own goal in the middle.
+  const eventTypeOrder = [1, 2, 3, 5, 4];
 
   useEffect(() => {
     if (matchDetails && open) {
@@ -313,11 +322,59 @@ const EditMatchDialog = ({
     return null;
   };
 
+  // The picker shows the real card graphics — including the yellow cut with red
+  // used for the double yellow — instead of emoji, which rendered differently
+  // on every platform.
+  const renderEventIcon = (type) => {
+    const cardType = { 2: "yellow", 3: "red", 5: "double-yellow" }[type];
+
+    if (cardType) {
+      // CardIcon carries a 4px right margin for inline use next to text; the
+      // negative margin cancels it so the icon sits centred in the button.
+      return (
+        <Box sx={{ display: "flex", mr: "-4px" }}>
+          <CardIcon cardType={cardType} />
+        </Box>
+      );
+    }
+
+    return (
+      <SportsSoccer sx={{ fontSize: 20, color: eventTypes[type].color }} />
+    );
+  };
+
+  // Rendered for each team separately, so the two selects below cannot drift
+  // apart.
+  const renderPlayerOptions = (players) =>
+    players.map((player) => (
+      <MenuItem key={player.id} value={player.id}>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Avatar src={player.photo_url} sx={{ width: 24, height: 24 }} />
+          <Typography variant="body2">{player.name}</Typography>
+          {suspendedPlayerIds.includes(player.id) && (
+            <Typography
+              variant="caption"
+              sx={{ color: theme.colors.error[600], fontWeight: "bold" }}
+            >
+              Suspenso
+            </Typography>
+          )}
+        </Box>
+      </MenuItem>
+    ));
+
   if (!matchDetails) return null;
 
   const isCup = matchDetails.competition_type === "Cup";
   const isLeague = matchDetails.competition_type === "League";
   const isSupercup = matchDetails.competition_type === "Supercup";
+
+  // Which of the two player selects is holding the current selection. There is
+  // still a single `player_id` in state — the two selects just show it in the
+  // right place, so picking in one clears the other without extra bookkeeping.
+  const selectedPlayerTeam = newEvent.player_id
+    ? getPlayerTeam(newEvent.player_id)
+    : null;
 
   return (
     <Dialog
@@ -545,112 +602,116 @@ const EditMatchDialog = ({
               </Typography>
 
               <Grid container spacing={2} sx={{ mt: 1 }}>
+                {/* One select per team instead of a single list of both
+                    squads: ~40 names in one dropdown meant scrolling past the
+                    other team to reach the player who scored. */}
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
-                    <InputLabel>Jogador</InputLabel>
+                    <InputLabel id="home-player-label">
+                      {matchDetails.home_team.short_name}
+                    </InputLabel>
                     <Select
-                      value={newEvent.player_id}
+                      labelId="home-player-label"
+                      value={
+                        selectedPlayerTeam === "home" ? newEvent.player_id : ""
+                      }
                       onChange={(e) =>
                         setNewEvent({ ...newEvent, player_id: e.target.value })
                       }
-                      label="Jogador"
+                      label={matchDetails.home_team.short_name}
                       sx={{ borderRadius: "12px" }}
                     >
-                      <MenuItem disabled>
-                        <Typography
-                          variant="caption"
-                          color={theme.colors.primary[600]}
-                        >
-                          {matchDetails.home_team.short_name}
-                        </Typography>
-                      </MenuItem>
-                      {homePlayers.map((player) => (
-                        <MenuItem key={player.id} value={player.id}>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Avatar
-                              src={player.photo_url}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            <Typography variant="body2">
-                              {player.name}
-                            </Typography>
-                            {suspendedPlayerIds.includes(player.id) && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: theme.colors.error[600],
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                Suspenso
-                              </Typography>
-                            )}
-                          </Box>
-                        </MenuItem>
-                      ))}
-                      <Divider sx={{ my: 1 }} />
-                      <MenuItem disabled>
-                        <Typography
-                          variant="caption"
-                          color={theme.colors.primary[600]}
-                        >
-                          {matchDetails.away_team.short_name}
-                        </Typography>
-                      </MenuItem>
-                      {awayPlayers.map((player) => (
-                        <MenuItem key={player.id} value={player.id}>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Avatar
-                              src={player.photo_url}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            <Typography variant="body2">
-                              {player.name}
-                            </Typography>
-                            {suspendedPlayerIds.includes(player.id) && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: theme.colors.error[600],
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                Suspenso
-                              </Typography>
-                            )}
-                          </Box>
-                        </MenuItem>
-                      ))}
+                      {renderPlayerOptions(homePlayers)}
                     </Select>
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
-                    <InputLabel>Tipo de Evento</InputLabel>
+                    <InputLabel id="away-player-label">
+                      {matchDetails.away_team.short_name}
+                    </InputLabel>
                     <Select
-                      value={newEvent.event_type}
-                      onChange={(e) =>
-                        setNewEvent({ ...newEvent, event_type: e.target.value })
+                      labelId="away-player-label"
+                      value={
+                        selectedPlayerTeam === "away" ? newEvent.player_id : ""
                       }
-                      label="Tipo de Evento"
+                      onChange={(e) =>
+                        setNewEvent({ ...newEvent, player_id: e.target.value })
+                      }
+                      label={matchDetails.away_team.short_name}
                       sx={{ borderRadius: "12px" }}
                     >
-                      {Object.entries(eventTypes).map(([key, value]) => (
-                        <MenuItem key={key} value={parseInt(key)}>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <span>{value.icon}</span>
-                            <Typography variant="body2">
-                              {value.label}
-                            </Typography>
-                          </Box>
-                        </MenuItem>
-                      ))}
+                      {renderPlayerOptions(awayPlayers)}
                     </Select>
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sm={2}>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="caption"
+                    color={theme.colors.text.secondary}
+                    sx={{ display: "block", mb: 1 }}
+                  >
+                    Tipo de evento
+                  </Typography>
+                  <Box
+                    sx={{
+                      // A grid rather than a row, so the five options keep a
+                      // 44px+ tap target at 360px by wrapping to 3 + 2.
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "repeat(3, 1fr)",
+                        sm: "repeat(5, 1fr)",
+                      },
+                      gap: 1,
+                    }}
+                  >
+                    {eventTypeOrder.map((type) => (
+                      <ToggleButton
+                        key={type}
+                        value={type}
+                        selected={newEvent.event_type === type}
+                        onChange={() =>
+                          setNewEvent({ ...newEvent, event_type: type })
+                        }
+                        aria-label={eventTypes[type].label}
+                        sx={{
+                          flexDirection: "column",
+                          gap: 0.5,
+                          minHeight: 64,
+                          borderRadius: "12px",
+                          border: `1px solid ${theme.colors.border.primary}`,
+                          textTransform: "none",
+                          color: theme.colors.text.secondary,
+                          "&.Mui-selected": {
+                            border: `2px solid ${eventTypes[type].color}`,
+                            backgroundColor: `${eventTypes[type].color}22`,
+                            color: theme.colors.text.primary,
+                            fontWeight: 700,
+                            "&:hover": {
+                              backgroundColor: `${eventTypes[type].color}33`,
+                            },
+                          },
+                        }}
+                      >
+                        {renderEventIcon(type)}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: "11px",
+                            lineHeight: 1.1,
+                            fontWeight: "inherit",
+                          }}
+                        >
+                          {eventTypes[type].short}
+                        </Typography>
+                      </ToggleButton>
+                    ))}
+                  </Box>
+                </Grid>
+
+                <Grid item xs={4} sm={3}>
                   <TextField
                     fullWidth
                     label="Min"
@@ -667,13 +728,15 @@ const EditMatchDialog = ({
                   />
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={8} sm={9}>
                   <Button
                     fullWidth
                     variant="contained"
                     startIcon={<Add />}
                     onClick={handleAddEvent}
                     sx={{
+                      height: "100%",
+                      minHeight: 56,
                       borderRadius: "12px",
                       textTransform: "none",
                       fontWeight: 600,
