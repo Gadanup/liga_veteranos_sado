@@ -101,7 +101,6 @@ const MatchSheetDownload = ({
 
     // Teams
     doc.setFontSize(16);
-    doc.text("A", 10, 40);
     doc.text(`${matchDetails.home_team.short_name}`, 30, 40);
     doc.text("VS", 100, 40);
     if (matchDetails.away_team.short_name === "Bairro Santos Nicolau") {
@@ -109,7 +108,6 @@ const MatchSheetDownload = ({
     } else {
       doc.text(`${matchDetails.away_team.short_name}`, 140, 40);
     }
-    doc.text("B", 195, 40);
 
     doc.line(10, 43, 200, 43);
 
@@ -226,14 +224,17 @@ const MatchSheetDownload = ({
     doc.setFontSize(10);
     doc.text("GOLOS -- Nº DO JOGADOR", 10, yOffset + 44);
 
-    doc.text("A", 10, yOffset + 54);
-    for (let i = 0; i < 23; i++) {
-      doc.rect(16 + i * 8, yOffset + 49, 8, 8);
+    // "Casa"/"Fora" instead of the old "A"/"B". The words need room the single
+    // letters did not, so the boxes start at 24 instead of 16 — one box fewer
+    // per row (22), still ending exactly on the right rule at x=200.
+    doc.text("Casa", 10, yOffset + 54);
+    for (let i = 0; i < 22; i++) {
+      doc.rect(24 + i * 8, yOffset + 49, 8, 8);
     }
 
-    doc.text("B", 10, yOffset + 64);
-    for (let i = 0; i < 23; i++) {
-      doc.rect(16 + i * 8, yOffset + 59, 8, 8);
+    doc.text("Fora", 10, yOffset + 64);
+    for (let i = 0; i < 22; i++) {
+      doc.rect(24 + i * 8, yOffset + 59, 8, 8);
     }
 
     doc.line(10, yOffset + 69, 200, yOffset + 69);
