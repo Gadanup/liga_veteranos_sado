@@ -60,7 +60,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 ### Phase 3 — Admin area → 🏁 Season-ready
 - **3.1.1** `/admin` shell + guard · **3.2.1** Nova época wizard (E1) · **3.3.1** Jogadores · **3.3.2** bulk add players
-- **3.4.1** Calendário import/generate · **3.5.1** Resultado rápido (E3, B6) · **3.6.1** Transferências · **3.7.1** automatic suspensions (E10) · **3.8.1** `ADMIN_GUIDE.md`
+- **3.4.1** Calendário import/generate · **3.5.1** Resultado rápido (E3, B6) — *picker por equipa e ícones feitos em #177; faltam steppers do resultado, pesquisa e aviso golos ≠ resultado* · **3.6.1** Transferências · **3.7.1** automatic suspensions (E10) · **3.8.1** `ADMIN_GUIDE.md`
 
 ### Phase 4 — Public redesign, one page per PR ([`reference/screen-specs.md`](reference/screen-specs.md) §4, done-criteria §6)
 - **4.1** Classificação (§4.2) *(mobile columns done in #124)* · **4.2** Calendário (§4.3, §4.9) *(strip + swipe done in #127)* · **4.3** Jogo + Supertaça (§4.4) · **4.4** Início (§4.1)
@@ -76,6 +76,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-11-01 | Editor de eventos: tipo de evento por ícones (cartões reais em vez de emoji) e uma combobox por equipa em vez de ~40 nomes numa só — E3 parcial, step 3.5.1 | #177 |
 | 2026-10-17 | Ficha de jogo: a played match with no uploaded sheet now explains itself instead of opening a blank tab — 50 past matches are in that state | #175 |
 | 2026-10-15 | Ficha de jogo: crest down to 15mm and lifted 1mm — it used to end exactly where "Campeonato" is drawn and to touch the rule under the header | #174 |
 | 2026-10-11 | League tiebreakers follow the 2026/2027 regulation (art. 22): head-to-head, goal difference, Taça Disciplina, goals for, goals against — H2H away goals dropped (B20) | #169 |
