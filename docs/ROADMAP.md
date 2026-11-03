@@ -76,7 +76,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
-| 2026-11-03 | Classificação: the draw dot in the last-5 form guide is a true yellow (`sports.drawDot`) instead of the crest gold, which read brown between the win green and loss red | this PR |
+| 2026-11-03 | Classificação: the draw dot in the last-5 form guide is a true yellow (`sports.drawDot`) instead of the crest gold, which read brown between the win green and loss red | #180 |
 | 2026-11-02 | Ficha de jogo: the "A"/"B" letters over the number columns dropped, and the goals grid labelled "Casa"/"Fora" instead | #178 |
 | 2026-11-01 | Editor de eventos: tipo de evento por ícones (cartões reais em vez de emoji) e uma combobox por equipa em vez de ~40 nomes numa só — E3 parcial, step 3.5.1 | #177 |
 | 2026-10-17 | Ficha de jogo: a played match with no uploaded sheet now explains itself instead of opening a blank tab — 50 past matches are in that state | #175 |
