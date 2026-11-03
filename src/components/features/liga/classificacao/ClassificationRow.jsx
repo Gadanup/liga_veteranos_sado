@@ -100,7 +100,7 @@ const ClassificationRow = ({
       case "L":
         return theme.colors.sports.loss;
       case "D":
-        return theme.colors.sports.draw;
+        return theme.colors.sports.drawDot;
       default:
         return theme.colors.neutral[300];
     }
