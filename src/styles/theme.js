@@ -140,6 +140,10 @@ export const theme = {
     sports: {
       win: "#22c55e", // Green for wins
       draw: "#c5944c", // Orange for draws
+      // Draws in the standings form dots only. The crest gold above is the
+      // league's identity, but as an 18px disc between win green and loss red
+      // it reads brown, so those dots get a true yellow of the same family.
+      drawDot: "#eab308",
       loss: "#ef4444", // Red for losses
       home: "#14334a", // Your purple for home team
       away: "#64748b", // Slate gray for away team
