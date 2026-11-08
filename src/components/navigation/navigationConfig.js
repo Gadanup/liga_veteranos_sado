@@ -15,7 +15,11 @@ export const navigationSections = [
     key: "liga",
     items: [
       {
-        label: "Liga",
+        // The section header already says "Liga", so the item names the page
+        // it opens. labelClosed keeps the collapsed rail reading "Liga", where
+        // there is no header and only this item shows.
+        label: "Classificação",
+        labelClosed: "Liga",
         href: "/liga/classificacao",
         icon: LeaderboardIcon,
         showWhenClosed: true,
@@ -49,7 +53,10 @@ export const navigationSections = [
     key: "taca",
     items: [
       {
-        label: "Taça",
+        // Same as the Liga section: the header says "Taça", so the item names
+        // the page — /taca renders the draw (bracket or group stage).
+        label: "Sorteio",
+        labelClosed: "Taça",
         href: "/taca",
         icon: EmojiEventsRoundedIcon,
         showWhenClosed: true,
