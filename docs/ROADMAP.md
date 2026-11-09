@@ -76,6 +76,7 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-11-09 | Disciplina: the management modal can now edit and delete existing suspensions and punishments (before it could only create, mark a suspension served and delete a punishment); deletions ask in a proper dialog instead of `window.confirm`. Still admin-only in the UI and behind the `admin_write` RLS policy | #182 |
 | 2026-11-08 | Menu lateral: the Liga and Taça sections no longer repeat their own header — the first item is named after the page it opens (Classificação, Sorteio); `labelClosed` keeps the collapsed rail reading Liga/Taça | #181 |
 | 2026-11-03 | Classificação: the draw dot in the last-5 form guide is a true yellow (`sports.drawDot`) instead of the crest gold, which read brown between the win green and loss red | #180 |
 | 2026-11-02 | Ficha de jogo: the "A"/"B" letters over the number columns dropped, and the goals grid labelled "Casa"/"Fora" instead | #178 |
