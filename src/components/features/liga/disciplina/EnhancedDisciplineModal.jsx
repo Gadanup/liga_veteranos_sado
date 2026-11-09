@@ -32,6 +32,7 @@ import {
   Autocomplete,
   FormHelperText,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import {
   Close,
@@ -47,10 +48,33 @@ import {
   Warning,
   SportsSoccer,
   TrendingUp,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
 import { supabase } from "../../../../lib/supabase.ts";
 import { useIsAdmin } from "../../../../hooks/admin/useIsAdmin.js";
+
+// The two dialogs double as edit forms, so their initial values live in a
+// factory instead of an inline literal: the same shape is needed when opening
+// them empty and when resetting them after a save or an edit.
+const emptySuspension = () => ({
+  player_id: null,
+  player_name: "",
+  suspension_date: new Date().toISOString().split("T")[0],
+  matches_suspended: 1,
+  reason: "",
+  active: true,
+});
+
+const emptyPunishment = () => ({
+  punishment_type_id: "",
+  event_date: new Date().toISOString().split("T")[0],
+  description: "",
+  quantity: 1,
+  player_id: null,
+  player_name: "",
+  match_id: null,
+});
 
 /**
  * Enhanced Discipline Modal Component
@@ -78,25 +102,22 @@ const EnhancedDisciplineModal = ({
   const [loading, setLoading] = useState(false);
   const { isAdmin } = useIsAdmin();
 
-  // Suspension Dialog State
+  // Suspension Dialog State. editingSuspensionId is null while adding and
+  // holds the row id while editing — that is what tells the dialog whether to
+  // insert or to update.
   const [suspensionDialog, setSuspensionDialog] = useState(false);
-  const [newSuspension, setNewSuspension] = useState({
-    player_id: null,
-    suspension_date: new Date().toISOString().split("T")[0],
-    matches_suspended: 1,
-    reason: "",
-  });
+  const [editingSuspensionId, setEditingSuspensionId] = useState(null);
+  const [newSuspension, setNewSuspension] = useState(emptySuspension());
 
   // Punishment Dialog State
   const [punishmentDialog, setPunishmentDialog] = useState(false);
-  const [newPunishment, setNewPunishment] = useState({
-    punishment_type_id: "",
-    event_date: new Date().toISOString().split("T")[0],
-    description: "",
-    quantity: 1,
-    player_id: null,
-    match_id: null,
-  });
+  const [editingPunishmentId, setEditingPunishmentId] = useState(null);
+  const [newPunishment, setNewPunishment] = useState(emptyPunishment());
+
+  // One confirmation dialog serves both deletes. window.confirm was used
+  // before, but a native dialog on top of the modal is easy to miss on a
+  // phone and cannot name what is about to disappear.
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   useEffect(() => {
     if (open && currentTeam) {
@@ -327,78 +348,154 @@ const EnhancedDisciplineModal = ({
     setSnackbar({ open: true, message, severity });
   };
 
-  const handleAddSuspension = async () => {
+  const openAddSuspension = () => {
+    setEditingSuspensionId(null);
+    setNewSuspension(emptySuspension());
+    setSuspensionDialog(true);
+  };
+
+  const openEditSuspension = (suspension) => {
+    setEditingSuspensionId(suspension.id);
+    setNewSuspension({
+      player_id: suspension.player_id,
+      player_name: suspension.player_name || "",
+      suspension_date: suspension.suspension_date,
+      matches_suspended: suspension.matches_suspended ?? 1,
+      reason: suspension.reason || "",
+      active: !!suspension.active,
+    });
+    setSuspensionDialog(true);
+  };
+
+  const closeSuspensionDialog = () => {
+    setSuspensionDialog(false);
+    setEditingSuspensionId(null);
+    setNewSuspension(emptySuspension());
+  };
+
+  const openAddPunishment = () => {
+    setEditingPunishmentId(null);
+    setNewPunishment(emptyPunishment());
+    setPunishmentDialog(true);
+  };
+
+  const openEditPunishment = (event) => {
+    setEditingPunishmentId(event.team_punishment_id);
+    setNewPunishment({
+      punishment_type_id: event.punishment_type_id ?? "",
+      event_date: event.event_date || new Date().toISOString().split("T")[0],
+      description: event.description || "",
+      quantity: event.quantity ?? 1,
+      player_id: event.player_id || null,
+      player_name: event.player?.name || "",
+      // No field in the dialog edits the match, so carry the existing value
+      // through instead of writing null back over it.
+      match_id: event.match_id || null,
+    });
+    setPunishmentDialog(true);
+  };
+
+  const closePunishmentDialog = () => {
+    setPunishmentDialog(false);
+    setEditingPunishmentId(null);
+    setNewPunishment(emptyPunishment());
+  };
+
+  const handleSaveSuspension = async () => {
     if (!newSuspension.player_id || !newSuspension.reason) {
       showSnackbar("Por favor preencha todos os campos obrigatórios", "error");
       return;
     }
 
+    const isEdit = Boolean(editingSuspensionId);
     setLoading(true);
     try {
-      const { error } = await supabase.from("suspensions").insert({
+      const values = {
         player_id: newSuspension.player_id,
         suspension_date: newSuspension.suspension_date,
-        matches_suspended: newSuspension.matches_suspended,
+        // The number field is empty, not 0, while the admin retypes it, and
+        // parseInt("") is NaN — which Postgres rejects.
+        matches_suspended: Number(newSuspension.matches_suspended) || 1,
         reason: newSuspension.reason,
-        active: true,
-        season: selectedSeason,
-      });
+        active: newSuspension.active,
+      };
+
+      const { error } = isEdit
+        ? await supabase
+            .from("suspensions")
+            .update(values)
+            .eq("id", editingSuspensionId)
+        : await supabase
+            .from("suspensions")
+            .insert({ ...values, season: selectedSeason });
 
       if (error) throw error;
 
-      showSnackbar("Suspensão adicionada com sucesso!", "success");
-      setSuspensionDialog(false);
-      setNewSuspension({
-        player_id: null,
-        suspension_date: new Date().toISOString().split("T")[0],
-        matches_suspended: 1,
-        reason: "",
-      });
+      showSnackbar(
+        isEdit
+          ? "Suspensão atualizada com sucesso!"
+          : "Suspensão adicionada com sucesso!",
+        "success"
+      );
+      closeSuspensionDialog();
       fetchSuspensions();
       if (onDataUpdate) onDataUpdate();
     } catch (error) {
-      console.error("Error adding suspension:", error);
-      showSnackbar("Erro ao adicionar suspensão", "error");
+      console.error("Error saving suspension:", error);
+      showSnackbar(
+        isEdit ? "Erro ao atualizar suspensão" : "Erro ao adicionar suspensão",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddPunishment = async () => {
+  const handleSavePunishment = async () => {
     if (!newPunishment.punishment_type_id) {
       showSnackbar("Por favor selecione o tipo de castigo", "error");
       return;
     }
 
+    const isEdit = Boolean(editingPunishmentId);
     setLoading(true);
     try {
-      const { error } = await supabase.from("team_punishments").insert({
-        team_id: currentTeam.team_id,
+      const values = {
         punishment_type_id: newPunishment.punishment_type_id,
         event_date: newPunishment.event_date,
         description: newPunishment.description,
-        quantity: newPunishment.quantity,
+        quantity: Number(newPunishment.quantity) || 1,
         player_id: newPunishment.player_id || null,
         match_id: newPunishment.match_id || null,
-        season: selectedSeason,
-      });
+      };
+
+      const { error } = isEdit
+        ? await supabase
+            .from("team_punishments")
+            .update(values)
+            .eq("team_punishment_id", editingPunishmentId)
+        : await supabase.from("team_punishments").insert({
+            ...values,
+            team_id: currentTeam.team_id,
+            season: selectedSeason,
+          });
 
       if (error) throw error;
 
-      showSnackbar("Castigo adicionado com sucesso!", "success");
-      setPunishmentDialog(false);
-      setNewPunishment({
-        punishment_type_id: "",
-        event_date: new Date().toISOString().split("T")[0],
-        description: "",
-        quantity: 1,
-        player_id: null,
-        match_id: null,
-      });
+      showSnackbar(
+        isEdit
+          ? "Castigo atualizado com sucesso!"
+          : "Castigo adicionado com sucesso!",
+        "success"
+      );
+      closePunishmentDialog();
       if (onDataUpdate) onDataUpdate();
     } catch (error) {
-      console.error("Error adding punishment:", error);
-      showSnackbar("Erro ao adicionar castigo", "error");
+      console.error("Error saving punishment:", error);
+      showSnackbar(
+        isEdit ? "Erro ao atualizar castigo" : "Erro ao adicionar castigo",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -425,9 +522,28 @@ const EnhancedDisciplineModal = ({
     }
   };
 
-  const handleDeletePunishment = async (punishmentId) => {
-    if (!window.confirm("Tem certeza que deseja remover este castigo?")) return;
+  const handleDeleteSuspension = async (suspensionId) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("suspensions")
+        .delete()
+        .eq("id", suspensionId);
 
+      if (error) throw error;
+
+      showSnackbar("Suspensão eliminada com sucesso!", "success");
+      fetchSuspensions();
+      if (onDataUpdate) onDataUpdate();
+    } catch (error) {
+      console.error("Error deleting suspension:", error);
+      showSnackbar("Erro ao eliminar suspensão", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePunishment = async (punishmentId) => {
     setLoading(true);
     try {
       const { error } = await supabase
@@ -444,6 +560,17 @@ const EnhancedDisciplineModal = ({
       showSnackbar("Erro ao remover castigo", "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { kind, id } = deleteTarget;
+    setDeleteTarget(null);
+    if (kind === "suspension") {
+      await handleDeleteSuspension(id);
+    } else {
+      await handleDeletePunishment(id);
     }
   };
 
@@ -828,7 +955,7 @@ const EnhancedDisciplineModal = ({
             <Button
               variant="contained"
               startIcon={<Add />}
-              onClick={() => setSuspensionDialog(true)}
+              onClick={openAddSuspension}
               sx={{
                 background: theme.colors.themed.purpleGradient,
                 textTransform: "none",
@@ -969,23 +1096,73 @@ const EnhancedDisciplineModal = ({
                       </TableCell>
                       {isAdmin && (
                         <TableCell>
-                          {suspension.active && (
-                            <Button
-                              size="small"
-                              startIcon={<CheckCircle />}
-                              onClick={() =>
-                                handleDeactivateSuspension(suspension.id)
-                              }
-                              disabled={loading}
-                              sx={{
-                                textTransform: "none",
-                                fontWeight: 600,
-                                borderRadius: "8px",
-                              }}
-                            >
-                              Cumprir
-                            </Button>
-                          )}
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            gap={0.5}
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            {suspension.active && (
+                              <Button
+                                size="small"
+                                startIcon={<CheckCircle />}
+                                onClick={() =>
+                                  handleDeactivateSuspension(suspension.id)
+                                }
+                                disabled={loading}
+                                sx={{
+                                  textTransform: "none",
+                                  fontWeight: 600,
+                                  borderRadius: "8px",
+                                  minHeight: 44,
+                                }}
+                              >
+                                Cumprir
+                              </Button>
+                            )}
+                            <Tooltip title="Editar suspensão">
+                              <IconButton
+                                onClick={() => openEditSuspension(suspension)}
+                                disabled={loading}
+                                aria-label="Editar suspensão"
+                                sx={{
+                                  p: 1.5,
+                                  color: theme.colors.primary[600],
+                                  "&:hover": {
+                                    backgroundColor: theme.colors.primary[50],
+                                  },
+                                }}
+                              >
+                                <EditIcon sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Eliminar suspensão">
+                              <IconButton
+                                color="error"
+                                onClick={() =>
+                                  setDeleteTarget({
+                                    kind: "suspension",
+                                    id: suspension.id,
+                                    label: `a suspensão de ${
+                                      suspension.player_name || "este jogador"
+                                    } de ${new Date(
+                                      suspension.suspension_date
+                                    ).toLocaleDateString("pt-PT")}`,
+                                  })
+                                }
+                                disabled={loading}
+                                aria-label="Eliminar suspensão"
+                                sx={{
+                                  p: 1.5,
+                                  "&:hover": {
+                                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                                  },
+                                }}
+                              >
+                                <Delete sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
                         </TableCell>
                       )}
                     </TableRow>
@@ -1040,7 +1217,7 @@ const EnhancedDisciplineModal = ({
             <Button
               variant="contained"
               startIcon={<Add />}
-              onClick={() => setPunishmentDialog(true)}
+              onClick={openAddPunishment}
               sx={{
                 background: theme.colors.themed.purpleGradient,
                 textTransform: "none",
@@ -1191,21 +1368,60 @@ const EnhancedDisciplineModal = ({
                       </TableCell>
                       {isAdmin && (
                         <TableCell>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() =>
-                              handleDeletePunishment(event.team_punishment_id)
-                            }
-                            disabled={loading}
-                            sx={{
-                              "&:hover": {
-                                backgroundColor: "rgba(239, 68, 68, 0.1)",
-                              },
-                            }}
+                          <Box
+                            display="flex"
+                            alignItems="center"
+                            gap={0.5}
+                            sx={{ whiteSpace: "nowrap" }}
                           >
-                            <Delete />
-                          </IconButton>
+                            <Tooltip title="Editar castigo">
+                              <IconButton
+                                onClick={() => openEditPunishment(event)}
+                                disabled={loading}
+                                aria-label="Editar castigo"
+                                sx={{
+                                  p: 1.5,
+                                  color: theme.colors.primary[600],
+                                  "&:hover": {
+                                    backgroundColor: theme.colors.primary[50],
+                                  },
+                                }}
+                              >
+                                <EditIcon sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Eliminar castigo">
+                              <IconButton
+                                color="error"
+                                onClick={() =>
+                                  setDeleteTarget({
+                                    kind: "punishment",
+                                    id: event.team_punishment_id,
+                                    label: `o castigo "${
+                                      event.punishment_type?.description ||
+                                      "sem tipo"
+                                    }"${
+                                      event.event_date
+                                        ? ` de ${new Date(
+                                            event.event_date
+                                          ).toLocaleDateString("pt-PT")}`
+                                        : ""
+                                    }`,
+                                  })
+                                }
+                                disabled={loading}
+                                aria-label="Eliminar castigo"
+                                sx={{
+                                  p: 1.5,
+                                  "&:hover": {
+                                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                                  },
+                                }}
+                              >
+                                <Delete sx={{ fontSize: 20 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
                         </TableCell>
                       )}
                     </TableRow>
@@ -1642,7 +1858,7 @@ const EnhancedDisciplineModal = ({
       {/* Add Suspension Dialog */}
       <Dialog
         open={suspensionDialog}
-        onClose={() => setSuspensionDialog(false)}
+        onClose={closeSuspensionDialog}
         maxWidth="sm"
         fullWidth
         PaperProps={{
@@ -1664,11 +1880,11 @@ const EnhancedDisciplineModal = ({
           <Box display="flex" alignItems="center" gap={1.5}>
             <PersonOff />
             <Typography variant="h6" fontWeight="bold">
-              Adicionar Suspensão
+              {editingSuspensionId ? "Editar Suspensão" : "Adicionar Suspensão"}
             </Typography>
           </Box>
           <IconButton
-            onClick={() => setSuspensionDialog(false)}
+            onClick={closeSuspensionDialog}
             sx={{
               color: "white",
               "&:hover": {
@@ -1683,9 +1899,26 @@ const EnhancedDisciplineModal = ({
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             <Autocomplete
               options={players}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => option.name || ""}
+              // Controlled, so the dialog can open with the player already
+              // chosen when editing. A player who has since transferred away
+              // is not in `players`, so fall back to the name on the row.
+              value={
+                players.find((p) => p.id === newSuspension.player_id) ||
+                (newSuspension.player_id
+                  ? {
+                      id: newSuspension.player_id,
+                      name: newSuspension.player_name,
+                    }
+                  : null)
+              }
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={(e, value) =>
-                setNewSuspension({ ...newSuspension, player_id: value?.id })
+                setNewSuspension({
+                  ...newSuspension,
+                  player_id: value?.id ?? null,
+                  player_name: value?.name ?? "",
+                })
               }
               renderOption={(props, option) => (
                 <li {...props} key={option.id}>
@@ -1776,11 +2009,30 @@ const EnhancedDisciplineModal = ({
                 },
               }}
             />
+            {editingSuspensionId && (
+              <FormControl fullWidth>
+                <InputLabel>Estado</InputLabel>
+                <Select
+                  value={newSuspension.active ? "ativa" : "cumprida"}
+                  label="Estado"
+                  onChange={(e) =>
+                    setNewSuspension({
+                      ...newSuspension,
+                      active: e.target.value === "ativa",
+                    })
+                  }
+                  sx={{ borderRadius: "12px" }}
+                >
+                  <MenuItem value="ativa">Ativa</MenuItem>
+                  <MenuItem value="cumprida">Cumprida</MenuItem>
+                </Select>
+              </FormControl>
+            )}
           </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, gap: 2 }}>
           <Button
-            onClick={() => setSuspensionDialog(false)}
+            onClick={closeSuspensionDialog}
             disabled={loading}
             sx={{
               borderRadius: "12px",
@@ -1793,17 +2045,18 @@ const EnhancedDisciplineModal = ({
           </Button>
           <Button
             variant="contained"
-            onClick={handleAddSuspension}
+            onClick={handleSaveSuspension}
             disabled={loading}
             sx={{
               borderRadius: "12px",
               textTransform: "none",
               fontWeight: 600,
               px: 3,
+              minHeight: 44,
               background: theme.colors.themed.purpleGradient,
             }}
           >
-            Adicionar
+            {editingSuspensionId ? "Guardar" : "Adicionar"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1811,7 +2064,7 @@ const EnhancedDisciplineModal = ({
       {/* Add Punishment Dialog */}
       <Dialog
         open={punishmentDialog}
-        onClose={() => setPunishmentDialog(false)}
+        onClose={closePunishmentDialog}
         maxWidth="sm"
         fullWidth
         PaperProps={{
@@ -1833,11 +2086,13 @@ const EnhancedDisciplineModal = ({
           <Box display="flex" alignItems="center" gap={1.5}>
             <Gavel />
             <Typography variant="h6" fontWeight="bold">
-              Adicionar Castigo à Equipa
+              {editingPunishmentId
+                ? "Editar Castigo da Equipa"
+                : "Adicionar Castigo à Equipa"}
             </Typography>
           </Box>
           <IconButton
-            onClick={() => setPunishmentDialog(false)}
+            onClick={closePunishmentDialog}
             sx={{
               color: "white",
               "&:hover": {
@@ -1932,11 +2187,23 @@ const EnhancedDisciplineModal = ({
             <Box>
               <Autocomplete
                 options={players}
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={(option) => option.name || ""}
+                // Controlled for the same reason as the suspension dialog.
+                value={
+                  players.find((p) => p.id === newPunishment.player_id) ||
+                  (newPunishment.player_id
+                    ? {
+                        id: newPunishment.player_id,
+                        name: newPunishment.player_name,
+                      }
+                    : null)
+                }
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 onChange={(e, value) =>
                   setNewPunishment({
                     ...newPunishment,
                     player_id: value?.id || null,
+                    player_name: value?.name || "",
                   })
                 }
                 renderOption={(props, option) => (
@@ -1984,7 +2251,7 @@ const EnhancedDisciplineModal = ({
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, gap: 2 }}>
           <Button
-            onClick={() => setPunishmentDialog(false)}
+            onClick={closePunishmentDialog}
             disabled={loading}
             sx={{
               borderRadius: "12px",
@@ -1997,20 +2264,76 @@ const EnhancedDisciplineModal = ({
           </Button>
           <Button
             variant="contained"
-            onClick={handleAddPunishment}
+            onClick={handleSavePunishment}
             disabled={loading}
             sx={{
               borderRadius: "12px",
               textTransform: "none",
               fontWeight: 600,
               px: 3,
+              minHeight: 44,
               background: theme.colors.themed.purpleGradient,
             }}
           >
-            Adicionar
+            {editingPunishmentId ? "Guardar" : "Adicionar"}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Delete confirmation, shared by suspensions and punishments */}
+      <Dialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "20px",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: "bold", pb: 1 }}>
+          Eliminar registo?
+        </DialogTitle>
+        <DialogContent>
+          <Typography color={theme.colors.text.secondary}>
+            Vai eliminar {deleteTarget?.label}. Esta ação não pode ser
+            revertida.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3, gap: 2 }}>
+          <Button
+            onClick={() => setDeleteTarget(null)}
+            disabled={loading}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+              minHeight: 44,
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            startIcon={<Delete />}
+            onClick={confirmDelete}
+            disabled={loading}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              fontWeight: 600,
+              px: 3,
+              minHeight: 44,
+            }}
+          >
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
 
       {/* Snackbar */}
       <Snackbar
