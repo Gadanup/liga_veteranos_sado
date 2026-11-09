@@ -448,6 +448,7 @@ const Classification = () => {
           {showStats && (
             <ClassificationStats
               classification={classification}
+              matches={leagueMatches}
               theme={theme}
             />
           )}
