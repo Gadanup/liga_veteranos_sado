@@ -449,6 +449,7 @@ const Classification = () => {
           <ClassificationStats
             classification={classification}
             matches={leagueMatches}
+            isCurrentSeason={!!currentSeasonData?.is_current}
             theme={theme}
           />
         </>

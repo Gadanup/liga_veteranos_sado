@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 
 /**
  * ClassificationStats Component
- * Season summary shown under the standings table (desktop only).
+ * Season summary shown under the standings table, at every width.
  *
  * Everything here is derived from data the page already has: the standings
  * rows and the completed league matches of the selected season. No extra
@@ -11,6 +11,7 @@ import React, { useMemo } from "react";
  *
  * @param {Array} classification - Standings rows (league_standings + teams)
  * @param {Array} matches - Completed league matches of the selected season
+ * @param {boolean} isCurrentSeason - Whether the selected season is running
  * @param {Object} theme - Theme object
  */
 
@@ -22,9 +23,11 @@ const formatDecimal = (value, digits = 2) =>
 
 const formatGames = (count) => `${count} ${count === 1 ? "jogo" : "jogos"}`;
 
+const percent = (part, total) => (total ? Math.round((part / total) * 100) : 0);
+
 /**
  * Result of every completed match, per team, oldest first — the basis for
- * every streak below.
+ * every run below.
  */
 const buildResultsByTeam = (matches) => {
   const byTeam = {};
@@ -33,8 +36,6 @@ const buildResultsByTeam = (matches) => {
   );
 
   chronological.forEach((match) => {
-    if (match.home_goals == null || match.away_goals == null) return;
-
     const homeResult =
       match.home_goals > match.away_goals
         ? RESULT.WIN
@@ -57,8 +58,8 @@ const buildResultsByTeam = (matches) => {
   return byTeam;
 };
 
-/** How many of the most recent results satisfy `matches` — the run still open. */
-const currentRun = (results = [], predicate) => {
+/** How many of the most recent results match — the run still open. */
+const openRun = (results, predicate) => {
   let run = 0;
   for (let i = results.length - 1; i >= 0; i -= 1) {
     if (!predicate(results[i])) break;
@@ -67,12 +68,25 @@ const currentRun = (results = [], predicate) => {
   return run;
 };
 
+/** The longest run of matching results anywhere in the season. */
+const longestRun = (results, predicate) => {
+  let best = 0;
+  let run = 0;
+  results.forEach((result) => {
+    run = predicate(result) ? run + 1 : 0;
+    if (run > best) best = run;
+  });
+  return best;
+};
+
 /**
  * The teams with the highest value, every one of them named. Ties are common
  * early in a season, and a "+2" would hide the rest behind a tooltip that a
  * phone cannot open, so the list wraps onto another line instead.
  */
 const buildLeader = (entries) => {
+  if (!entries.length) return null;
+
   const best = Math.max(...entries.map((entry) => entry.value));
   const names = entries
     .filter((entry) => entry.value === best)
@@ -86,7 +100,19 @@ const buildLeader = (entries) => {
   return { value: best, label };
 };
 
-const ClassificationStats = ({ classification, matches = [], theme }) => {
+const RUNS = [
+  { key: "wins", label: "Vitórias", test: (r) => r === RESULT.WIN },
+  { key: "unbeaten", label: "Sem perder", test: (r) => r !== RESULT.LOSS },
+  { key: "winless", label: "Sem ganhar", test: (r) => r !== RESULT.WIN },
+  { key: "losses", label: "Derrotas", test: (r) => r === RESULT.LOSS },
+];
+
+const ClassificationStats = ({
+  classification,
+  matches = [],
+  isCurrentSeason = false,
+  theme,
+}) => {
   const stats = useMemo(() => {
     const played = matches.filter(
       (match) => match.home_goals != null && match.away_goals != null
@@ -103,222 +129,325 @@ const ClassificationStats = ({ classification, matches = [], theme }) => {
       (sum, match) => sum + match.home_goals + match.away_goals,
       0
     );
-    const homeWins = played.filter(
-      (match) => match.home_goals > match.away_goals
-    ).length;
+    const homeWins = played.filter((m) => m.home_goals > m.away_goals).length;
+    const draws = played.filter((m) => m.home_goals === m.away_goals).length;
+    const awayWins = played.length - homeWins - draws;
 
     const resultsByTeam = buildResultsByTeam(played);
-    const runs = teams.map((row) => {
-      const results = resultsByTeam[row.team_id] || [];
-      return {
-        name: row.teams?.short_name || "—",
-        wins: currentRun(results, (r) => r === RESULT.WIN),
-        unbeaten: currentRun(results, (r) => r !== RESULT.LOSS),
-        winless: currentRun(results, (r) => r !== RESULT.WIN),
-        losses: currentRun(results, (r) => r === RESULT.LOSS),
-      };
+    const entries = teams.map((row) => ({
+      name: row.teams?.short_name || "—",
+      results: resultsByTeam[row.team_id] || [],
+    }));
+
+    const open = {};
+    const longest = {};
+    RUNS.forEach(({ key, test }) => {
+      open[key] = buildLeader(
+        entries.map((e) => ({ name: e.name, value: openRun(e.results, test) }))
+      );
+      longest[key] = buildLeader(
+        entries.map((e) => ({
+          name: e.name,
+          value: longestRun(e.results, test),
+        }))
+      );
     });
 
-    const leaderOf = (key) =>
-      runs.length
-        ? buildLeader(runs.map((run) => ({ name: run.name, value: run[key] })))
-        : null;
+    const attack = buildLeader(
+      teams.map((row) => ({
+        name: row.teams?.short_name || "—",
+        value: row.goals_for,
+      }))
+    );
+    // Fewest conceded, so the values are negated before taking the maximum.
+    const defence = buildLeader(
+      teams.map((row) => ({
+        name: row.teams?.short_name || "—",
+        value: -row.goals_against,
+      }))
+    );
 
-    const attack = teams.length
-      ? buildLeader(
-          teams.map((row) => ({
-            name: row.teams?.short_name || "—",
-            value: row.goals_for,
-          }))
-        )
-      : null;
-    // Fewest conceded, so the comparison is inverted before picking the max.
-    const defence = teams.length
-      ? buildLeader(
-          teams.map((row) => ({
-            name: row.teams?.short_name || "—",
-            value: -row.goals_against,
-          }))
-        )
-      : null;
+    const homeWon = (match) => match.home_goals > match.away_goals;
+
+    const describe = (match) =>
+      `${match.home_team?.short_name || "—"} ${match.home_goals}–${
+        match.away_goals
+      } ${match.away_team?.short_name || "—"}`;
 
     const biggestWin = played.reduce((best, match) => {
       const margin = Math.abs(match.home_goals - match.away_goals);
-      if (margin === 0) return best;
+      if (!margin) return best;
       const total = match.home_goals + match.away_goals;
-      if (!best || margin > best.margin || (margin === best.margin && total > best.total)) {
-        const homeWon = match.home_goals > match.away_goals;
-        return {
-          margin,
-          total,
-          score: `${Math.max(match.home_goals, match.away_goals)}–${Math.min(
-            match.home_goals,
-            match.away_goals
-          )}`,
-          label: `${
-            (homeWon ? match.home_team : match.away_team)?.short_name || "—"
-          } v ${(homeWon ? match.away_team : match.home_team)?.short_name || "—"}`,
-        };
-      }
-      return best;
+      const better =
+        !best ||
+        margin > best.margin ||
+        (margin === best.margin && total > best.total);
+      return better ? { margin, total, match } : best;
+    }, null);
+
+    const highestScoring = played.reduce((best, match) => {
+      const total = match.home_goals + match.away_goals;
+      return !best || total > best.total ? { total, match } : best;
     }, null);
 
     return {
       played: played.length,
       totalGoals,
       average: played.length ? totalGoals / played.length : 0,
-      homeWinShare: played.length ? (homeWins / played.length) * 100 : 0,
       homeWins,
+      draws,
+      awayWins,
       attack,
       defence,
-      winStreak: leaderOf("wins"),
-      unbeaten: leaderOf("unbeaten"),
-      winless: leaderOf("winless"),
-      lossStreak: leaderOf("losses"),
-      biggestWin,
+      biggestWin: biggestWin && {
+        // Winner first, so the headline score and the names below it read in
+        // the same order — "9–0" over "Alto da Guerra 0–9 ADRA Azeda" does
+        // not.
+        value: `${Math.max(
+          biggestWin.match.home_goals,
+          biggestWin.match.away_goals
+        )}–${Math.min(
+          biggestWin.match.home_goals,
+          biggestWin.match.away_goals
+        )}`,
+        note: homeWon(biggestWin.match)
+          ? `${biggestWin.match.home_team?.short_name || "—"} v ${
+              biggestWin.match.away_team?.short_name || "—"
+            }`
+          : `${biggestWin.match.away_team?.short_name || "—"} v ${
+              biggestWin.match.home_team?.short_name || "—"
+            }`,
+      },
+      highestScoring: highestScoring && {
+        value: `${highestScoring.total} golos`,
+        note: describe(highestScoring.match),
+      },
+      open,
+      longest,
     };
   }, [classification, matches]);
 
   if (!stats.played) return null;
 
-  const totals = [
-    { label: "Jogos disputados", value: stats.played },
-    { label: "Golos marcados", value: stats.totalGoals },
-    { label: "Média por jogo", value: formatDecimal(stats.average) },
+  const colors = {
+    good: theme.colors.sports.win,
+    bad: theme.colors.sports.loss,
+    // The crest gold reads brown at this size next to the win green and the
+    // loss red (same reason as the form dots, #180), so this one is amber.
+    warn: theme.colors.sports.cards,
+    goals: theme.colors.sports.goals,
+    neutral: theme.colors.text.primary,
+    accent: theme.colors.accent[600],
+    navy: theme.colors.primary[500],
+  };
+
+  // A run worth zero games is dropped rather than printed: "0 jogos sem
+  // perder" is noise, and it happens whenever every team lost its last match.
+  const runRows = (source) =>
+    RUNS.map(({ key, label }) => {
+      const leader = source[key];
+      if (!leader?.value) return null;
+      return {
+        label,
+        value: formatGames(leader.value),
+        note: leader.label,
+        color:
+          key === "wins" || key === "unbeaten"
+            ? colors.good
+            : key === "losses"
+              ? colors.bad
+              : colors.warn,
+      };
+    }).filter(Boolean);
+
+  const cards = [
     {
-      label: "Vitórias em casa",
-      value: `${Math.round(stats.homeWinShare)}%`,
+      title: "Jogos",
+      rows: [
+        { label: "Disputados", value: stats.played, color: colors.neutral },
+        { label: "Golos", value: stats.totalGoals, color: colors.goals },
+        {
+          label: "Média por jogo",
+          value: formatDecimal(stats.average),
+          color: colors.neutral,
+        },
+        {
+          // Rounded percentages do not always add up to 100, so the counts
+          // they come from are on the line below.
+          label: "Casa · Empate · Fora",
+          value: `${percent(stats.homeWins, stats.played)}% · ${percent(
+            stats.draws,
+            stats.played
+          )}% · ${percent(stats.awayWins, stats.played)}%`,
+          note: `${stats.homeWins} · ${stats.draws} · ${stats.awayWins} jogos`,
+          color: colors.navy,
+        },
+      ],
     },
-  ];
+    {
+      title: "Golos",
+      rows: [
+        stats.attack && {
+          label: "Melhor ataque",
+          value: stats.attack.value,
+          note: stats.attack.label,
+          color: colors.goals,
+        },
+        stats.defence && {
+          label: "Melhor defesa",
+          value: -stats.defence.value,
+          note: stats.defence.label,
+          color: colors.navy,
+        },
+        stats.biggestWin && {
+          label: "Maior goleada",
+          value: stats.biggestWin.value,
+          note: stats.biggestWin.note,
+          color: colors.accent,
+        },
+        stats.highestScoring && {
+          label: "Jogo com mais golos",
+          value: stats.highestScoring.value,
+          note: stats.highestScoring.note,
+          color: colors.accent,
+        },
+      ].filter(Boolean),
+    },
+    {
+      title: "Sequências",
+      // The same four runs twice over, so they are told apart by a subheading
+      // rather than by colour: on top the run each team is still on, below
+      // the longest it reached at any point of the season.
+      groups: [
+        {
+          // "Em curso" would be a lie on a season that has already finished.
+          heading: isCurrentSeason ? "Em curso" : "No fim da época",
+          rows: runRows(stats.open),
+        },
+        { heading: "Maior da época", rows: runRows(stats.longest) },
+      ].filter((group) => group.rows.length),
+    },
+  ].filter((card) => card.rows?.length || card.groups?.length);
 
-  // A record is dropped rather than shown as a zero: "0 jogos sem perder" is
-  // noise, and it happens whenever every team lost its last match.
-  const records = [
-    stats.attack && {
-      label: "Melhor ataque",
-      value: stats.attack.value,
-      note: "golos marcados",
-      team: stats.attack,
-      color: theme.colors.sports.goals,
-    },
-    stats.defence && {
-      label: "Melhor defesa",
-      value: -stats.defence.value,
-      note: "golos sofridos",
-      team: stats.defence,
-      color: theme.colors.primary[500],
-    },
-    stats.biggestWin && {
-      label: "Maior goleada",
-      value: stats.biggestWin.score,
-      note: stats.biggestWin.label,
-      color: theme.colors.accent[600],
-    },
-    stats.winStreak?.value > 0 && {
-      label: "Vitórias seguidas",
-      value: formatGames(stats.winStreak.value),
-      team: stats.winStreak,
-      color: theme.colors.sports.win,
-    },
-    stats.unbeaten?.value > 0 && {
-      label: "Sem perder",
-      value: formatGames(stats.unbeaten.value),
-      team: stats.unbeaten,
-      color: theme.colors.sports.win,
-    },
-    stats.winless?.value > 0 && {
-      label: "Sem ganhar",
-      value: formatGames(stats.winless.value),
-      team: stats.winless,
-      // The crest gold reads brown at this size next to the win green and the
-      // loss red (same reason as the form dots, #180), so this one is amber.
-      color: theme.colors.sports.cards,
-    },
-    stats.lossStreak?.value > 0 && {
-      label: "Derrotas seguidas",
-      value: formatGames(stats.lossStreak.value),
-      team: stats.lossStreak,
-      color: theme.colors.sports.loss,
-    },
-  ].filter(Boolean);
+  const labelStyle = {
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.text.secondary,
+    lineHeight: 1.3,
+  };
 
-  const cardStyle = {
-    backgroundColor: theme.colors.background.card,
-    border: `1px solid ${theme.colors.border.primary}`,
-    borderRadius: theme.borderRadius.lg,
-    padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+  const headingStyle = {
+    fontSize: theme.typography.fontSize.xs,
+    fontWeight: theme.typography.fontWeight.bold,
+    color: theme.colors.text.tertiary,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
   };
 
   // The value shrinks with the viewport instead of switching at a breakpoint,
   // so the same markup serves a 360px phone and a wide desktop.
   const valueStyle = {
-    fontSize: "clamp(1rem, 3.6vw, 1.125rem)",
+    fontSize: "clamp(0.9375rem, 3vw, 1.0625rem)",
     fontWeight: theme.typography.fontWeight.bold,
-    lineHeight: 1.3,
+    lineHeight: 1.25,
   };
 
-  const labelStyle = {
-    fontSize: theme.typography.fontSize.xs,
-    color: theme.colors.text.secondary,
-    fontWeight: theme.typography.fontWeight.medium,
-    textTransform: "uppercase",
-    letterSpacing: "0.04em",
-  };
+  const renderRow = (row, index) => (
+    <div
+      key={row.label}
+      style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1.15fr)",
+        gap: theme.spacing.sm,
+        alignItems: "baseline",
+        padding: `${theme.spacing.xs} 0`,
+        borderTop: index
+          ? `1px solid ${theme.colors.background.secondary}`
+          : "none",
+      }}
+    >
+      <span style={labelStyle}>{row.label}</span>
+      <span style={{ textAlign: "right" }}>
+        <span style={{ ...valueStyle, color: row.color }}>{row.value}</span>
+        {row.note && (
+          <span
+            style={{
+              ...labelStyle,
+              display: "block",
+              color: theme.colors.text.tertiary,
+            }}
+          >
+            {row.note}
+          </span>
+        )}
+      </span>
+    </div>
+  );
+
+  const renderCard = (card) => (
+    <div
+      key={card.title}
+      style={{
+        backgroundColor: theme.colors.background.card,
+        border: `1px solid ${theme.colors.border.primary}`,
+        borderRadius: theme.borderRadius.lg,
+        padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+      }}
+    >
+      <div
+        style={{
+          ...headingStyle,
+          color: theme.colors.text.accent,
+          marginBottom: theme.spacing.xs,
+        }}
+      >
+        {card.title}
+      </div>
+
+      {card.rows?.map(renderRow)}
+
+      {card.groups?.map((group, groupIndex) => (
+        <div
+          key={group.heading}
+          style={{ marginTop: groupIndex ? theme.spacing.sm : 0 }}
+        >
+          <div style={headingStyle}>{group.heading}</div>
+          {group.rows.map(renderRow)}
+        </div>
+      ))}
+    </div>
+  );
+
+  // Sequências carries both groups and is about twice as tall as the other
+  // two, so it gets a column of its own and they share the next one. Side by
+  // side as three equal cards it left a block of empty space under them on a
+  // desktop; stacked in one column the two heights come out close. On a
+  // narrow screen the grid collapses to one column and all three stack, as
+  // they did before.
+  const columns = [
+    cards.filter((card) => !card.groups),
+    cards.filter((card) => card.groups),
+  ].filter((column) => column.length);
 
   return (
     <div style={{ marginTop: theme.spacing.lg }}>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
           gap: theme.spacing.sm,
+          alignItems: "start",
         }}
       >
-        {totals.map((total) => (
+        {columns.map((column) => (
           <div
-            key={total.label}
-            // Label above value, like the record cards below: side by side
-            // the label wraps on a phone and leaves the number stranded on
-            // the first line.
-            style={{ ...cardStyle, display: "flex", flexDirection: "column" }}
+            key={column[0].title}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: theme.spacing.sm,
+            }}
           >
-            <span style={labelStyle}>{total.label}</span>
-            <span
-              style={{
-                ...valueStyle,
-                color: theme.colors.text.primary,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {total.value}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div
-        style={{
-          marginTop: theme.spacing.sm,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
-          gap: theme.spacing.sm,
-        }}
-      >
-        {records.map((record) => (
-          <div key={record.label} style={cardStyle}>
-            <div style={labelStyle}>{record.label}</div>
-            <div style={{ ...valueStyle, color: record.color }}>
-              {record.value}
-            </div>
-            <div
-              style={{
-                fontSize: theme.typography.fontSize.xs,
-                color: theme.colors.text.secondary,
-                lineHeight: 1.35,
-              }}
-            >
-              {record.team ? record.team.label : record.note}
-            </div>
+            {column.map(renderCard)}
           </div>
         ))}
       </div>
@@ -330,8 +459,8 @@ const ClassificationStats = ({ classification, matches = [], theme }) => {
           color: theme.colors.text.tertiary,
         }}
       >
-        Apenas jogos da Liga desta época. As sequências são contadas a partir do
-        último jogo de cada equipa; equipas excluídas ficam de fora.
+        Apenas jogos da Liga desta época. Equipas excluídas e equipas sem jogos
+        ficam de fora dos recordes.
       </p>
     </div>
   );
