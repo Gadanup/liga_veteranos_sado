@@ -386,7 +386,6 @@ const Classification = () => {
 
   // Determine if legend should show based on viewport
   const showLegend = isDesktop;
-  const showStats = isDesktop;
 
   return (
     <div
@@ -445,12 +444,14 @@ const Classification = () => {
             sortOrder={sortOrder}
             onSort={handleSort}
           />
-          {showStats && (
-            <ClassificationStats
-              classification={classification}
-              theme={theme}
-            />
-          )}
+          {/* Shown at every width: the cards reflow on their own, so the
+              season summary is no longer desktop-only. */}
+          <ClassificationStats
+            classification={classification}
+            matches={leagueMatches}
+            isCurrentSeason={!!currentSeasonData?.is_current}
+            theme={theme}
+          />
         </>
       )}
 
