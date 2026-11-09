@@ -68,19 +68,22 @@ const currentRun = (results = [], predicate) => {
 };
 
 /**
- * The teams with the highest value, as "Name" / "A e B" / "A +3". Ties are
- * shown rather than silently resolved — early in a season they are common.
+ * The teams with the highest value, every one of them named. Ties are common
+ * early in a season, and a "+2" would hide the rest behind a tooltip that a
+ * phone cannot open, so the list wraps onto another line instead.
  */
 const buildLeader = (entries) => {
   const best = Math.max(...entries.map((entry) => entry.value));
-  const leaders = entries.filter((entry) => entry.value === best);
-  const names = leaders.map((entry) => entry.name);
+  const names = entries
+    .filter((entry) => entry.value === best)
+    .map((entry) => entry.name);
 
-  let label = names[0];
-  if (names.length === 2) label = `${names[0]} e ${names[1]}`;
-  else if (names.length > 2) label = `${names[0]} +${names.length - 1}`;
+  const label =
+    names.length > 1
+      ? `${names.slice(0, -1).join(", ")} e ${names[names.length - 1]}`
+      : names[0];
 
-  return { value: best, label, title: names.join(", ") };
+  return { value: best, label };
 };
 
 const ClassificationStats = ({ classification, matches = [], theme }) => {
@@ -185,7 +188,6 @@ const ClassificationStats = ({ classification, matches = [], theme }) => {
     {
       label: "Vitórias em casa",
       value: `${Math.round(stats.homeWinShare)}%`,
-      note: `${stats.homeWins} de ${stats.played}`,
     },
   ];
 
@@ -247,6 +249,14 @@ const ClassificationStats = ({ classification, matches = [], theme }) => {
     padding: `${theme.spacing.sm} ${theme.spacing.md}`,
   };
 
+  // The value shrinks with the viewport instead of switching at a breakpoint,
+  // so the same markup serves a 360px phone and a wide desktop.
+  const valueStyle = {
+    fontSize: "clamp(1rem, 3.6vw, 1.125rem)",
+    fontWeight: theme.typography.fontWeight.bold,
+    lineHeight: 1.3,
+  };
+
   const labelStyle = {
     fontSize: theme.typography.fontSize.xs,
     color: theme.colors.text.secondary,
@@ -260,30 +270,25 @@ const ClassificationStats = ({ classification, matches = [], theme }) => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
           gap: theme.spacing.sm,
         }}
       >
         {totals.map((total) => (
           <div
             key={total.label}
-            style={{
-              ...cardStyle,
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              gap: theme.spacing.sm,
-            }}
+            // Label above value, like the record cards below: side by side
+            // the label wraps on a phone and leaves the number stranded on
+            // the first line.
+            style={{ ...cardStyle, display: "flex", flexDirection: "column" }}
           >
             <span style={labelStyle}>{total.label}</span>
             <span
               style={{
-                fontSize: theme.typography.fontSize.lg,
-                fontWeight: theme.typography.fontWeight.bold,
+                ...valueStyle,
                 color: theme.colors.text.primary,
                 whiteSpace: "nowrap",
               }}
-              title={total.note}
             >
               {total.value}
             </span>
@@ -295,32 +300,22 @@ const ClassificationStats = ({ classification, matches = [], theme }) => {
         style={{
           marginTop: theme.spacing.sm,
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
           gap: theme.spacing.sm,
         }}
       >
         {records.map((record) => (
           <div key={record.label} style={cardStyle}>
             <div style={labelStyle}>{record.label}</div>
-            <div
-              style={{
-                fontSize: theme.typography.fontSize.lg,
-                fontWeight: theme.typography.fontWeight.bold,
-                color: record.color,
-                lineHeight: 1.3,
-              }}
-            >
+            <div style={{ ...valueStyle, color: record.color }}>
               {record.value}
             </div>
             <div
               style={{
                 fontSize: theme.typography.fontSize.xs,
                 color: theme.colors.text.secondary,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                lineHeight: 1.35,
               }}
-              title={record.team?.title || record.note}
             >
               {record.team ? record.team.label : record.note}
             </div>
