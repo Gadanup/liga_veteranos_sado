@@ -24,6 +24,7 @@ import {
   EmojiEvents,
 } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 const EditMatchDialog = ({ open, onClose, onSuccess, match }) => {
   const [teams, setTeams] = useState([]);
@@ -48,7 +49,9 @@ const EditMatchDialog = ({ open, onClose, onSuccess, match }) => {
         home_team_id: match.home_team_id || "",
         away_team_id: match.away_team_id || "",
         match_date: match.match_date || "",
-        match_time: match.match_time || "",
+        // the column is a Postgres time ("18:00:00"); an input[type=time]
+        // seeded with the seconds shows a seconds field
+        match_time: formatMatchTime(match.match_time),
         competition_type: match.competition_type || "League",
         round: match.round || "",
         week: match.week || "",

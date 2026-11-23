@@ -4,6 +4,7 @@ import { CalendarToday, LocationOn, AccessTime } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import { theme } from "../../../../styles/theme";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * GroupMatchList Component
@@ -212,7 +213,7 @@ const GroupMatchList = ({ matches, groupName, isMobile }) => {
                           fontWeight: "500",
                         }}
                       >
-                        {match.match_time.slice(0, 5)}
+                        {formatMatchTime(match.match_time)}
                       </Typography>
                     </Box>
                   )}

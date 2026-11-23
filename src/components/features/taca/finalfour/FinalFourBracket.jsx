@@ -4,6 +4,7 @@ import { EmojiEvents, ArrowForward, ArrowBack } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import { theme } from "../../../../styles/theme";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * FinalFourBracket Component
@@ -249,7 +250,7 @@ const FinalFourBracket = ({ semifinal1, semifinal2, final, qualifiers }) => {
               }}
             >
               {dayjs(match.match_date).format("DD/MM/YYYY")}
-              {match.match_time && ` • ${match.match_time.slice(0, 5)}`}
+              {match.match_time && ` • ${formatMatchTime(match.match_time)}`}
             </Typography>
           )}
           {!completed && (

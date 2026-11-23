@@ -22,6 +22,7 @@ import { supabase } from "../../../../lib/supabase";
 import { theme } from "../../../../styles/theme.js";
 import DeleteCupMatchDialog from "./DeleteCupMatchDialog";
 import EditCupMatchDialog from "./EditCupMatchDialog";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * CupMatchCard Component
@@ -307,7 +308,7 @@ const CupMatchCard = ({ match, isAdmin, onUpdate, suspensionsByTeam = {} }) => {
               variant="body2"
               sx={{ color: theme.colors.text.secondary, fontSize: "12px" }}
             >
-              {match.match_time || "Hora a definir"}
+              {formatMatchTime(match.match_time) || "Hora a definir"}
             </Typography>
           </Box>
 
