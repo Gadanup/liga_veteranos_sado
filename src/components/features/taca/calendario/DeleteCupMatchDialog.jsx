@@ -15,6 +15,7 @@ import {
 import { Close, Warning, EmojiEvents } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme";
 import dayjs from "dayjs";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * DeleteCupMatchDialog Component
@@ -181,7 +182,7 @@ const DeleteCupMatchDialog = ({
               sx={{ color: theme.colors.text.secondary }}
             >
               {dayjs(match.match_date).format("DD/MM/YYYY")}
-              {match.match_time && ` • ${match.match_time.slice(0, 5)}`}
+              {match.match_time && ` • ${formatMatchTime(match.match_time)}`}
             </Typography>
           </Box>
 

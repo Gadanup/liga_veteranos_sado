@@ -39,6 +39,7 @@ import dayjs from "dayjs";
 import { supabase } from "../../../lib/supabase";
 import { theme } from "../../../styles/theme.js";
 import CardIcon from "./CardIcon";
+import { formatMatchTime } from "../../../utils/matchTime";
 
 /**
  * EditMatchDialog Component
@@ -457,7 +458,7 @@ const EditMatchDialog = ({
           </Typography>
           <Typography variant="caption" color={theme.colors.text.secondary}>
             {dayjs(matchDetails.match_date).format("DD/MM/YYYY")} •{" "}
-            {matchDetails.match_time}
+            {formatMatchTime(matchDetails.match_time)}
             {" • "}
             {isCup && `Taça - Ronda ${matchDetails.round}`}
             {isLeague && `Campeonato - Jornada ${matchDetails.week}`}

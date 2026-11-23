@@ -18,6 +18,7 @@ import {
   Stadium,
 } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme.js";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * MobileRoundView Component
@@ -126,7 +127,7 @@ const MobileRoundView = ({ title, matches, roundKey, router }) => {
                             fontSize: "11px",
                           }}
                         >
-                          {match.time.slice(0, 5)}
+                          {formatMatchTime(match.time)}
                         </Typography>
                       </Box>
                     )}

@@ -25,6 +25,7 @@ import {
   Groups,
 } from "@mui/icons-material";
 import { theme } from "../../../../styles/theme";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * EditCupMatchDialog Component
@@ -65,7 +66,9 @@ const EditCupMatchDialog = ({
         home_team_id: match.home_team_id || "",
         away_team_id: match.away_team_id || "",
         match_date: match.match_date || "",
-        match_time: match.match_time || "",
+        // the column is a Postgres time ("18:00:00"); an input[type=time]
+        // seeded with the seconds shows a seconds field
+        match_time: formatMatchTime(match.match_time),
         home_goals: match.home_goals !== null ? match.home_goals : "",
         away_goals: match.away_goals !== null ? match.away_goals : "",
         round: match.round || "",

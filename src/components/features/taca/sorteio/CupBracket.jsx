@@ -3,6 +3,7 @@ import { Box } from "@mui/material";
 import { Bracket } from "react-brackets";
 import { theme } from "../../../../styles/theme.js";
 import { createCustomTeamDisplay } from "./TeamDisplay";
+import { formatMatchTime } from "../../../../utils/matchTime";
 
 /**
  * CupBracket Component
@@ -98,7 +99,7 @@ const CupBracket = ({ bracketData, router, isMobile }) => {
             title: "Oitavos de Final",
             seeds: bracketData.round8.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`,
+              date: `${match.date || "TBD"} - ${match.time ? formatMatchTime(match.time) + " -" : ""} ${match.stadium || "TBD"}`,
               teams: [
                 {
                   name: createCustomTeamDisplay(
@@ -125,7 +126,7 @@ const CupBracket = ({ bracketData, router, isMobile }) => {
             title: "Quartos de Final",
             seeds: bracketData.round4.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`,
+              date: `${match.date || "TBD"} - ${match.time ? formatMatchTime(match.time) + " -" : ""} ${match.stadium || "TBD"}`,
               teams: match.sides.map((side) => ({
                 name: createCustomTeamDisplay(side, match.id, router, isMobile),
                 isWinner: side.winner,
@@ -136,7 +137,7 @@ const CupBracket = ({ bracketData, router, isMobile }) => {
             title: "Semifinais",
             seeds: bracketData.round2.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`,
+              date: `${match.date || "TBD"} - ${match.time ? formatMatchTime(match.time) + " -" : ""} ${match.stadium || "TBD"}`,
               teams: [
                 {
                   name: createCustomTeamDisplay(
@@ -163,7 +164,7 @@ const CupBracket = ({ bracketData, router, isMobile }) => {
             title: "Final",
             seeds: bracketData.final.map((match) => ({
               id: match.id,
-              date: `${match.date || "TBD"} - ${match.time ? match.time.slice(0, 5) + " -" : ""} ${match.stadium || "TBD"}`,
+              date: `${match.date || "TBD"} - ${match.time ? formatMatchTime(match.time) + " -" : ""} ${match.stadium || "TBD"}`,
               teams: [
                 {
                   name: createCustomTeamDisplay(
