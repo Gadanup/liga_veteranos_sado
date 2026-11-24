@@ -33,6 +33,8 @@ import {
   FormHelperText,
   Avatar,
   Tooltip,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import {
   Close,
@@ -64,6 +66,9 @@ const emptySuspension = () => ({
   matches_suspended: 1,
   reason: "",
   active: true,
+  // Irradiado: exclusão total, não medida em jogos. Lives on `players`, not
+  // on the suspension — see docs/db/09_player_exclusion_flag.sql.
+  excluded: false,
 });
 
 const emptyPunishment = () => ({
@@ -145,7 +150,7 @@ const EnhancedDisciplineModal = ({
     try {
       const { data, error } = await supabase
         .from("players")
-        .select("id, name, photo_url, transferDate, previousClub")
+        .select("id, name, photo_url, transferDate, previousClub, excluded")
         .eq("team_id", currentTeam.team_id)
         .order("name");
 
@@ -270,7 +275,7 @@ const EnhancedDisciplineModal = ({
           matches_suspended,
           reason,
           active,
-          players (name)
+          players (name, excluded)
         `
         )
         .eq("season", selectedSeason)
@@ -300,7 +305,7 @@ const EnhancedDisciplineModal = ({
             matches_suspended,
             reason,
             active,
-            players (name)
+            players (name, excluded)
           `
           )
           .eq("season", selectedSeason)
@@ -323,6 +328,9 @@ const EnhancedDisciplineModal = ({
         allSuspensions.map((s) => ({
           ...s,
           player_name: s.players?.name,
+          // Comes from the embed and not from `players` state, so a player
+          // who has since transferred away still shows as irradiado.
+          player_excluded: !!s.players?.excluded,
         }))
       );
     } catch (error) {
@@ -363,6 +371,7 @@ const EnhancedDisciplineModal = ({
       matches_suspended: suspension.matches_suspended ?? 1,
       reason: suspension.reason || "",
       active: !!suspension.active,
+      excluded: !!suspension.player_excluded,
     });
     setSuspensionDialog(true);
   };
@@ -410,12 +419,19 @@ const EnhancedDisciplineModal = ({
     const isEdit = Boolean(editingSuspensionId);
     setLoading(true);
     try {
+      const isExcluded = !!newSuspension.excluded;
+
       const values = {
         player_id: newSuspension.player_id,
         suspension_date: newSuspension.suspension_date,
-        // The number field is empty, not 0, while the admin retypes it, and
+        // An exclusion is not a number of games — the sanction is the
+        // exclusion itself (Regulamento art. 8), so the count goes to 0 and
+        // `players.excluded` carries the meaning. Otherwise: the number
+        // field is empty, not 0, while the admin retypes it, and
         // parseInt("") is NaN — which Postgres rejects.
-        matches_suspended: Number(newSuspension.matches_suspended) || 1,
+        matches_suspended: isExcluded
+          ? 0
+          : Number(newSuspension.matches_suspended) || 1,
         reason: newSuspension.reason,
         active: newSuspension.active,
       };
@@ -430,6 +446,24 @@ const EnhancedDisciplineModal = ({
             .insert({ ...values, season: selectedSeason });
 
       if (error) throw error;
+
+      // Second write, on purpose: the flag belongs to the player, not to one
+      // sanction. A DB trigger turns it into the team's exclusion from the
+      // Taça Disciplina (docs/db/09_player_exclusion_flag.sql).
+      const { error: playerError } = await supabase
+        .from("players")
+        .update({ excluded: isExcluded })
+        .eq("id", newSuspension.player_id);
+
+      if (playerError) throw playerError;
+
+      // Keep the local list in step so the switch seeds correctly if the
+      // dialog is reopened, without the cost of refetching every player.
+      setPlayers((prev) =>
+        prev.map((p) =>
+          p.id === newSuspension.player_id ? { ...p, excluded: isExcluded } : p
+        )
+      );
 
       showSnackbar(
         isEdit
@@ -1075,10 +1109,16 @@ const EnhancedDisciplineModal = ({
                       </TableCell>
                       <TableCell>
                         <Chip
-                          label={suspension.matches_suspended}
+                          label={
+                            suspension.player_excluded
+                              ? "Irradiado"
+                              : suspension.matches_suspended
+                          }
                           size="small"
                           sx={{
-                            backgroundColor: theme.colors.primary[600],
+                            backgroundColor: suspension.player_excluded
+                              ? theme.colors.sports.loss
+                              : theme.colors.primary[600],
                             color: "white",
                             fontWeight: 600,
                             borderRadius: "8px",
@@ -1918,6 +1958,10 @@ const EnhancedDisciplineModal = ({
                   ...newSuspension,
                   player_id: value?.id ?? null,
                   player_name: value?.name ?? "",
+                  // Seed the switch from the player, so saving a second
+                  // suspension for someone already irradiado does not
+                  // silently clear the flag.
+                  excluded: !!value?.excluded,
                 })
               }
               renderOption={(props, option) => (
@@ -1978,21 +2022,62 @@ const EnhancedDisciplineModal = ({
             <TextField
               label="Jogos Suspensos"
               type="number"
-              value={newSuspension.matches_suspended}
+              value={
+                newSuspension.excluded ? "" : newSuspension.matches_suspended
+              }
               onChange={(e) =>
                 setNewSuspension({
                   ...newSuspension,
                   matches_suspended: parseInt(e.target.value),
                 })
               }
-              required
+              required={!newSuspension.excluded}
+              disabled={newSuspension.excluded}
               inputProps={{ min: 1 }}
+              helperText={
+                newSuspension.excluded
+                  ? "Uma exclusão não se conta em jogos"
+                  : undefined
+              }
               sx={{
                 "& .MuiOutlinedInput-root": {
                   borderRadius: "12px",
                 },
               }}
             />
+            <Box
+              sx={{
+                border: `1px solid ${
+                  newSuspension.excluded
+                    ? theme.colors.sports.loss
+                    : theme.colors.border.purple
+                }`,
+                borderRadius: "12px",
+                px: 2,
+                py: 1,
+              }}
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={newSuspension.excluded}
+                    onChange={(e) =>
+                      setNewSuspension({
+                        ...newSuspension,
+                        excluded: e.target.checked,
+                      })
+                    }
+                  />
+                }
+                label="Irradiado (exclusão total)"
+                sx={{ m: 0, minHeight: 44 }}
+              />
+              <FormHelperText sx={{ m: 0 }}>
+                Exclui o jogador do Torneio e, com ele, a equipa da Taça
+                Disciplina (Regulamento art. 8). Não é preciso lançar jogos de
+                castigo.
+              </FormHelperText>
+            </Box>
             <TextField
               label="Motivo"
               multiline
