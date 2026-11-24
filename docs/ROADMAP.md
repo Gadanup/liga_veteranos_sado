@@ -19,7 +19,7 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 |---|---|---|
 | Insert the 2026/27 **cup** fixtures — knockout this season (`cup_group_stage = false`), waiting on the draw | Claudio | League fixtures are in: 182 matches, season opened 10/10, matchweek 1 played. No cup match exists yet. |
 | Quick fix: `start_year/end_year` in cup views (B14) | Claudio | [`backlog.md`](backlog.md) B14 · the two #127/#122 regressions in this row were taken by Ricardo |
-| Correr `docs/db/08_discipline_exclusion_flag.sql` em produção — o castigo "Excluido Taça Disciplina" não activa a flag (B21) | Ricardo | [`backlog.md`](backlog.md) B21 · script e rollback escritos e verificados contra os dados reais; falta a execução (backup primeiro) |
+| *free slot* | Ricardo | pick from NEXT |
 
 ---
 
@@ -76,6 +76,9 @@ Step IDs are used in branch names (`<type>/<step>-<desc>`). Item IDs (B1, M3…)
 
 | Date | What | PR / ref |
 |---|---|---|
+| 2026-11-24 | Disciplina: `players.excluded` replaces the 20/30/100-game sentinel for an expelled player — an "Irradiado (exclusão total)" switch in the suspension dialog, "Irradiado" in the list instead of a number, and the team's Taça Disciplina exclusion derived from it (Regulamento art. 8). The sentinel was also being charged as 30 match suspensions: 750 of Alto da Guerra's 810 disciplinary points. `docs/db/09_…` applied to production on 2026-11-24, all three parts (B22) | #186 |
+| 2026-11-24 | Disciplina: the "Excluido Taça Disciplina" punishment now actually excludes — `discipline_standings.excluded` had no writer at all, so the 0-point punishment did nothing. Derived both ways by a trigger, current season only; closed seasons keep their hand-set flags. `docs/db/08_…` applied to production on 2026-11-24 (B21) | #185 |
+| 2026-11-23 | Match times show as `HH:mm` everywhere — the Postgres `time` column rendered as `14:45:00` in the calendar and cup cards, the delete and edit dialogs, the brackets and the mobile round view; `formatMatchTime` unified 6 ad-hoc `.slice(0, 5)` sites, and the edit dialogs no longer seed `input[type=time]` with seconds | #184 |
 | 2026-11-09 | Classificação (desktop): the summary under the table drops `Total de Equipas` and the round count for season records — games played, goals, goals per game, home-win share, best attack and defence, biggest win, and the current runs (wins, unbeaten, winless, losses). Computed from the matches the page already loads; compact cards instead of the three large ones | #183 |
 | 2026-11-09 | Disciplina: the management modal can now edit and delete existing suspensions and punishments (before it could only create, mark a suspension served and delete a punishment); deletions ask in a proper dialog instead of `window.confirm`. Still admin-only in the UI and behind the `admin_write` RLS policy | #182 |
 | 2026-11-08 | Menu lateral: the Liga and Taça sections no longer repeat their own header — the first item is named after the page it opens (Classificação, Sorteio); `labelClosed` keeps the collapsed rail reading Liga/Taça | #181 |

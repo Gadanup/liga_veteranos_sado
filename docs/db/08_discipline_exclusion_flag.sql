@@ -1,6 +1,6 @@
 -- =====================================================================
 -- Liga Veteranos do Sado — "Excluido Taça Disciplina" passa a activar a
--- flag de exclusão                                 PROPOSTA, NÃO APLICADA
+-- flag de exclusão                           APLICADO EM PRODUÇÃO 2026-11-24
 -- ---------------------------------------------------------------------
 -- Problema, medido hoje:
 --
@@ -64,7 +64,10 @@
 -- RISCO: baixo. Uma função nova, um trigger novo, e um UPDATE que muda um
 -- valor. Rollback: docs/db/08_discipline_exclusion_flag_rollback.sql
 --
--- Antes de correr: backup (CLAUDE.md § Safety).
+-- APLICADO em 2026-11-24, autorizado pelo Ricardo. Verificado depois:
+-- 2024 -> 5 excluídas, 2025 -> 3, 2026 -> 1 (Alto da Guerra), trigger
+-- presente. Snapshot prévio das tabelas tocadas em ../../../backups/
+-- 2026-11-24_pre08-09_*.json (fora do repo).
 -- =====================================================================
 
 begin;

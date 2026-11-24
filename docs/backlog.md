@@ -390,6 +390,20 @@ group by 1, 2 order by 1, 2;
 
 ---
 
+#### `[B22]` Não há flag de irradiado no jogador — a exclusão é lançada como 30 jogos
+
+`🟠 Alto` `Base de dados` `M` `Risco médio` · step **2.2.1** · ✅ Verified 2026-11-24
+
+**Problem.** Não existe maneira de registar que um jogador foi irradiado, por isso a prática é meter um número de jogos alto o suficiente para chegar ao fim da época. O valor-sentinela nunca expira (há 6 suspensões de 2024 ainda `active = true`), a UI mostra "30" onde devia dizer "Irradiado", e — pior — o castigo é cobrado à equipa como se fossem 30 jogos de castigo a 25 pontos.
+
+**Evidence.** Época corrente: `suspensions` → Bruno Basílio, 30 jogos, `active = true`, "Vermelho Directo (Irradiado)"; `team_punishments` → `Jogo Castigo x30 = 750 pontos`. O Alto da Guerra tem 810 pontos na Taça Disciplina, 750 dos quais são o sentinela. `information_schema` → `players` não tem coluna `excluded`. É exactamente o que a nota no topo de `06_discipline_rules.sql` avisava: "as exclusões (irradiados) NÃO entram nos 25 pontos por jogo".
+
+**Fix.** `docs/db/09_player_exclusion_flag.sql`: `players.excluded`, a exclusão da equipa passa a derivar também dela (art. 8), trigger em `players`, e marcação do caso actual com o sentinela normalizado a 0. Os 750 pontos ficam numa PARTE 3 separada, por mudarem a Taça Disciplina da época corrente. Na UI (`EnhancedDisciplineModal.jsx`): switch "Irradiado (exclusão total)" no diálogo de suspensão, campo de jogos desactivado, e chip "Irradiado" na lista em vez do número.
+
+**Notes.** A UI só funciona depois da PARTE 1 do script correr — sem a coluna, o `select` dos jogadores falha. Épocas fechadas não são tocadas, pelo mesmo motivo de `[B21]`. Depende de `[B21]` (08).
+
+---
+
 #### `[B21]` O castigo "Excluido Taça Disciplina" não exclui ninguém
 
 `🟠 Alto` `Base de dados` `S` `Risco baixo` · step **2.2.1** · ✅ Verified 2026-11-24
