@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "12.2.3"
   }
   public: {
     Tables: {
@@ -481,6 +481,7 @@ export type Database = {
           appearances: number | null
           assists: number | null
           birthdate: string | null
+          excluded: boolean
           goals: number | null
           height: number | null
           id: number
@@ -501,6 +502,7 @@ export type Database = {
           appearances?: number | null
           assists?: number | null
           birthdate?: string | null
+          excluded?: boolean
           goals?: number | null
           height?: number | null
           id?: number
@@ -521,6 +523,7 @@ export type Database = {
           appearances?: number | null
           assists?: number | null
           birthdate?: string | null
+          excluded?: boolean
           goals?: number | null
           height?: number | null
           id?: number
@@ -1052,6 +1055,10 @@ export type Database = {
       }
     }
     Functions: {
+      apply_discipline_exclusion: {
+        Args: { p_season: number; p_team_id: number }
+        Returns: undefined
+      }
       get_group_standings_for_season: {
         Args: { p_group_name?: string; p_season: number }
         Returns: {
@@ -1096,6 +1103,7 @@ export type Database = {
           team_name: string
         }[]
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

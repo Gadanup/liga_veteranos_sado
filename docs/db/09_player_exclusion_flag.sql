@@ -1,8 +1,13 @@
 -- =====================================================================
 -- Liga Veteranos do Sado — flag de exclusão no jogador (irradiado)
---                                                   PROPOSTA, NÃO APLICADA
+--                                         APLICADO EM PRODUÇÃO 2026-11-24
 -- ---------------------------------------------------------------------
 -- Depende de docs/db/08_discipline_exclusion_flag.sql (corre o 08 primeiro).
+--
+-- As TRÊS PARTES foram corridas em 2026-11-24, autorizadas pelo Ricardo
+-- ("podes avançar então com tudo"), incluindo a PARTE 3. Snapshot prévio
+-- em ../../../backups/2026-11-24_pre08-09_*.json (fora do repo).
+-- Resultado verificado no fim deste ficheiro.
 --
 -- ---------------------------------------------------------------------
 -- Problema
@@ -41,7 +46,8 @@
 --           o castigo tipo 8 na equipa.
 --  PARTE 2  Marca o Bruno Basílio e normaliza o sentinela de 30 para 0.
 --  PARTE 3  Apaga os 750 pontos. SEPARADA DE PROPÓSITO: muda a Taça
---           Disciplina da época corrente. Decisão do Ricardo.
+--           Disciplina da época corrente. Decisão do Ricardo — tomada em
+--           2026-11-24: apagar.
 --
 -- RISCO: PARTE 1 baixo (coluna nova com default false, função e trigger).
 --        PARTE 2 baixo, 2 linhas. PARTE 3 muda pontos publicados.
@@ -194,7 +200,7 @@ commit;
 
 
 -- #####################################################################
--- PARTE 3 — os 750 pontos             CORRER SÓ DEPOIS DE DECIDIR
+-- PARTE 3 — os 750 pontos                      DECIDIDO E CORRIDO 2026-11-24
 -- ---------------------------------------------------------------------
 -- Apaga a linha 'Jogo Castigo' x30 do Alto da Guerra, que cobra a
 -- exclusão como se fossem 30 jogos de castigo. Mantém a x1 (25 pontos),
@@ -215,14 +221,31 @@ commit;
 --    and tp.quantity > 5;
 -- #####################################################################
 
--- delete from public.team_punishments
---  where punishment_type_id = 9
---    and season = (select id from public.seasons where is_current)
---    and quantity > 5;
+-- Corrido em 2026-11-24 dentro de begin/commit. Apagou 1 linha: a 197,
+-- team_id 47, quantity 30, 'Vermelho Directo'. Medido depois: o Alto da
+-- Guerra passou de other_punishments 775 / calculated_points 810 para
+-- 25 / 60, com os cartões e os jogos intactos (3 am, 1 vm, 7 jogos).
+begin;
+
+delete from public.team_punishments
+ where punishment_type_id = 9
+   and season = (select id from public.seasons where is_current)
+   and quantity > 5;
+
+commit;
 
 
 -- =====================================================================
 -- Verificar DEPOIS de correr
+-- ---------------------------------------------------------------------
+-- Medido em 2026-11-24, depois de correr:
+--   players.excluded = true  -> 1 jogador, Bruno Basílio (e só ele)
+--   suspensions              -> 30 jogos passaram a 0
+--   Alto da Guerra 2026      -> excluded = true, 810 pontos -> 60
+--   época 2026 no total      -> 1770 pontos -> 1020 (exactamente os 750),
+--                               103 amarelos / 3 vermelhos / 98 jogos iguais
+--   épocas 2024 e 2025       -> idênticas ao snapshot, linha por linha
+--                               (4970/319/36/448/5 e 4285/301/19/342/3)
 -- =====================================================================
 -- (a) O jogador está marcado e a equipa saiu da Taça Disciplina:
 --
