@@ -390,6 +390,20 @@ group by 1, 2 order by 1, 2;
 
 ---
 
+#### `[B21]` O castigo "Excluido Taça Disciplina" não exclui ninguém
+
+`🟠 Alto` `Base de dados` `S` `Risco baixo` · step **2.2.1** · ✅ Verified 2026-11-24
+
+**Problem.** `punishment_type_id = 8` ('Excluido Taça Disciplina', `points_added = 0`) só grava a ocorrência em `team_punishments`. A coluna que a aplicação lê para marcar a equipa, `discipline_standings.excluded`, não é escrita por ninguém: o trigger `update_discipline_standings()` mexe em `yellow_cards`, `red_cards`, `matches_played` e `other_punishments` e nunca em `excluded`; a aplicação também não a escreve. Os valores que lá estão foram postos à mão. Como o castigo vale 0 pontos, lançá-lo não tem hoje efeito nenhum: a equipa continua a aparecer classificada.
+
+**Evidence.** `pg_get_functiondef('update_discipline_standings')` em produção — nenhum `set excluded`; `grep -rn "excluded" src` → só leituras (`useDisciplineData.js:33`, `DisciplineCard.jsx:16`). Dados: Alto da Guerra 2026 tem o castigo tipo 8 ("Jogador Bruno Basilio irradiado") e `excluded = false`. Das 9 exclusões marcadas à mão, 4 não têm castigo tipo 8 (Pontes 2024; Amarelos, Pontes e Santo Ovidio 2025) — por isso a flag não pode ser derivada às cegas sobre o histórico.
+
+**Fix.** `docs/db/08_discipline_exclusion_flag.sql`: função `apply_discipline_exclusion(team, season)` + trigger em `team_punishments`, nos dois sentidos (lançar exclui, apagar ou mudar de tipo deixa de excluir), e backfill **só da época corrente** — 1 valor muda. As épocas fechadas ficam como foram publicadas (decisão da direção de 2026-10-02). Fonte regulamentar: Regulamento art. 8, "a exclusão de um jogador do Torneio implica a eliminação da equipa na Taça Disciplina".
+
+**Notes.** Não mexe em `teams.excluded`, que é outra coisa (equipa fora da Liga, lida pela classificação). Fica à margem de `[B16]`/`[N5]`, que reescrevem `update_discipline_standings()` por inteiro em `06_discipline_rules.sql` PARTE 2 — ainda não aplicado.
+
+---
+
 #### `[B14]` Cup views pedem colunas `start_year`/`end_year` que não existem
 
 `🟠 Alto` `Código` `S` `Risco baixo` · step **0.2.2** · ✅ Verified 2026-09-29

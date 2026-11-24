@@ -19,7 +19,7 @@ Doc map: [`README.md`](README.md) · backlog: [`backlog.md`](backlog.md) · refe
 |---|---|---|
 | Insert the 2026/27 **cup** fixtures — knockout this season (`cup_group_stage = false`), waiting on the draw | Claudio | League fixtures are in: 182 matches, season opened 10/10, matchweek 1 played. No cup match exists yet. |
 | Quick fix: `start_year/end_year` in cup views (B14) | Claudio | [`backlog.md`](backlog.md) B14 · the two #127/#122 regressions in this row were taken by Ricardo |
-| *free slot* | Ricardo | pick from NEXT |
+| Correr `docs/db/08_discipline_exclusion_flag.sql` em produção — o castigo "Excluido Taça Disciplina" não activa a flag (B21) | Ricardo | [`backlog.md`](backlog.md) B21 · script e rollback escritos e verificados contra os dados reais; falta a execução (backup primeiro) |
 
 ---
 
